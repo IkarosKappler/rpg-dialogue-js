@@ -25,6 +25,13 @@
       }
     ]
   },
+  "xxx3": {
+    "q": "Ok, you seem like your sea has been rough recently. Already thought you might be some selfish mud eel.",
+    "o": [
+      { "a": "Be careful what you say.", "next": "xxx2" },
+      { "a": "I just arrived and could need some help with my ... ehm, ship.", "next": "xxx5" }
+    ]
+  },
   "xxx2": {
     "q": "Oohkay, oohkay. Not me trying to help a stranger.",
     "o": [{ "a": "Bye.", "next": "xxx4" }]
@@ -69,7 +76,10 @@
   },
   "xxx8": {
     "q": "You're really not from here. Well, good luck friend.",
-    "o": [{ "a": "Same to you!", "next": "FINAL" }]
+    "o": [
+      { "a": "Same to you!", "next": "FINAL" },
+      { "a": "Sigh.", "next": "FINAL" }
+    ]
   },
   "xxx9": {
     "q": "You call that wreckage a ship?",
