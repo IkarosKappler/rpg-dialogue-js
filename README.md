@@ -14,7 +14,7 @@ Live example: https://www.int2byte.de/public/rpg-dialogue/dist/tests/test-dialog
 ```JSON
 {
   "intro": {
-    "q": "Light, stranger! I haven't seen <i>your</i> face here before. New to the region?",
+    "q": "Light, stranger! I haven't seen <i>your</i> face here before. New to Humboldt Haven?",
     "o": [
       { "a": "Hello. That's because I just arrived.", "next": "xxx0" },
       { "a": "Light! My ... ehm, ship ... has a battery problem", "next": "xxx5" },
@@ -37,6 +37,13 @@ Live example: https://www.int2byte.de/public/rpg-dialogue/dist/tests/test-dialog
         "a": "Oh, how creative, <i>Whale lice</i> – because I came with a freighter. Seems I met the station's joker.",
         "next": "xxx2"
       }
+    ]
+  },
+  "xxx3": {
+    "q": "Ok, you seem like your sea has been rough recently. Already thought you might be some selfish mud eel.",
+    "o": [
+      { "a": "Be careful what you say.", "next": "xxx2" },
+      { "a": "I just arrived and could need some help with my ... ehm, ship.", "next": "xxx5" }
     ]
   },
   "xxx2": {
@@ -83,7 +90,10 @@ Live example: https://www.int2byte.de/public/rpg-dialogue/dist/tests/test-dialog
   },
   "xxx8": {
     "q": "You're really not from here. Well, good luck friend.",
-    "o": [{ "a": "Same to you!", "next": "FINAL" }]
+    "o": [
+      { "a": "Same to you!", "next": "FINAL" },
+      { "a": "Sigh.", "next": "FINAL" }
+    ]
   },
   "xxx9": {
     "q": "You call that wreckage a ship?",
@@ -115,5 +125,6 @@ Live example: https://www.int2byte.de/public/rpg-dialogue/dist/tests/test-dialog
   },
   "FINAL": null
 }
+
 
 ```
