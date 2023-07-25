@@ -7,7 +7,9 @@ A simple RPG non-linear dialogue engine.
 Load some JSON file into your app.
 Have a smooth dialogue logic for NPC characters.
 
-Example
+## Example
+
+Live example: https://www.int2byte.de/public/rpg-dialogue/dist/tests/test-dialogue.html
 
 ```JSON
 {
