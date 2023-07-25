@@ -2,7 +2,6 @@
 node_modules
 package-lock.json
 tmp/
-resources/
 _*
 dist/lib/three/examples/jsm/postprocessing/
 dist/lib/three/examples/jsm/shaders/
