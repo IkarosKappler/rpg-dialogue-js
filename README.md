@@ -25,7 +25,7 @@ Live example: https://www.int2byte.de/public/rpg-dialogue/dist/tests/test-dialog
     "q": "Friendly arrivals are always welcome. Have a look around.",
     "o": [
       { "a": "Thanks. Do you know some ship repair?", "next": "xxx6" },
-      { "a": "Is this station safe? I mean, your lock hydraulics seems a bit ... icky.", "next": "xxx5" },
+      { "a": "Is this station safe? I mean, your lock hydraulics seems a bit ... icky.", "next": "xxx5" }
     ]
   },
   "xxx1": {
@@ -76,7 +76,10 @@ Live example: https://www.int2byte.de/public/rpg-dialogue/dist/tests/test-dialog
   },
   "xxx7": {
     "q": "Asmussen with you.",
-    "o": [{ "a": "Who?", "next": "xxx8" }]
+    "o": [
+      { "a": "Who?", "next": "xxx8" },
+      { "a": "Asmussen with you.", "next": "FINAL" }
+    ]
   },
   "xxx8": {
     "q": "You're really not from here. Well, good luck friend.",

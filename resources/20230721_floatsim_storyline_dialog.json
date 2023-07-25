@@ -62,7 +62,10 @@
   },
   "xxx7": {
     "q": "Asmussen with you.",
-    "o": [{ "a": "Who?", "next": "xxx8" }]
+    "o": [
+      { "a": "Who?", "next": "xxx8" },
+      { "a": "Asmussen with you.", "next": "FINAL" }
+    ]
   },
   "xxx8": {
     "q": "You're really not from here. Well, good luck friend.",
