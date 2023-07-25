@@ -16,9 +16,16 @@ Live example: https://www.int2byte.de/public/rpg-dialogue/dist/tests/test-dialog
   "intro": {
     "q": "Light, stranger! I haven't seen <i>your</i> face here before. New to the region?",
     "o": [
-      { "a": "Hello. That's because I just arrived." },
+      { "a": "Hello. That's because I just arrived.", "next": "xxx0" },
       { "a": "Light! My ... ehm, ship ... has a battery problem", "next": "xxx5" },
       { "a": "I have no idea why <i>you</i> should you bother.", "next": "xxx1" }
+    ]
+  },
+  "xxx0": {
+    "q": "Friendly arrivals are always welcome. Have a look around.",
+    "o": [
+      { "a": "Thanks. Do you know some ship repair?", "next": "xxx6" },
+      { "a": "Is this station safe? I mean, your lock hydraulics seems a bit ... icky.", "next": "xxx5" },
     ]
   },
   "xxx1": {
