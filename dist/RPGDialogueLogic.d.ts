@@ -9,7 +9,7 @@ export declare class RPGDialogueLogic {
     structure: IDialogueStructure;
     private currentQuestionaire;
     constructor(dialogueStruct: IDialogueStructure, validateStructure: boolean);
-    loadCurrentQuestionaire(setQuestionText: (questionText: string) => HTMLElement, addOptionNode: (answerText: string, index: number) => HTMLElement): boolean;
+    loadCurrentQuestionaire(setQuestionText: (questionText: string) => void, addOptionNode: (answerText: string, index: number) => void): boolean;
     /**
      * Get the current mini questionaire or null if no current or next questionaire is available.
      * @returns
@@ -34,6 +34,23 @@ export declare class RPGDialogueLogic {
      * Check if the current dialogue is still valid or reached its end.
      */
     private validate;
+    /**
+     * This is a convenient function for quickly integrating the dialogue logic into
+     * an existing HTML document with prepared two <div> elements for displaying
+     * the question and possible answers.
+     *
+     * @param {string} questionNodeId
+     * @param {string} optionsNodeId
+     * @returns
+     */
+    beginConversation(questionNodeId: string, optionsNodeId: string): Promise<boolean>;
+    /**
+     * Load the dialogue structure from the JSON document at the given path.
+     *
+     * @param {string} path
+     * @returns {Promise<RPGDialogueLogic>}
+     */
+    static loadStructureFromJSON(path: string): Promise<IDialogueStructure>;
     /**
      * Load the dialogue structure from the JSON document at the given path.
      *

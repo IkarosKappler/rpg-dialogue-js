@@ -23,8 +23,8 @@ export class RPGDialogueLogic {
   }
 
   loadCurrentQuestionaire(
-    setQuestionText: (questionText: string) => HTMLElement,
-    addOptionNode: (answerText: string, index: number) => HTMLElement
+    setQuestionText: (questionText: string) => void,
+    addOptionNode: (answerText: string, index: number) => void
   ): boolean {
     if (this.currentQuestionaire) {
       setQuestionText(this.currentQuestionaire.q);
@@ -94,21 +94,90 @@ export class RPGDialogueLogic {
   }
 
   /**
+   * This is a convenient function for quickly integrating the dialogue logic into
+   * an existing HTML document with prepared two <div> elements for displaying
+   * the question and possible answers.
+   *
+   * @param {string} questionNodeId
+   * @param {string} optionsNodeId
+   * @returns
+   */
+  beginConversation(questionNodeId: string, optionsNodeId: string): Promise<boolean> {
+    return new Promise<boolean>((accept, reject) => {
+      const questionNode = document.getElementById(questionNodeId);
+      const optionsNode = document.getElementById(optionsNodeId);
+
+      /**
+       * Set the text in the question node.
+       * @param {*} questionText
+       */
+      const setQuestionText = (questionText: string) => {
+        questionNode.innerHTML = questionText;
+      };
+
+      /**
+       * Clear the options node. Just for upper level use here.
+       */
+      var clearOptionsNode = function () {
+        optionsNode.innerHTML = "";
+      };
+
+      /**
+       * Add a new option node with the given answer text and option index. Use
+       * the option index to send the answer.
+       *
+       * @param {*} answerText
+       * @param {*} optionIndex
+       */
+      var addOptionNode = function (answerText, optionIndex) {
+        var answerNode = document.createElement("li");
+        var answerLinkNode = document.createElement("a");
+        answerLinkNode.innerHTML = answerText;
+        answerLinkNode.setAttribute("href", "#");
+        answerLinkNode.addEventListener("click", function () {
+          sendAnswer(optionIndex);
+        });
+        answerNode.appendChild(answerLinkNode);
+        optionsNode.appendChild(answerNode);
+      };
+
+      const _self = this;
+
+      /**
+       * Send the selected answer (by index).
+       * @param {number} index
+       */
+      var sendAnswer = function (index) {
+        _self.sendAnswer(index);
+        if (_self.isEndReached()) {
+          setQuestionText("---END OF CONVERSATION---");
+          clearOptionsNode();
+        }
+        clearOptionsNode();
+        _self.loadCurrentQuestionaire(setQuestionText, addOptionNode);
+      };
+
+      // Initialize the first question.
+      _self.loadCurrentQuestionaire(setQuestionText, addOptionNode);
+    });
+  }
+
+  /**
    * Load the dialogue structure from the JSON document at the given path.
    *
    * @param {string} path
    * @returns {Promise<RPGDialogueLogic>}
    */
-  static loadFromJSON(path: string): Promise<RPGDialogueLogic> {
+  static loadStructureFromJSON(path: string): Promise<IDialogueStructure> {
     console.log("axios", axios);
-    return new Promise<RPGDialogueLogic>((accept: (dialogueStruct: RPGDialogueLogic) => void, reject: () => void) => {
+    return new Promise<IDialogueStructure>((accept: (dialogueStruct: IDialogueStructure) => void, reject: () => void) => {
       axios
         .get(path)
         .then(function (response) {
           // handle success
           console.log(response);
           // Validate response data?
-          accept(new RPGDialogueLogic(response.data, true));
+          accept(response.data);
         })
         .catch(function (error) {
           // handle error
@@ -118,6 +187,20 @@ export class RPGDialogueLogic {
         .finally(function () {
           // always executed
         });
+    });
+  }
+
+  /**
+   * Load the dialogue structure from the JSON document at the given path.
+   *
+   * @param {string} path
+   * @returns {Promise<RPGDialogueLogic>}
+   */
+  static loadFromJSON(path: string): Promise<RPGDialogueLogic> {
+    return new Promise<RPGDialogueLogic>((accept: (dialogueStruct: RPGDialogueLogic) => void, reject: () => void) => {
+      RPGDialogueLogic.loadStructureFromJSON(path).then((struct: IDialogueStructure) => {
+        accept(new RPGDialogueLogic(struct, true));
+      });
     });
   }
 }
