@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html> 
+<head> 
+    <meta charset="UTF-8">
+    <title>RPG Dialigue Test</title> 
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="plotboilerplate.css" />
+    <script src="../module.js"></script>
+    
+    <script src="../../lib/globalthis-polyfill.min.js"></script> 
+    <script src="../../lib/path2d-polyfill.min.js"></script>
+    
+    <script src="../../lib/dat.gui.min.js"></script>
+    <script src="../../lib/FileSaver.min.js"></script>
+    <script src="../../lib/Color.js"></script>
+    <script src="../tests/libs/alloy_finger.js"></script>
+
+    <script src="../../src/cjs/utils/creategui.js"></script>
+    <script src="../../src/cjs/utils/module.js"></script>
+    <script src="detectDarkMode.js"></script>
+    <!-- <script src="libs/plotboilerplate/src/cjs/utils/gup.js"></script> -->
+    <script src="../gup.js"></script>
+    <script src="../detectDarkMode.js"></script>
+
+    <script src="libs/plotboilerplate/dist/plotboilerplate.min.js"></script>
+    
+    <script>
+        // var exports = globalThis;
+    </script>
+    <script src="libs/axios/dist/axios.js"></script>
+    <!-- <script src="https://unpkg.com/axios/dist/axios.min.js"></script> -->
+
+    <script>
+        console.log("axios", axios);
+        exports["Axios"] = axios;
+        console.log("exports", exports)
+    </script>
+    <script src="../RPGDialogueLogic.js"></script>
+    <script src="../editorHelpers.js"></script>
+    <script src="../editorRenderer.js"></script>
+
+    <script src="../Editor.js"></script>
+    <script src="../index.js"></script>
+    <script src="editor.js"></script> 
+</head>
+
+<body> 
+    <canvas id="my-canvas" width="1024" height="768">Your browser does not support the canvas tag.</canvas>
+</body> 
+</html>

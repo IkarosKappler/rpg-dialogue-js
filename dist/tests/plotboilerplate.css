@@ -1,0 +1,18 @@
+html, body {
+    width              : 100%;
+    height             : 100%;
+    padding            : 0;
+    margin             : 0;
+    border             : 0;
+}
+
+html.fullscreen, body.fullscreen {
+    width              : 100%;
+    height             : 100%;
+    overflow           : hidden;
+}
+
+#my-canvas {
+    border             : 1px solid black;
+    background-image   : url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADMAAAAzCAMAAAANf8AYAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAYUExURUxpcf///////////wCA/////wB7/w6H/3bDZgMAAAAIdFJOUwABAwIQBB8RHT6p9AAAAGJJREFUSMft0OEKgCAMBOC7ben7v3GKpAUVzB9SsG8gKhwbAxyInEnCifBnMNHnp9i3dNQJqNRBWkm/bLWG8hKB+NTUpelQmt98ahvqIfMKIYQQwlpmKzPmCVhK5ZjKfHgHO7OoAi6rfI2ZAAAAAElFTkSuQmCC'); 
+}

@@ -3,12 +3,12 @@
  * @date    2023-07-25
  * @version 1.0.0
  */
-import { IDialogueStructure, IMiniQuestionaire } from "./interfaces";
-export declare class RPGDialogueLogic {
+import { IDialogueConfig, IDialogueNodeType, IMiniQuestionaire } from "./interfaces";
+export declare class RPGDialogueLogic<T extends IDialogueNodeType> {
     name: string;
-    structure: IDialogueStructure;
+    structure: IDialogueConfig<T>;
     private currentQuestionaire;
-    constructor(dialogueStruct: IDialogueStructure, validateStructure: boolean);
+    constructor(dialogueStruct: IDialogueConfig<T>, validateStructure: boolean);
     loadCurrentQuestionaire(setQuestionText: (questionText: string) => void, addOptionNode: (answerText: string, index: number) => void): boolean;
     /**
      * Get the current mini questionaire or null if no current or next questionaire is available.
@@ -43,19 +43,19 @@ export declare class RPGDialogueLogic {
      * @param {string} optionsNodeId
      * @returns
      */
-    beginConversation(questionNodeId: string, optionsNodeId: string): Promise<boolean>;
+    beginConversation(questionNodeId: string, optionsNodeId: string): void;
     /**
      * Load the dialogue structure from the JSON document at the given path.
      *
      * @param {string} path
      * @returns {Promise<RPGDialogueLogic>}
      */
-    static loadStructureFromJSON(path: string): Promise<IDialogueStructure>;
+    static loadConfigFromJSON<T extends IDialogueNodeType>(path: string): Promise<IDialogueConfig<T>>;
     /**
      * Load the dialogue structure from the JSON document at the given path.
      *
      * @param {string} path
      * @returns {Promise<RPGDialogueLogic>}
      */
-    static loadFromJSON(path: string): Promise<RPGDialogueLogic>;
+    static loadFromJSON<T extends IDialogueNodeType>(path: string): Promise<RPGDialogueLogic<T>>;
 }

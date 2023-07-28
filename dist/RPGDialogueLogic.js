@@ -60,9 +60,14 @@ var RPGDialogueLogic = /** @class */ (function () {
             this.currentQuestionaire = null;
         }
         else {
-            var nextQuestionaire = this.structure[selectedAnswer.next];
-            // Can be null
-            this.currentQuestionaire = nextQuestionaire;
+            var nextQuestionaire = this.structure.graph[selectedAnswer.next];
+            // Can be the final one!
+            if (!nextQuestionaire.o || nextQuestionaire.o.length === 0) {
+                this.currentQuestionaire = null;
+            }
+            else {
+                this.currentQuestionaire = nextQuestionaire;
+            }
         }
         console.log("Next questionaire", this.currentQuestionaire);
         return true;
@@ -71,7 +76,7 @@ var RPGDialogueLogic = /** @class */ (function () {
      * Find the initial mini questionaire.
      */
     RPGDialogueLogic.prototype.resetToBeginning = function () {
-        this.currentQuestionaire = this.structure["intro"];
+        this.currentQuestionaire = this.structure.graph["intro"];
         if (!this.currentQuestionaire) {
             throw "Cannot initialize RPGDialogueLogic: structure does not have an 'intro' entry";
         }
@@ -92,58 +97,55 @@ var RPGDialogueLogic = /** @class */ (function () {
      * @returns
      */
     RPGDialogueLogic.prototype.beginConversation = function (questionNodeId, optionsNodeId) {
-        var _this = this;
-        return new Promise(function (accept, reject) {
-            var questionNode = document.getElementById(questionNodeId);
-            var optionsNode = document.getElementById(optionsNodeId);
-            /**
-             * Set the text in the question node.
-             * @param {*} questionText
-             */
-            var setQuestionText = function (questionText) {
-                questionNode.innerHTML = questionText;
-            };
-            /**
-             * Clear the options node. Just for upper level use here.
-             */
-            var clearOptionsNode = function () {
-                optionsNode.innerHTML = "";
-            };
-            /**
-             * Add a new option node with the given answer text and option index. Use
-             * the option index to send the answer.
-             *
-             * @param {*} answerText
-             * @param {*} optionIndex
-             */
-            var addOptionNode = function (answerText, optionIndex) {
-                var answerNode = document.createElement("li");
-                var answerLinkNode = document.createElement("a");
-                answerLinkNode.innerHTML = answerText;
-                answerLinkNode.setAttribute("href", "#");
-                answerLinkNode.addEventListener("click", function () {
-                    sendAnswer(optionIndex);
-                });
-                answerNode.appendChild(answerLinkNode);
-                optionsNode.appendChild(answerNode);
-            };
-            var _self = _this;
-            /**
-             * Send the selected answer (by index).
-             * @param {number} index
-             */
-            var sendAnswer = function (index) {
-                _self.sendAnswer(index);
-                if (_self.isEndReached()) {
-                    setQuestionText("---END OF CONVERSATION---");
-                    clearOptionsNode();
-                }
+        var questionNode = document.getElementById(questionNodeId);
+        var optionsNode = document.getElementById(optionsNodeId);
+        /**
+         * Set the text in the question node.
+         * @param {*} questionText
+         */
+        var setQuestionText = function (questionText) {
+            questionNode.innerHTML = questionText;
+        };
+        /**
+         * Clear the options node. Just for upper level use here.
+         */
+        var clearOptionsNode = function () {
+            optionsNode.innerHTML = "";
+        };
+        /**
+         * Add a new option node with the given answer text and option index. Use
+         * the option index to send the answer.
+         *
+         * @param {*} answerText
+         * @param {*} optionIndex
+         */
+        var addOptionNode = function (answerText, optionIndex) {
+            var answerNode = document.createElement("li");
+            var answerLinkNode = document.createElement("a");
+            answerLinkNode.innerHTML = answerText;
+            answerLinkNode.setAttribute("href", "#");
+            answerLinkNode.addEventListener("click", function () {
+                sendAnswer(optionIndex);
+            });
+            answerNode.appendChild(answerLinkNode);
+            optionsNode.appendChild(answerNode);
+        };
+        var _self = this;
+        /**
+         * Send the selected answer (by index).
+         * @param {number} index
+         */
+        var sendAnswer = function (index) {
+            _self.sendAnswer(index);
+            if (_self.isEndReached()) {
+                setQuestionText("---END OF CONVERSATION---");
                 clearOptionsNode();
-                _self.loadCurrentQuestionaire(setQuestionText, addOptionNode);
-            };
-            // Initialize the first question.
+            }
+            clearOptionsNode();
             _self.loadCurrentQuestionaire(setQuestionText, addOptionNode);
-        });
+        };
+        // Initialize the first question.
+        _self.loadCurrentQuestionaire(setQuestionText, addOptionNode);
     };
     /**
      * Load the dialogue structure from the JSON document at the given path.
@@ -151,7 +153,7 @@ var RPGDialogueLogic = /** @class */ (function () {
      * @param {string} path
      * @returns {Promise<RPGDialogueLogic>}
      */
-    RPGDialogueLogic.loadStructureFromJSON = function (path) {
+    RPGDialogueLogic.loadConfigFromJSON = function (path) {
         console.log("axios", axios_1.default);
         return new Promise(function (accept, reject) {
             axios_1.default
@@ -180,7 +182,7 @@ var RPGDialogueLogic = /** @class */ (function () {
      */
     RPGDialogueLogic.loadFromJSON = function (path) {
         return new Promise(function (accept, reject) {
-            RPGDialogueLogic.loadStructureFromJSON(path).then(function (struct) {
+            RPGDialogueLogic.loadConfigFromJSON(path).then(function (struct) {
                 accept(new RPGDialogueLogic(struct, true));
             });
         });

@@ -5,14 +5,14 @@
  */
 
 import axios from "axios";
-import { IAnswer, IDialogueStructure, IMiniQuestionaire } from "./interfaces";
+import { IAnswer, IDialogueConfig, IDialogueGraph, IDialogueNodeType, IMiniQuestionaire } from "./interfaces";
 
-export class RPGDialogueLogic {
+export class RPGDialogueLogic<T extends IDialogueNodeType> {
   name: string;
-  structure: IDialogueStructure;
+  structure: IDialogueConfig<T>;
   private currentQuestionaire: IMiniQuestionaire | undefined;
 
-  constructor(dialogueStruct: IDialogueStructure, validateStructure: boolean) {
+  constructor(dialogueStruct: IDialogueConfig<T>, validateStructure: boolean) {
     this.name = "RPGDialogue";
     this.structure = dialogueStruct;
 
@@ -68,9 +68,13 @@ export class RPGDialogueLogic {
     if (!selectedAnswer.next) {
       this.currentQuestionaire = null;
     } else {
-      const nextQuestionaire = this.structure[selectedAnswer.next];
-      // Can be null
-      this.currentQuestionaire = nextQuestionaire;
+      const nextQuestionaire: T = this.structure.graph[selectedAnswer.next];
+      // Can be the final one!
+      if (!nextQuestionaire.o || nextQuestionaire.o.length === 0) {
+        this.currentQuestionaire = null;
+      } else {
+        this.currentQuestionaire = nextQuestionaire;
+      }
     }
     console.log("Next questionaire", this.currentQuestionaire);
     return true;
@@ -80,7 +84,7 @@ export class RPGDialogueLogic {
    * Find the initial mini questionaire.
    */
   resetToBeginning() {
-    this.currentQuestionaire = this.structure["intro"];
+    this.currentQuestionaire = this.structure.graph["intro"];
     if (!this.currentQuestionaire) {
       throw "Cannot initialize RPGDialogueLogic: structure does not have an 'intro' entry";
     }
@@ -102,64 +106,62 @@ export class RPGDialogueLogic {
    * @param {string} optionsNodeId
    * @returns
    */
-  beginConversation(questionNodeId: string, optionsNodeId: string): Promise<boolean> {
-    return new Promise<boolean>((accept, reject) => {
-      const questionNode = document.getElementById(questionNodeId);
-      const optionsNode = document.getElementById(optionsNodeId);
+  beginConversation(questionNodeId: string, optionsNodeId: string): void {
+    const questionNode = document.getElementById(questionNodeId);
+    const optionsNode = document.getElementById(optionsNodeId);
 
-      /**
-       * Set the text in the question node.
-       * @param {*} questionText
-       */
-      const setQuestionText = (questionText: string) => {
-        questionNode.innerHTML = questionText;
-      };
+    /**
+     * Set the text in the question node.
+     * @param {*} questionText
+     */
+    const setQuestionText = (questionText: string) => {
+      questionNode.innerHTML = questionText;
+    };
 
-      /**
-       * Clear the options node. Just for upper level use here.
-       */
-      var clearOptionsNode = function () {
-        optionsNode.innerHTML = "";
-      };
+    /**
+     * Clear the options node. Just for upper level use here.
+     */
+    var clearOptionsNode = function () {
+      optionsNode.innerHTML = "";
+    };
 
-      /**
-       * Add a new option node with the given answer text and option index. Use
-       * the option index to send the answer.
-       *
-       * @param {*} answerText
-       * @param {*} optionIndex
-       */
-      var addOptionNode = function (answerText, optionIndex) {
-        var answerNode = document.createElement("li");
-        var answerLinkNode = document.createElement("a");
-        answerLinkNode.innerHTML = answerText;
-        answerLinkNode.setAttribute("href", "#");
-        answerLinkNode.addEventListener("click", function () {
-          sendAnswer(optionIndex);
-        });
-        answerNode.appendChild(answerLinkNode);
-        optionsNode.appendChild(answerNode);
-      };
+    /**
+     * Add a new option node with the given answer text and option index. Use
+     * the option index to send the answer.
+     *
+     * @param {*} answerText
+     * @param {*} optionIndex
+     */
+    var addOptionNode = function (answerText, optionIndex) {
+      var answerNode = document.createElement("li");
+      var answerLinkNode = document.createElement("a");
+      answerLinkNode.innerHTML = answerText;
+      answerLinkNode.setAttribute("href", "#");
+      answerLinkNode.addEventListener("click", function () {
+        sendAnswer(optionIndex);
+      });
+      answerNode.appendChild(answerLinkNode);
+      optionsNode.appendChild(answerNode);
+    };
 
-      const _self = this;
+    const _self = this;
 
-      /**
-       * Send the selected answer (by index).
-       * @param {number} index
-       */
-      var sendAnswer = function (index) {
-        _self.sendAnswer(index);
-        if (_self.isEndReached()) {
-          setQuestionText("---END OF CONVERSATION---");
-          clearOptionsNode();
-        }
+    /**
+     * Send the selected answer (by index).
+     * @param {number} index
+     */
+    var sendAnswer = function (index) {
+      _self.sendAnswer(index);
+      if (_self.isEndReached()) {
+        setQuestionText("---END OF CONVERSATION---");
         clearOptionsNode();
-        _self.loadCurrentQuestionaire(setQuestionText, addOptionNode);
-      };
-
-      // Initialize the first question.
+      }
+      clearOptionsNode();
       _self.loadCurrentQuestionaire(setQuestionText, addOptionNode);
-    });
+    };
+
+    // Initialize the first question.
+    _self.loadCurrentQuestionaire(setQuestionText, addOptionNode);
   }
 
   /**
@@ -168,9 +170,9 @@ export class RPGDialogueLogic {
    * @param {string} path
    * @returns {Promise<RPGDialogueLogic>}
    */
-  static loadStructureFromJSON(path: string): Promise<IDialogueStructure> {
+  static loadConfigFromJSON<T extends IDialogueNodeType>(path: string): Promise<IDialogueConfig<T>> {
     console.log("axios", axios);
-    return new Promise<IDialogueStructure>((accept: (dialogueStruct: IDialogueStructure) => void, reject: () => void) => {
+    return new Promise<IDialogueConfig<T>>((accept: (dialogueStruct: IDialogueConfig<T>) => void, reject: () => void) => {
       axios
         .get(path)
         .then(function (response) {
@@ -196,9 +198,9 @@ export class RPGDialogueLogic {
    * @param {string} path
    * @returns {Promise<RPGDialogueLogic>}
    */
-  static loadFromJSON(path: string): Promise<RPGDialogueLogic> {
-    return new Promise<RPGDialogueLogic>((accept: (dialogueStruct: RPGDialogueLogic) => void, reject: () => void) => {
-      RPGDialogueLogic.loadStructureFromJSON(path).then((struct: IDialogueStructure) => {
+  static loadFromJSON<T extends IDialogueNodeType>(path: string): Promise<RPGDialogueLogic<T>> {
+    return new Promise<RPGDialogueLogic<T>>((accept: (dialogueStruct: RPGDialogueLogic<T>) => void, reject: () => void) => {
+      RPGDialogueLogic.loadConfigFromJSON(path).then((struct: IDialogueConfig<T>) => {
         accept(new RPGDialogueLogic(struct, true));
       });
     });
