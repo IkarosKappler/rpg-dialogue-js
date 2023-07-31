@@ -16,6 +16,7 @@ var plotboilerplate_1 = require("plotboilerplate");
 var RPGDialogueLogic_1 = require("./RPGDialogueLogic");
 var editorHelpers_1 = require("./editorHelpers");
 var editorRenderer_1 = require("./editorRenderer");
+var TouchHandler_1 = require("./TouchHandler");
 var Editor = /** @class */ (function () {
     function Editor() {
         console.log("Initialize plotboilerplate");
@@ -53,6 +54,7 @@ var Editor = /** @class */ (function () {
             height: 20
         };
         var currentMouseHandler = null;
+        var currentTouchHandler = null;
         var editorRenderer = new editorRenderer_1.EditorRenderer(pb, boxSize);
         // +---------------------------------------------------------------------------------
         // | The render method.
@@ -74,6 +76,12 @@ var Editor = /** @class */ (function () {
                 currentMouseHandler = null;
             }
             currentMouseHandler = editorHelpers.boxMovehandler(dialogConfig);
+            // Ad DnD support for boxes.
+            if (currentTouchHandler) {
+                currentTouchHandler.destroy();
+                currentTouchHandler = null;
+            }
+            currentTouchHandler = new TouchHandler_1.TouchHandler(pb, dialogConfig, editorHelpers);
             pb.redraw();
         });
         var editorHelpers = new editorHelpers_1.EditorHelper(pb, boxSize);

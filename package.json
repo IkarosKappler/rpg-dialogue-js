@@ -26,9 +26,10 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
+    "@types/dat.gui": "^0.7.7",
+    "alloyfinger-typescript": "^0.1.19",
     "axios": "^1.4.0",
     "dat.gui": "^0.7.9",
-    "@types/dat.gui": "^0.7.7",
     "plotboilerplate": "^1.20.2"
   }
 }

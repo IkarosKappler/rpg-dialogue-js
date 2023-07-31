@@ -41,7 +41,7 @@ var EditorRenderer = /** @class */ (function () {
                 if (!successorNode) {
                     continue;
                 }
-                this.pb.draw.line(new plotboilerplate_1.Vertex(graphNode.editor.position), new plotboilerplate_1.Vertex(successorNode.editor.position), "red", 1);
+                this.pb.draw.arrow(new plotboilerplate_1.Vertex(graphNode.editor.position), new plotboilerplate_1.Vertex(successorNode.editor.position), "red", 1);
             }
         }
     };

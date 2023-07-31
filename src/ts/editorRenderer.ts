@@ -45,7 +45,7 @@ export class EditorRenderer {
         if (!successorNode) {
           continue;
         }
-        this.pb.draw.line(new Vertex(graphNode.editor.position), new Vertex(successorNode.editor.position), "red", 1);
+        this.pb.draw.arrow(new Vertex(graphNode.editor.position), new Vertex(successorNode.editor.position), "red", 1);
       }
     }
   }

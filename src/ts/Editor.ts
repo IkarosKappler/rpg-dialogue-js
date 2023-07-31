@@ -15,6 +15,7 @@ import { RPGDialogueLogic } from "./RPGDialogueLogic";
 import { IDialogueConfig, IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
 import { EditorHelper } from "./editorHelpers";
 import { EditorRenderer } from "./editorRenderer";
+import { TouchHandler } from "./TouchHandler";
 
 export class Editor {
   constructor() {
@@ -61,6 +62,7 @@ export class Editor {
       height: 20
     };
     var currentMouseHandler: MouseHandler = null;
+    var currentTouchHandler: TouchHandler = null;
     var editorRenderer = new EditorRenderer(pb, boxSize);
 
     // +---------------------------------------------------------------------------------
@@ -87,6 +89,13 @@ export class Editor {
           currentMouseHandler = null;
         }
         currentMouseHandler = editorHelpers.boxMovehandler(dialogConfig);
+
+        // Ad DnD support for boxes.
+        if (currentTouchHandler) {
+          currentTouchHandler.destroy();
+          currentTouchHandler = null;
+        }
+        currentTouchHandler = new TouchHandler(pb, dialogConfig, editorHelpers);
 
         pb.redraw();
       }

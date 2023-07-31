@@ -24,7 +24,7 @@ var require = (globalThis.require = function (...args) {
       itemName = itemName.substring(itemNameStart + 1, itemNameEnd);
     }
   }
-  if (["three", "OrbitControls", "axios"].indexOf(itemName) !== -1) {
+  if (["three", "OrbitControls", "axios", "AlloyFinger", "alloyfinger-typescript"].indexOf(itemName) !== -1) {
     return globalThis[itemName];
   } else {
     return globalThis;
