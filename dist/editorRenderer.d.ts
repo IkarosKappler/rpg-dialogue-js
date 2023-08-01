@@ -15,7 +15,10 @@ export declare class EditorRenderer {
     boxSize: XYDimension;
     editorHelpers: EditorHelper;
     fontOptions: FontOptions;
-    constructor(pb: PlotBoilerplate, boxSize: XYDimension, editorHelpers: EditorHelper);
+    TEXT_MAX_LENGTH: number;
+    constructor(pb: PlotBoilerplate, boxSize: XYDimension, editorHelpers: EditorHelper, isDarkmode: boolean);
     renderBoxes(dialogConfig: IDialogueConfig<IMiniQuestionaireWithPosition>): void;
+    private renderGraphNode;
+    private renderOptions;
     renderConnections(dialogConfig: IDialogueConfig<IMiniQuestionaireWithPosition>): void;
 }

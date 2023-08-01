@@ -10,23 +10,26 @@
     <script src="../../lib/globalthis-polyfill.min.js"></script> 
     <script src="../../lib/path2d-polyfill.min.js"></script>
     
-    <script src="../../lib/dat.gui.min.js"></script>
-    <script src="../../lib/FileSaver.min.js"></script>
-    <script src="../../lib/Color.js"></script>
+    <!-- <script src="../../lib/dat.gui.min.js"></script> -->
+    <!-- <script src="../../lib/FileSaver.min.js"></script> -->
+    <!-- <script src="../../lib/Color.js"></script> -->
     
     <script src="../../src/cjs/utils/creategui.js"></script>
-    <script src="../../src/cjs/utils/module.js"></script>
+    <!-- <script src="../../src/cjs/utils/module.js"></script> -->
     <script src="libs/alloy_finger.js"></script>
-    <script>
-        // console.log("AlloyFinger", AlloyFinger)
-        // exports["AlloyFinger"] = AlloyFinger;
-    </script>
     <script src="detectDarkMode.js"></script>
     <!-- <script src="libs/plotboilerplate/src/cjs/utils/gup.js"></script> -->
     <script src="../gup.js"></script>
     <script src="../detectDarkMode.js"></script>
-
+    
     <script src="libs/plotboilerplate/dist/plotboilerplate.min.js"></script>
+    <script src="libs/plotboilerplate/src/cjs/utils/io/FileDrop.js"></script>
+    <script src="libs/plotboilerplate/src/cjs/utils/datastructures/Color.js"></script>
+    <script src="libs/plotboilerplate/src/cjs/utils/algorithms/getContrastColor.js"></script>
+    <script>
+        // console.log("getContrastColor", getContrastColor)
+        // exports["getContrastColor"] = getContrastColor;
+    </script>
     
     <script src="libs/axios/dist/axios.js"></script>
     <!-- <script src="https://unpkg.com/axios/dist/axios.min.js"></script> -->
@@ -51,9 +54,11 @@
 <body> 
     <canvas id="my-canvas" width="1024" height="768">Your browser does not support the canvas tag.</canvas>
     <div id="attribute-editor" class="d-none">
+        <button type="button" id="b-export-json">Export JSON</button>
+        Drop JSON files onto the canvas to load them.
         <div class="e-item">
             <div>Key</div>
-            <div><input type="text" id="e-key" /></div>
+            <div><input type="text" id="e-key" disabled /></div>
         </div>
         <div class="e-item">
             <div>Q</div>

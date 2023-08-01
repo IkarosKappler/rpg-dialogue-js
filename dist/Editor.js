@@ -17,6 +17,7 @@ var RPGDialogueLogic_1 = require("./RPGDialogueLogic");
 var editorHelpers_1 = require("./editorHelpers");
 var editorRenderer_1 = require("./editorRenderer");
 var TouchHandler_1 = require("./TouchHandler");
+var FileDrop_1 = require("plotboilerplate/src/cjs/utils/io/FileDrop");
 var Editor = /** @class */ (function () {
     function Editor() {
         console.log("Initialize plotboilerplate");
@@ -31,7 +32,7 @@ var Editor = /** @class */ (function () {
             scaleX: 1.0,
             scaleY: 1.0,
             rasterGrid: true,
-            drawOrigin: true,
+            drawOrigin: false,
             rasterAdjustFactor: 2.0,
             redrawOnResize: true,
             defaultCanvasWidth: 1024,
@@ -56,7 +57,7 @@ var Editor = /** @class */ (function () {
         var currentMouseHandler = null;
         var currentTouchHandler = null;
         var editorHelpers = new editorHelpers_1.EditorHelper(pb, boxSize);
-        var editorRenderer = new editorRenderer_1.EditorRenderer(pb, boxSize, editorHelpers);
+        var editorRenderer = new editorRenderer_1.EditorRenderer(pb, boxSize, editorHelpers, isDarkmode);
         // +---------------------------------------------------------------------------------
         // | The render method.
         // +-------------------------------
@@ -69,6 +70,9 @@ var Editor = /** @class */ (function () {
         };
         RPGDialogueLogic_1.RPGDialogueLogic.loadConfigFromJSON("../../resources/20230721_floatsim_storyline_dialog.json").then(function (config) {
             console.log("structure", config);
+            handleDialogConfigLoaded(config);
+        });
+        var handleDialogConfigLoaded = function (config) {
             // Check if all graph nodes have positions to render.
             dialogConfig = editorHelpers.enrichPositions(config);
             editorHelpers.domHelper.setDialogConfig(dialogConfig);
@@ -85,6 +89,13 @@ var Editor = /** @class */ (function () {
             }
             currentTouchHandler = new TouchHandler_1.TouchHandler(pb, dialogConfig, editorHelpers);
             pb.redraw();
+        };
+        // Install DnD with FileDrop
+        var fileDrop = new FileDrop_1.FileDrop(pb.eventCatcher);
+        fileDrop.onFileJSONDropped(function (jsonObject) {
+            console.log("[onFileJSONDropped] jsonObject", jsonObject);
+            // TODO: properly convert to dialog-config
+            handleDialogConfigLoaded(editorHelpers_1.EditorHelper.fromObject(jsonObject));
         });
         // const editorHelpers = new EditorHelper(pb, boxSize);
         // const randPos = getRandomPosition(pb, boxSize);

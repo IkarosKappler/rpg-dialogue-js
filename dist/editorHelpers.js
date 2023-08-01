@@ -39,12 +39,12 @@ var EditorHelper = /** @class */ (function () {
             this.selectedNode = node;
             // this.domHelper.editorElement.classList.remove("d-none");
             this.domHelper.toggleVisibility(true);
-            this.domHelper.showOptions(nodeName, this.selectedNode);
+            this.domHelper.showAnswerOptions(nodeName, this.selectedNode);
         }
         else {
             // this.domHelper.editorElement.classList.add("d-none");
             this.domHelper.toggleVisibility(false);
-            this.domHelper.showOptions(null, null);
+            this.domHelper.showAnswerOptions(null, null);
         }
         this.pb.redraw();
     };
@@ -61,7 +61,6 @@ var EditorHelper = /** @class */ (function () {
         // Clone?
         var configWithPositions = baseConfig;
         for (var nodeName in configWithPositions.graph) {
-            console.log("nodeName", nodeName);
             var graphNode = configWithPositions.graph[nodeName];
             if (!graphNode) {
                 console.warn("Warning: graph node ".concat(nodeName, " is null or undefined!"));
@@ -156,6 +155,30 @@ var EditorHelper = /** @class */ (function () {
             return text;
         }
         return "".concat(text.substring(0, maxLength), "...");
+    };
+    EditorHelper.fromObject = function (object) {
+        // Must be of type object
+        if (typeof object !== "object") {
+            throw "Cannot convert non-objects to dialogue config: type is ".concat(typeof object, ".");
+        }
+        // Must have a 'graph' member.
+        if (!object.hasOwnProperty("graph")) {
+            throw "Cannot convert object to dialogue config: object missing member `graph`.";
+        }
+        var graph = object["graph"];
+        // Check if 'intro' is present?
+        // All members must be of correct type
+        for (var key in object) {
+            if (!object.hasOwnProperty(key)) {
+                continue;
+            }
+            var questionaire = object[key];
+            if (typeof questionaire !== "object") {
+                throw "Cannot converto bject to dialogue config: all graph members must be objects.";
+            }
+            // Check if 'q' (string) and 'o' (array) attributes are present?
+        }
+        return object;
     };
     return EditorHelper;
 }());

@@ -16,14 +16,15 @@ import { IDialogueConfig, IMiniQuestionaire, IMiniQuestionaireWithPosition } fro
 import { EditorHelper } from "./editorHelpers";
 import { EditorRenderer } from "./editorRenderer";
 import { TouchHandler } from "./TouchHandler";
+import { FileDrop } from "plotboilerplate/src/cjs/utils/io/FileDrop";
 
 export class Editor {
   constructor() {
     console.log("Initialize plotboilerplate");
     // Fetch the GET params
-    let GUP = gup();
+    const GUP = gup();
 
-    let isDarkmode = detectDarkMode(GUP);
+    const isDarkmode = detectDarkMode(GUP);
 
     // All config params are optional.
     var pb = new PlotBoilerplate(
@@ -35,7 +36,7 @@ export class Editor {
           scaleX: 1.0,
           scaleY: 1.0,
           rasterGrid: true,
-          drawOrigin: true,
+          drawOrigin: false,
           rasterAdjustFactor: 2.0,
           redrawOnResize: true,
           defaultCanvasWidth: 1024,
@@ -64,7 +65,7 @@ export class Editor {
     var currentMouseHandler: MouseHandler = null;
     var currentTouchHandler: TouchHandler = null;
     const editorHelpers = new EditorHelper(pb, boxSize);
-    var editorRenderer = new EditorRenderer(pb, boxSize, editorHelpers);
+    var editorRenderer = new EditorRenderer(pb, boxSize, editorHelpers, isDarkmode);
 
     // +---------------------------------------------------------------------------------
     // | The render method.
@@ -81,27 +82,39 @@ export class Editor {
       (config: IDialogueConfig<IMiniQuestionaire>) => {
         console.log("structure", config);
 
-        // Check if all graph nodes have positions to render.
-        dialogConfig = editorHelpers.enrichPositions(config);
-        editorHelpers.domHelper.setDialogConfig(dialogConfig);
-
-        // Ad DnD support for boxes.
-        if (currentMouseHandler) {
-          currentMouseHandler.destroy();
-          currentMouseHandler = null;
-        }
-        currentMouseHandler = editorHelpers.boxMovehandler(dialogConfig);
-
-        // Ad DnD support for boxes.
-        if (currentTouchHandler) {
-          currentTouchHandler.destroy();
-          currentTouchHandler = null;
-        }
-        currentTouchHandler = new TouchHandler(pb, dialogConfig, editorHelpers);
-
-        pb.redraw();
+        handleDialogConfigLoaded(config);
       }
     );
+
+    const handleDialogConfigLoaded = (config: IDialogueConfig<IMiniQuestionaire>) => {
+      // Check if all graph nodes have positions to render.
+      dialogConfig = editorHelpers.enrichPositions(config);
+      editorHelpers.domHelper.setDialogConfig(dialogConfig);
+
+      // Ad DnD support for boxes.
+      if (currentMouseHandler) {
+        currentMouseHandler.destroy();
+        currentMouseHandler = null;
+      }
+      currentMouseHandler = editorHelpers.boxMovehandler(dialogConfig);
+
+      // Ad DnD support for boxes.
+      if (currentTouchHandler) {
+        currentTouchHandler.destroy();
+        currentTouchHandler = null;
+      }
+      currentTouchHandler = new TouchHandler(pb, dialogConfig, editorHelpers);
+
+      pb.redraw();
+    };
+
+    // Install DnD with FileDrop
+    var fileDrop = new FileDrop(pb.eventCatcher);
+    fileDrop.onFileJSONDropped(function (jsonObject) {
+      console.log("[onFileJSONDropped] jsonObject", jsonObject);
+      // TODO: properly convert to dialog-config
+      handleDialogConfigLoaded(EditorHelper.fromObject(jsonObject));
+    });
 
     // const editorHelpers = new EditorHelper(pb, boxSize);
     // const randPos = getRandomPosition(pb, boxSize);

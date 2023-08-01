@@ -39,4 +39,5 @@ export declare class EditorHelper {
     locateBoxNameAtPos(pos: XYCoords, dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>): string | null;
     boxMovehandler(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>): MouseHandler;
     static ellipsify(text: string, maxLength: number): string;
+    static fromObject(object: object): IDialogueConfig<IMiniQuestionaire>;
 }

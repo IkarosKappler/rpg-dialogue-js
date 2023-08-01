@@ -50,11 +50,11 @@ export class EditorHelper {
       this.selectedNode = node;
       // this.domHelper.editorElement.classList.remove("d-none");
       this.domHelper.toggleVisibility(true);
-      this.domHelper.showOptions(nodeName, this.selectedNode);
+      this.domHelper.showAnswerOptions(nodeName, this.selectedNode);
     } else {
       // this.domHelper.editorElement.classList.add("d-none");
       this.domHelper.toggleVisibility(false);
-      this.domHelper.showOptions(null, null);
+      this.domHelper.showAnswerOptions(null, null);
     }
     this.pb.redraw();
   }
@@ -74,7 +74,6 @@ export class EditorHelper {
       baseConfig as IDialogueConfig<IMiniQuestionaireWithPosition>;
 
     for (var nodeName in configWithPositions.graph) {
-      console.log("nodeName", nodeName);
       const graphNode: IMiniQuestionaireWithPosition = configWithPositions.graph[nodeName];
       if (!graphNode) {
         console.warn(`Warning: graph node ${nodeName} is null or undefined!`);
@@ -173,5 +172,35 @@ export class EditorHelper {
       return text;
     }
     return `${text.substring(0, maxLength)}...`;
+  }
+
+  static fromObject(object: object): IDialogueConfig<IMiniQuestionaire> {
+    // Must be of type object
+    if (typeof object !== "object") {
+      throw `Cannot convert non-objects to dialogue config: type is ${typeof object}.`;
+    }
+
+    // Must have a 'graph' member.
+    if (!object.hasOwnProperty("graph")) {
+      throw "Cannot convert object to dialogue config: object missing member `graph`.";
+    }
+
+    const graph = object["graph"];
+    // Check if 'intro' is present?
+
+    // All members must be of correct type
+    for (var key in object) {
+      if (!object.hasOwnProperty(key)) {
+        continue;
+      }
+      const questionaire = object[key];
+      if (typeof questionaire !== "object") {
+        throw "Cannot converto bject to dialogue config: all graph members must be objects.";
+      }
+
+      // Check if 'q' (string) and 'o' (array) attributes are present?
+    }
+
+    return object as IDialogueConfig<IMiniQuestionaire>;
   }
 }
