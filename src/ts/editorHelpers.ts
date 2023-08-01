@@ -10,14 +10,22 @@
 
 import { MouseHandler, PlotBoilerplate, XMouseEvent, XYCoords, XYDimension } from "plotboilerplate";
 import { IDialogueConfig, IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
+import { RPGDOMHelpers } from "./domHelpers";
 
 export class EditorHelper {
   pb: PlotBoilerplate;
   boxSize: XYDimension;
 
+  selectedNodeName: string;
+  selectedNode: IMiniQuestionaireWithPosition;
+
+  domHelper: RPGDOMHelpers;
+
   constructor(pb: PlotBoilerplate, boxSize: XYDimension) {
     this.pb = pb;
     this.boxSize = boxSize;
+    this.selectedNodeName = null;
+    this.domHelper = new RPGDOMHelpers(this, null);
   }
 
   /**
@@ -32,6 +40,23 @@ export class EditorHelper {
       x: viewport.min.x + this.boxSize.width + (viewport.width - 2 * this.boxSize.width) * Math.random(),
       y: viewport.min.y + this.boxSize.height + (viewport.height - 2 * this.boxSize.height) * Math.random()
     };
+  }
+
+  setSelectedNode(nodeName: string, node: IMiniQuestionaireWithPosition) {
+    this.selectedNodeName = nodeName;
+
+    if (nodeName) {
+      this.selectedNodeName = nodeName;
+      this.selectedNode = node;
+      // this.domHelper.editorElement.classList.remove("d-none");
+      this.domHelper.toggleVisibility(true);
+      this.domHelper.showOptions(nodeName, this.selectedNode);
+    } else {
+      // this.domHelper.editorElement.classList.add("d-none");
+      this.domHelper.toggleVisibility(false);
+      this.domHelper.showOptions(null, null);
+    }
+    this.pb.redraw();
   }
 
   /**
@@ -97,28 +122,56 @@ export class EditorHelper {
     // | Add a mouse listener to track the mouse position.
     // +-------------------------------
     var mouseDownPos: XYCoords = null;
-    var selectedNode: IMiniQuestionaireWithPosition = null;
+    var lastMouseDownPos: XYCoords = null;
+    var draggingNode: IMiniQuestionaireWithPosition = null;
+    var draggingNodeName: string = null;
     const handler = new MouseHandler(this.pb.eventCatcher)
       .down((evt: XMouseEvent) => {
         mouseDownPos = this.pb.transformMousePosition(evt.params.mouseDownPos.x, evt.params.mouseDownPos.y);
-        const selectedNodeName = this.locateBoxNameAtPos(mouseDownPos, dialogConfigWithPositions);
-        if (selectedNodeName) {
-          selectedNode = dialogConfigWithPositions.graph[selectedNodeName];
+        lastMouseDownPos = { x: evt.params.mouseDownPos.x, y: evt.params.mouseDownPos.y };
+        draggingNodeName = this.locateBoxNameAtPos(mouseDownPos, dialogConfigWithPositions);
+        if (draggingNodeName) {
+          draggingNode = dialogConfigWithPositions.graph[draggingNodeName];
         }
       })
       .up((_evt: XMouseEvent) => {
         mouseDownPos = null;
-        selectedNode = null;
+        draggingNode = null;
       })
       .drag((evt: XMouseEvent) => {
-        if (!mouseDownPos || !selectedNode) {
+        if (!mouseDownPos || !draggingNode) {
           return;
         }
         // const diff = evt.params.dragAmount;
-        selectedNode.editor.position.x += evt.params.dragAmount.x;
-        selectedNode.editor.position.y += evt.params.dragAmount.y;
+        draggingNode.editor.position.x += evt.params.dragAmount.x;
+        draggingNode.editor.position.y += evt.params.dragAmount.y;
+      })
+      .click((evt: XMouseEvent) => {
+        // Stop if mouse was moved
+        console.log("lastMouseDownPos", lastMouseDownPos, " evt.params.pos", evt.params.pos);
+        if (lastMouseDownPos && (lastMouseDownPos.x !== evt.params.pos.x || lastMouseDownPos.y !== evt.params.pos.y)) {
+          return;
+        }
+        const mouseClickPos = this.pb.transformMousePosition(evt.params.pos.x, evt.params.pos.y);
+        const clickedNodeName = this.locateBoxNameAtPos(mouseClickPos, dialogConfigWithPositions);
+        console.log("Click", clickedNodeName);
+        if (clickedNodeName) {
+          this.setSelectedNode(clickedNodeName, dialogConfigWithPositions.graph[clickedNodeName]);
+          // this.pb.redraw();
+        } else {
+          this.setSelectedNode(null, null);
+          // this.selectedNode = null;
+          // this.pb.redraw();
+        }
       });
 
     return handler;
+  }
+
+  static ellipsify(text: string, maxLength: number): string {
+    if (!text || text.length <= maxLength) {
+      return text;
+    }
+    return `${text.substring(0, maxLength)}...`;
   }
 }

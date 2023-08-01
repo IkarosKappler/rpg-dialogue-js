@@ -37,6 +37,8 @@
         console.log("exports", exports)
     </script>
     <script src="../RPGDialogueLogic.js"></script>
+    <script src="../domHelpers.js"></script>
+
     <script src="../editorHelpers.js"></script>
     <script src="../TouchHandler.js"></script>
     <script src="../editorRenderer.js"></script>
@@ -48,5 +50,18 @@
 
 <body> 
     <canvas id="my-canvas" width="1024" height="768">Your browser does not support the canvas tag.</canvas>
+    <div id="attribute-editor" class="d-none">
+        <div class="e-item">
+            <div>Key</div>
+            <div><input type="text" id="e-key" /></div>
+        </div>
+        <div class="e-item">
+            <div>Q</div>
+            <div><input type="text" id="e-q"/></div>
+        </div>
+        <div id="e-options-container">
+
+        </div>
+    </div>
 </body> 
 </html>

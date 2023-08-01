@@ -58,12 +58,13 @@ export class Editor {
 
     var dialogConfig: IDialogueConfig<IMiniQuestionaireWithPosition> = null;
     const boxSize: XYDimension = {
-      width: 40,
+      width: 120,
       height: 20
     };
     var currentMouseHandler: MouseHandler = null;
     var currentTouchHandler: TouchHandler = null;
-    var editorRenderer = new EditorRenderer(pb, boxSize);
+    const editorHelpers = new EditorHelper(pb, boxSize);
+    var editorRenderer = new EditorRenderer(pb, boxSize, editorHelpers);
 
     // +---------------------------------------------------------------------------------
     // | The render method.
@@ -82,6 +83,7 @@ export class Editor {
 
         // Check if all graph nodes have positions to render.
         dialogConfig = editorHelpers.enrichPositions(config);
+        editorHelpers.domHelper.setDialogConfig(dialogConfig);
 
         // Ad DnD support for boxes.
         if (currentMouseHandler) {
@@ -101,7 +103,7 @@ export class Editor {
       }
     );
 
-    const editorHelpers = new EditorHelper(pb, boxSize);
+    // const editorHelpers = new EditorHelper(pb, boxSize);
     // const randPos = getRandomPosition(pb, boxSize);
     // const addPositions = editorHelpers.enrichPositions(pb, boxSize);
 

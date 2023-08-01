@@ -50,12 +50,13 @@ var Editor = /** @class */ (function () {
         }, GUP));
         var dialogConfig = null;
         var boxSize = {
-            width: 40,
+            width: 120,
             height: 20
         };
         var currentMouseHandler = null;
         var currentTouchHandler = null;
-        var editorRenderer = new editorRenderer_1.EditorRenderer(pb, boxSize);
+        var editorHelpers = new editorHelpers_1.EditorHelper(pb, boxSize);
+        var editorRenderer = new editorRenderer_1.EditorRenderer(pb, boxSize, editorHelpers);
         // +---------------------------------------------------------------------------------
         // | The render method.
         // +-------------------------------
@@ -70,6 +71,7 @@ var Editor = /** @class */ (function () {
             console.log("structure", config);
             // Check if all graph nodes have positions to render.
             dialogConfig = editorHelpers.enrichPositions(config);
+            editorHelpers.domHelper.setDialogConfig(dialogConfig);
             // Ad DnD support for boxes.
             if (currentMouseHandler) {
                 currentMouseHandler.destroy();
@@ -84,7 +86,7 @@ var Editor = /** @class */ (function () {
             currentTouchHandler = new TouchHandler_1.TouchHandler(pb, dialogConfig, editorHelpers);
             pb.redraw();
         });
-        var editorHelpers = new editorHelpers_1.EditorHelper(pb, boxSize);
+        // const editorHelpers = new EditorHelper(pb, boxSize);
         // const randPos = getRandomPosition(pb, boxSize);
         // const addPositions = editorHelpers.enrichPositions(pb, boxSize);
         // +---------------------------------------------------------------------------------

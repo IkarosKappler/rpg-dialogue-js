@@ -20,6 +20,7 @@ var TouchHandler = /** @class */ (function () {
         var draggedElements = null;
         var draggedElementName = null;
         var draggedNode = null;
+        var wasDragged = false;
         var touchMovePos = null;
         var touchDownPos = null;
         // var draggedElement: IDraggable | undefined | null = null;
@@ -43,6 +44,7 @@ var TouchHandler = /** @class */ (function () {
                     if (draggedElementName) {
                         draggedNode = dialogConfigWithPositions.graph[draggedElementName];
                     }
+                    wasDragged = false;
                 }
             },
             touchMove: function (evt) {
@@ -58,6 +60,7 @@ var TouchHandler = /** @class */ (function () {
                     draggedNode.editor.position.x += diff.x;
                     draggedNode.editor.position.y += diff.y;
                     touchMovePos = new plotboilerplate_1.Vertex(relPos({ x: evt.touches[0].clientX, y: evt.touches[0].clientY }));
+                    wasDragged = true;
                     pb.redraw();
                 }
             },
@@ -66,6 +69,11 @@ var TouchHandler = /** @class */ (function () {
                 if (draggedNode) {
                     if (!touchDownPos) {
                         return;
+                    }
+                    if (!wasDragged) {
+                        wasDragged = false;
+                        editorHelper.setSelectedNode(draggedElementName, draggedNode);
+                        // pb.redraw();
                     }
                 }
                 clearTouch();

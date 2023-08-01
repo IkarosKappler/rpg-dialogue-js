@@ -31,6 +31,7 @@ export class TouchHandler {
     var draggedElements = null;
     var draggedElementName: string = null;
     var draggedNode: IMiniQuestionaireWithPosition = null;
+    var wasDragged: boolean = false;
 
     var touchMovePos: Vertex | undefined | null = null;
     var touchDownPos: Vertex | undefined | null = null;
@@ -58,6 +59,7 @@ export class TouchHandler {
           if (draggedElementName) {
             draggedNode = dialogConfigWithPositions.graph[draggedElementName];
           }
+          wasDragged = false;
         }
       },
       touchMove: (evt: TouchEvent) => {
@@ -73,6 +75,7 @@ export class TouchHandler {
           draggedNode.editor.position.x += diff.x;
           draggedNode.editor.position.y += diff.y;
           touchMovePos = new Vertex(relPos({ x: evt.touches[0].clientX, y: evt.touches[0].clientY }));
+          wasDragged = true;
           pb.redraw();
         }
       },
@@ -81,6 +84,11 @@ export class TouchHandler {
         if (draggedNode) {
           if (!touchDownPos) {
             return;
+          }
+          if (!wasDragged) {
+            wasDragged = false;
+            editorHelper.setSelectedNode(draggedElementName, draggedNode);
+            // pb.redraw();
           }
         }
         clearTouch();
