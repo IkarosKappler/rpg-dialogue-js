@@ -1,5 +1,7 @@
 # Changelog
 
+- 2023-08-01
+  - Added DOMHelpers and a basic editor interface.
 - 2023-07-31
   - Added touch handler.
 - 2023-07-26
