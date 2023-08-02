@@ -19,7 +19,7 @@ var editorRenderer_1 = require("./editorRenderer");
 var TouchHandler_1 = require("./TouchHandler");
 var FileDrop_1 = require("plotboilerplate/src/cjs/utils/io/FileDrop");
 var Editor = /** @class */ (function () {
-    function Editor() {
+    function Editor(dialogueConfigJSONPath) {
         console.log("Initialize plotboilerplate");
         // Fetch the GET params
         var GUP = (0, gup_1.gup)();
@@ -68,7 +68,7 @@ var Editor = /** @class */ (function () {
             editorRenderer.renderBoxes(dialogConfig);
             editorRenderer.renderConnections(dialogConfig);
         };
-        RPGDialogueLogic_1.RPGDialogueLogic.loadConfigFromJSON("../../resources/20230721_floatsim_storyline_dialog.json").then(function (config) {
+        RPGDialogueLogic_1.RPGDialogueLogic.loadConfigFromJSON(dialogueConfigJSONPath).then(function (config) {
             console.log("structure", config);
             handleDialogConfigLoaded(config);
         });

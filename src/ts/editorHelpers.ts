@@ -142,8 +142,8 @@ export class EditorHelper {
           return;
         }
         // const diff = evt.params.dragAmount;
-        draggingNode.editor.position.x += evt.params.dragAmount.x;
-        draggingNode.editor.position.y += evt.params.dragAmount.y;
+        draggingNode.editor.position.x += evt.params.dragAmount.x / this.pb.draw.scale.x;
+        draggingNode.editor.position.y += evt.params.dragAmount.y / this.pb.draw.scale.y;
       })
       .click((evt: XMouseEvent) => {
         // Stop if mouse was moved

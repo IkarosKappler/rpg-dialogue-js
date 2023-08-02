@@ -19,7 +19,7 @@ import { TouchHandler } from "./TouchHandler";
 import { FileDrop } from "plotboilerplate/src/cjs/utils/io/FileDrop";
 
 export class Editor {
-  constructor() {
+  constructor(dialogueConfigJSONPath) {
     console.log("Initialize plotboilerplate");
     // Fetch the GET params
     const GUP = gup();
@@ -78,13 +78,11 @@ export class Editor {
       editorRenderer.renderConnections(dialogConfig);
     };
 
-    RPGDialogueLogic.loadConfigFromJSON("../../resources/20230721_floatsim_storyline_dialog.json").then(
-      (config: IDialogueConfig<IMiniQuestionaire>) => {
-        console.log("structure", config);
+    RPGDialogueLogic.loadConfigFromJSON(dialogueConfigJSONPath).then((config: IDialogueConfig<IMiniQuestionaire>) => {
+      console.log("structure", config);
 
-        handleDialogConfigLoaded(config);
-      }
-    );
+      handleDialogConfigLoaded(config);
+    });
 
     const handleDialogConfigLoaded = (config: IDialogueConfig<IMiniQuestionaire>) => {
       // Check if all graph nodes have positions to render.

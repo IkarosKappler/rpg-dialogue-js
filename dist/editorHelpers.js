@@ -126,8 +126,8 @@ var EditorHelper = /** @class */ (function () {
                 return;
             }
             // const diff = evt.params.dragAmount;
-            draggingNode.editor.position.x += evt.params.dragAmount.x;
-            draggingNode.editor.position.y += evt.params.dragAmount.y;
+            draggingNode.editor.position.x += evt.params.dragAmount.x / _this.pb.draw.scale.x;
+            draggingNode.editor.position.y += evt.params.dragAmount.y / _this.pb.draw.scale.y;
         })
             .click(function (evt) {
             // Stop if mouse was moved

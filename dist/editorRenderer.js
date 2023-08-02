@@ -91,9 +91,63 @@ var EditorRenderer = /** @class */ (function () {
                 if (!successorNode) {
                     continue;
                 }
-                this.pb.draw.arrow(new plotboilerplate_1.Vertex(graphNode.editor.position).addXY(this.boxSize.width + 16, this.boxSize.height / 2.0 + (j + 1) * (this.boxSize.height + 2)), new plotboilerplate_1.Vertex(successorNode.editor.position), "rgba(255,192,0,0.5)", 2);
+                // this.drawLinearConnection(graphNode, successorNode, j);
+                this.drawBezierConnection(graphNode, successorNode, j);
             }
         }
+    };
+    EditorRenderer.prototype.drawLinearConnection = function (graphNode, successorNode, j) {
+        this.pb.draw.arrow(new plotboilerplate_1.Vertex(graphNode.editor.position).addXY(this.boxSize.width + 16, this.boxSize.height / 2.0 + (j + 1) * (this.boxSize.height + 2)), new plotboilerplate_1.Vertex(successorNode.editor.position), "rgba(255,192,0,0.5)", 2);
+    };
+    EditorRenderer.prototype.drawBezierConnection = function (graphNode, successorNode, j) {
+        /* this.pb.draw.arrow(
+          new Vertex(graphNode.editor.position).addXY(
+            this.boxSize.width + 16,
+            this.boxSize.height / 2.0 + (j + 1) * (this.boxSize.height + 2)
+          ),
+          new Vertex(successorNode.editor.position),
+          "rgba(255,192,0,0.5)",
+          2
+        );
+    
+        this.pb.draw.arrow(
+          new Vertex(successorNode.editor.position).subXY(-1, -1),
+          new Vertex(successorNode.editor.position),
+          "rgba(255,192,0,0.5)",
+          2
+        );
+        */
+        var zA = new plotboilerplate_1.Vertex(graphNode.editor.position).addXY(this.boxSize.width + 16, this.boxSize.height / 2.0 + (j + 1) * (this.boxSize.height + 2));
+        var zB = new plotboilerplate_1.Vertex(successorNode.editor.position);
+        var cA = zA.clone().addXY(50, 0);
+        var cB = zB.clone().subXY(50, 50);
+        this.cubicBezierArrow(zA, zB, cA, cB, "rgba(255,192,0,0.5)", 2);
+    };
+    /**
+     * Draw a line and an arrow at the end (zB) of the given line with the specified (CSS-) color.
+     *
+     * @method arrow
+     * @param {Vertex} zA - The start point of the arrow-line.
+     * @param {Vertex} zB - The end point of the arrow-line.
+     * @param {string} color - Any valid CSS color string.
+     * @param {number=} lineWidth - (optional) The line width to use; default is 1.
+     * @return {void}
+     * @instance
+     * @memberof drawutils
+     **/
+    EditorRenderer.prototype.cubicBezierArrow = function (zA, zB, cA, cB, color, lineWidth) {
+        var _this = this;
+        var headlen = 8; // length of head in pixels
+        var vertices = plotboilerplate_1.Vertex.utils
+            .buildArrowHead(cB, zB, headlen, 1.0, 1.0) // this.pb.draw.scale.x, this.pb.draw.scale.y);
+            .map(function (vertex) {
+            return vertex.scale(1.0 / _this.pb.draw.scale.x, zB);
+        });
+        this.pb.draw.cubicBezier(zA, zB, cA, cB, color, lineWidth);
+        this.pb.fill.polyline(vertices, false, color, lineWidth);
+        // Draw bezier control lines?
+        // this.pb.draw.line(zA, cA, "grey", 1);
+        // this.pb.draw.line(zB, cB, "grey", 1);
     };
     return EditorRenderer;
 }());

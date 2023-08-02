@@ -7,3 +7,4 @@ dist/lib/three/examples/jsm/postprocessing/
 dist/lib/three/examples/jsm/shaders/
 dist/lib/three/examples/umd/postprocessing/
 dist/thirdparty/
+bin/

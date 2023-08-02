@@ -2,7 +2,9 @@ globalThis.addEventListener("load", function () {
   console.log("Init");
 
   //   new RPGDialogue("../../resources/");
-  RPGDialogueLogic.loadFromJSON("../../resources/20230721_floatsim_storyline_dialog.json").then(rpgDialogue => {
+  // const path = "../../resources/20230721_floatsim_storyline_dialog.json";
+  const path = "../../resources/export-test/dialog-config-5.json";
+  RPGDialogueLogic.loadFromJSON(path).then(rpgDialogue => {
     console.log("rpgDialogue", rpgDialogue);
 
     rpgDialogue.beginConversation("output-question", "output-options");
