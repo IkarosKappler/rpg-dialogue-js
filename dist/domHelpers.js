@@ -64,6 +64,8 @@ var RPGDOMHelpers = /** @class */ (function () {
         };
     };
     RPGDOMHelpers.prototype.showAnswerOptions = function (nodeName, graphNode) {
+        var _this = this;
+        var _self = this;
         this.currentNodeName = nodeName;
         this.currentGraphNode = graphNode;
         this.keyElement.setAttribute("value", nodeName ? nodeName : "");
@@ -72,7 +74,49 @@ var RPGDOMHelpers = /** @class */ (function () {
         if (!graphNode) {
             return;
         }
-        for (var i in graphNode.o) {
+        var onDragOver = function (ev) {
+            console.log("ondragover", ev.target);
+            ev.preventDefault();
+            var target = ev.target;
+            var answerIndex = parseInt(ev.dataTransfer.getData("answerindex"));
+            var dropIndex = parseInt(target.getAttribute("data-dropindex"));
+            if (target.classList.contains("droppable") && answerIndex !== dropIndex && answerIndex + 1 !== dropIndex) {
+                target.classList.add("dragover");
+            }
+        };
+        var onDragLeave = function (ev) {
+            console.log("ondragleave", ev.target);
+            ev.preventDefault();
+            var target = ev.target;
+            if (target.classList.contains("droppable")) {
+                target.classList.remove("dragover");
+            }
+        };
+        var drop = function (ev) {
+            console.log("Drop", ev);
+            ev.preventDefault();
+            var target = ev.target;
+            var answerIndex = parseInt(ev.dataTransfer.getData("answerindex"));
+            var dropIndex = parseInt(target.getAttribute("data-dropindex"));
+            console.log("Move", answerIndex, "to", dropIndex);
+            // target.appendChild(document.getElementById(data));
+            if (!target.classList.contains("droppable") || answerIndex === dropIndex || answerIndex + 1 === dropIndex) {
+                // No real change
+                return;
+            }
+            if (dropIndex > answerIndex) {
+                dropIndex--;
+            }
+            var old = _this.currentGraphNode.o[answerIndex];
+            _this.currentGraphNode.o[answerIndex] = _this.currentGraphNode.o[dropIndex];
+            _this.currentGraphNode.o[dropIndex] = old;
+            // Re-build the list : )
+            _self.showAnswerOptions(nodeName, graphNode);
+            _self.editorHelpers.pb.redraw();
+        };
+        var dropArea = this.makeADropArea(0, drop, onDragOver, onDragLeave);
+        this.optionsElement.appendChild(dropArea);
+        for (var i = 0; i < graphNode.o.length; i++) {
             var option = graphNode.o[i];
             var answerElement = document.createElement("div");
             var labelElement = document.createElement("div");
@@ -83,10 +127,28 @@ var RPGDOMHelpers = /** @class */ (function () {
             answerElement.appendChild(labelElement);
             answerElement.appendChild(textElement);
             answerElement.appendChild(selectElement);
+            var handleDrag = function (ev) {
+                // ev.dataTransfer.setData("text", ev.target.id);
+                ev.dataTransfer.setData("answerindex", ev.target.getAttribute("data-answerindex"));
+            };
+            answerElement.setAttribute("draggable", "true");
+            answerElement.setAttribute("data-answerindex", "".concat(i));
+            answerElement.addEventListener("dragstart", handleDrag);
+            var dropArea_1 = this.makeADropArea(i + 1, drop, onDragOver, onDragLeave);
             this.optionsElement.appendChild(answerElement);
+            this.optionsElement.appendChild(dropArea_1);
             textElement.addEventListener("change", this.handleATextChanged(this, option));
             selectElement.addEventListener("change", this.handleASuccessorChanged(this, option));
         }
+    };
+    RPGDOMHelpers.prototype.makeADropArea = function (dropIndex, drop, onDragOver, onDragLeave) {
+        var dropArea = document.createElement("div");
+        dropArea.setAttribute("data-dropindex", "".concat(dropIndex));
+        dropArea.classList.add("a-droparea", "droppable");
+        dropArea.addEventListener("drop", drop);
+        dropArea.addEventListener("dragover", onDragOver);
+        dropArea.addEventListener("dragleave", onDragLeave);
+        return dropArea;
     };
     RPGDOMHelpers.prototype.createNodeSelectElement = function (currentKey, selectedKey) {
         var selectElement = document.createElement("select");

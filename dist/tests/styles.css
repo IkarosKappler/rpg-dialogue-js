@@ -22,3 +22,11 @@ div#attribute-editor {
 .d-none {
     display: none;
 }
+
+.a-droparea {
+    height : 20px;
+}
+
+.dragover {
+    border: 1px solid black;
+}

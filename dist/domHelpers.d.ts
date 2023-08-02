@@ -26,5 +26,6 @@ export declare class RPGDOMHelpers {
     private handleATextChanged;
     private handleASuccessorChanged;
     showAnswerOptions(nodeName: string, graphNode: IMiniQuestionaireWithPosition | null): void;
+    private makeADropArea;
     private createNodeSelectElement;
 }

@@ -21,7 +21,6 @@ export declare class EditorRenderer {
     private renderGraphNode;
     private renderOptions;
     renderConnections(dialogConfig: IDialogueConfig<IMiniQuestionaireWithPosition>): void;
-    drawLinearConnection(graphNode: IMiniQuestionaireWithPosition, successorNode: IMiniQuestionaireWithPosition, j: number): void;
     drawBezierConnection(graphNode: IMiniQuestionaireWithPosition, successorNode: IMiniQuestionaireWithPosition, j: number): void;
     /**
      * Draw a line and an arrow at the end (zB) of the given line with the specified (CSS-) color.

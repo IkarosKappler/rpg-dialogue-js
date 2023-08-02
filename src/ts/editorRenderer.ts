@@ -55,14 +55,24 @@ export class EditorRenderer {
 
   private renderGraphNode(nodeName: string, graphNode: IMiniQuestionaireWithPosition) {
     const isNodeSelected: boolean = this.editorHelpers.selectedNodeName === nodeName;
-    this.pb.draw.rect(graphNode.editor.position, this.boxSize.width, this.boxSize.height, isNodeSelected ? "red" : "green", 1.0);
-    // Show initial and terminal nodes with second frame border
+    this.pb.fill.text(nodeName, graphNode.editor.position.x, graphNode.editor.position.y - this.boxSize.height, {
+      ...this.fontOptions,
+      color: "grey"
+    });
+    this.pb.draw.rect(
+      graphNode.editor.position,
+      this.boxSize.width,
+      this.boxSize.height,
+      isNodeSelected ? "rgba(255,128,0,1.0)" : "rgba(0,255,0,1.0)",
+      1.0
+    );
+    // Show initial and terminal nodes with fill color
     if (!graphNode.o || graphNode.o.length === 0 || nodeName === "intro") {
-      this.pb.draw.rect(
-        { x: graphNode.editor.position.x - 3, y: graphNode.editor.position.y - 3 },
-        this.boxSize.width + 6,
-        this.boxSize.height + 6,
-        isNodeSelected ? "red" : "green",
+      this.pb.fill.rect(
+        { x: graphNode.editor.position.x, y: graphNode.editor.position.y },
+        this.boxSize.width,
+        this.boxSize.height,
+        isNodeSelected ? "rgba(255,128,0,0.3)" : "rgba(0,255,0,0.3)",
         1.0
       );
     }
@@ -115,7 +125,8 @@ export class EditorRenderer {
     }
   }
 
-  drawLinearConnection(graphNode: IMiniQuestionaireWithPosition, successorNode: IMiniQuestionaireWithPosition, j: number) {
+  // Not in use
+  /* drawLinearConnection(graphNode: IMiniQuestionaireWithPosition, successorNode: IMiniQuestionaireWithPosition, j: number) {
     this.pb.draw.arrow(
       new Vertex(graphNode.editor.position).addXY(
         this.boxSize.width + 16,
@@ -125,26 +136,9 @@ export class EditorRenderer {
       "rgba(255,192,0,0.5)",
       2
     );
-  }
+  } */
 
   drawBezierConnection(graphNode: IMiniQuestionaireWithPosition, successorNode: IMiniQuestionaireWithPosition, j: number) {
-    /* this.pb.draw.arrow(
-      new Vertex(graphNode.editor.position).addXY(
-        this.boxSize.width + 16,
-        this.boxSize.height / 2.0 + (j + 1) * (this.boxSize.height + 2)
-      ),
-      new Vertex(successorNode.editor.position),
-      "rgba(255,192,0,0.5)",
-      2
-    );
-
-    this.pb.draw.arrow(
-      new Vertex(successorNode.editor.position).subXY(-1, -1),
-      new Vertex(successorNode.editor.position),
-      "rgba(255,192,0,0.5)",
-      2
-    ); 
-    */
     const zA = new Vertex(graphNode.editor.position).addXY(
       this.boxSize.width + 16,
       this.boxSize.height / 2.0 + (j + 1) * (this.boxSize.height + 2)

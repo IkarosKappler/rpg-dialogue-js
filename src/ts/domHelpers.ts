@@ -86,6 +86,7 @@ export class RPGDOMHelpers {
   }
 
   showAnswerOptions(nodeName: string, graphNode: IMiniQuestionaireWithPosition | null) {
+    const _self = this;
     this.currentNodeName = nodeName;
     this.currentGraphNode = graphNode;
 
@@ -95,7 +96,55 @@ export class RPGDOMHelpers {
     if (!graphNode) {
       return;
     }
-    for (var i in graphNode.o) {
+
+    const onDragOver = (ev: DragEvent) => {
+      console.log("ondragover", ev.target);
+      ev.preventDefault();
+      const target = ev.target as HTMLDivElement;
+      const answerIndex = parseInt(ev.dataTransfer.getData("answerindex"));
+      const dropIndex = parseInt(target.getAttribute("data-dropindex"));
+      if (target.classList.contains("droppable") && answerIndex !== dropIndex && answerIndex + 1 !== dropIndex) {
+        target.classList.add("dragover");
+      }
+    };
+    const onDragLeave = (ev: DragEvent) => {
+      console.log("ondragleave", ev.target);
+      ev.preventDefault();
+      const target = ev.target as HTMLDivElement;
+      if (target.classList.contains("droppable")) {
+        target.classList.remove("dragover");
+      }
+    };
+    const drop = (ev: DragEvent) => {
+      console.log("Drop", ev);
+      ev.preventDefault();
+      const target = ev.target as HTMLDivElement;
+      const answerIndex = parseInt(ev.dataTransfer.getData("answerindex"));
+      var dropIndex = parseInt(target.getAttribute("data-dropindex"));
+      console.log("Move", answerIndex, "to", dropIndex);
+      // target.appendChild(document.getElementById(data));
+
+      if (!target.classList.contains("droppable") || answerIndex === dropIndex || answerIndex + 1 === dropIndex) {
+        // No real change
+        return;
+      }
+      if (dropIndex > answerIndex) {
+        dropIndex--;
+      }
+
+      const old = this.currentGraphNode.o[answerIndex];
+      this.currentGraphNode.o[answerIndex] = this.currentGraphNode.o[dropIndex];
+      this.currentGraphNode.o[dropIndex] = old;
+
+      // Re-build the list : )
+      _self.showAnswerOptions(nodeName, graphNode);
+      _self.editorHelpers.pb.redraw();
+    };
+
+    const dropArea = this.makeADropArea(0, drop, onDragOver, onDragLeave);
+    this.optionsElement.appendChild(dropArea);
+
+    for (var i = 0; i < graphNode.o.length; i++) {
       const option: IAnswer = graphNode.o[i];
 
       const answerElement = document.createElement("div") as HTMLDivElement;
@@ -109,11 +158,38 @@ export class RPGDOMHelpers {
       answerElement.appendChild(textElement);
       answerElement.appendChild(selectElement);
 
+      const handleDrag = ev => {
+        // ev.dataTransfer.setData("text", ev.target.id);
+        ev.dataTransfer.setData("answerindex", ev.target.getAttribute("data-answerindex"));
+      };
+
+      answerElement.setAttribute("draggable", "true");
+      answerElement.setAttribute("data-answerindex", `${i}`);
+      answerElement.addEventListener("dragstart", handleDrag);
+
+      const dropArea = this.makeADropArea(i + 1, drop, onDragOver, onDragLeave);
+
       this.optionsElement.appendChild(answerElement);
+      this.optionsElement.appendChild(dropArea);
 
       textElement.addEventListener("change", this.handleATextChanged(this, option));
       selectElement.addEventListener("change", this.handleASuccessorChanged(this, option));
     }
+  }
+
+  private makeADropArea(
+    dropIndex: number,
+    drop: (evt: DragEvent) => void,
+    onDragOver: (evt: DragEvent) => void,
+    onDragLeave: (evt: DragEvent) => void
+  ) {
+    const dropArea = document.createElement("div");
+    dropArea.setAttribute("data-dropindex", `${dropIndex}`);
+    dropArea.classList.add("a-droparea", "droppable");
+    dropArea.addEventListener("drop", drop);
+    dropArea.addEventListener("dragover", onDragOver);
+    dropArea.addEventListener("dragleave", onDragLeave);
+    return dropArea;
   }
 
   private createNodeSelectElement(currentKey: string, selectedKey): HTMLSelectElement {
