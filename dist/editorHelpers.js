@@ -358,6 +358,16 @@ var EditorHelper = /** @class */ (function () {
         }
         return object;
     };
+    EditorHelper.removePositions = function (dialogueConfig) {
+        var clone = JSON.parse(JSON.stringify(dialogueConfig));
+        for (var nodeName in clone.graph) {
+            var node = clone.graph[nodeName];
+            if (node.hasOwnProperty("editor")) {
+                delete node["editor"];
+            }
+        }
+        return clone;
+    };
     EditorHelper.prototype.randomNodeKey = function () {
         var keys = Object.keys(this.dialogConfigWithPositions.graph);
         var count = keys.length;

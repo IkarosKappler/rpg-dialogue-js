@@ -89,5 +89,6 @@ export declare class EditorHelper {
     renameGraphNode(oldName: string, newName: string): boolean;
     static ellipsify(text: string, maxLength: number): string;
     static fromObject(object: object): IDialogueConfig<IMiniQuestionaire>;
+    static removePositions(dialogueConfig: IDialogueConfig<IMiniQuestionaireWithPosition>): IDialogueConfig<IMiniQuestionaire>;
     private randomNodeKey;
 }

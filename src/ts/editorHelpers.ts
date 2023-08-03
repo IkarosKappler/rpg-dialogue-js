@@ -447,6 +447,17 @@ export class EditorHelper {
     return object as IDialogueConfig<IMiniQuestionaire>;
   }
 
+  static removePositions(dialogueConfig: IDialogueConfig<IMiniQuestionaireWithPosition>): IDialogueConfig<IMiniQuestionaire> {
+    const clone: IDialogueConfig<IMiniQuestionaire> = JSON.parse(JSON.stringify(dialogueConfig));
+    for (var nodeName in clone.graph) {
+      const node = clone.graph[nodeName];
+      if (node.hasOwnProperty("editor")) {
+        delete node["editor"];
+      }
+    }
+    return clone;
+  }
+
   private randomNodeKey(): string {
     const keys = Object.keys(this.dialogConfigWithPositions.graph);
     var count = keys.length;

@@ -25,9 +25,17 @@ var RPGDOMHelpers = /** @class */ (function () {
         document.getElementById("b-add-dialogue-node").addEventListener("click", this.addDialogueNode(this));
         document.getElementById("b-delete-dialogue-node").addEventListener("click", this.removeDialogueNode(this));
     }
+    RPGDOMHelpers.prototype.isExportWithoutPositions = function () {
+        var checkbox = document.getElementById("cb-export-without-positions");
+        return checkbox.checked;
+    };
     RPGDOMHelpers.prototype.exportJSON = function (_self) {
         return function () {
-            var jsonString = JSON.stringify(_self.editorHelpers.dialogConfigWithPositions);
+            var removePositions = _self.isExportWithoutPositions();
+            var dConfig = removePositions
+                ? editorHelpers_1.EditorHelper.removePositions(_self.editorHelpers.dialogConfigWithPositions)
+                : _self.editorHelpers.dialogConfigWithPositions;
+            var jsonString = JSON.stringify(dConfig);
             var blob = new Blob([jsonString], { type: "application/json" });
             var url = URL.createObjectURL(blob);
             var a = document.createElement("a");

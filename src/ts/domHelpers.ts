@@ -41,9 +41,18 @@ export class RPGDOMHelpers {
     document.getElementById("b-delete-dialogue-node").addEventListener("click", this.removeDialogueNode(this));
   }
 
+  isExportWithoutPositions(): boolean {
+    const checkbox = document.getElementById("cb-export-without-positions") as HTMLInputElement;
+    return checkbox.checked;
+  }
+
   exportJSON(_self: RPGDOMHelpers): () => void {
     return () => {
-      const jsonString = JSON.stringify(_self.editorHelpers.dialogConfigWithPositions);
+      const removePositions = _self.isExportWithoutPositions();
+      const dConfig: IDialogueConfig<IMiniQuestionaire> | IDialogueConfig<IMiniQuestionaireWithPosition> = removePositions
+        ? EditorHelper.removePositions(_self.editorHelpers.dialogConfigWithPositions)
+        : _self.editorHelpers.dialogConfigWithPositions;
+      const jsonString = JSON.stringify(dConfig);
       var blob = new Blob([jsonString], { type: "application/json" });
       var url = URL.createObjectURL(blob);
       var a = document.createElement("a");
