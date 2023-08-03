@@ -85,6 +85,8 @@ export declare class EditorHelper {
     boxMovehandler(): MouseHandler;
     handleClick(mouseClickPos: XYCoords): void;
     handleOptionReconnect(clickedNodeName: string): void;
+    isEqualOptionIdentifyer(identA: IOptionIdentifyer, identB: IOptionIdentifyer): boolean;
+    renameGraphNode(oldName: string, newName: string): boolean;
     static ellipsify(text: string, maxLength: number): string;
     static fromObject(object: object): IDialogueConfig<IMiniQuestionaire>;
     private randomNodeKey;

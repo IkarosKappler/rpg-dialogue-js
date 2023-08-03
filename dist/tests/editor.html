@@ -10,15 +10,9 @@
     <script src="../../lib/globalthis-polyfill.min.js"></script> 
     <script src="../../lib/path2d-polyfill.min.js"></script>
     
-    <!-- <script src="../../lib/dat.gui.min.js"></script> -->
-    <!-- <script src="../../lib/FileSaver.min.js"></script> -->
-    <!-- <script src="../../lib/Color.js"></script> -->
-    
     <script src="../../src/cjs/utils/creategui.js"></script>
-    <!-- <script src="../../src/cjs/utils/module.js"></script> -->
     <script src="libs/alloy_finger.js"></script>
     <script src="detectDarkMode.js"></script>
-    <!-- <script src="libs/plotboilerplate/src/cjs/utils/gup.js"></script> -->
     <script src="../gup.js"></script>
     <script src="../detectDarkMode.js"></script>
     
@@ -26,18 +20,10 @@
     <script src="libs/plotboilerplate/src/cjs/utils/io/FileDrop.js"></script>
     <script src="libs/plotboilerplate/src/cjs/utils/datastructures/Color.js"></script>
     <script src="libs/plotboilerplate/src/cjs/utils/algorithms/getContrastColor.js"></script>
-    <script>
-        // console.log("getContrastColor", getContrastColor)
-        // exports["getContrastColor"] = getContrastColor;
-    </script>
     
     <script src="libs/axios/dist/axios.js"></script>
-    <!-- <script src="https://unpkg.com/axios/dist/axios.min.js"></script> -->
-
     <script>
-        console.log("axios", axios);
         exports["Axios"] = axios;
-        console.log("exports", exports)
     </script>
     <script src="../RPGDialogueLogic.js"></script>
     <script src="../domHelpers.js"></script>
@@ -54,23 +40,32 @@
 <body> 
     <canvas id="my-canvas" width="1024" height="768">Your browser does not support the canvas tag.</canvas>
     <div id="attribute-editor" class="d-none">
-        <button type="button" id="b-export-json">Export JSON</button>
-        Drop JSON files onto the canvas to load them.
+        <!-- <button type="button" id="b-export-json">Export JSON</button> -->
+        <div class="e-hint">Drop JSON files onto the canvas to load them.</div>
+        <br>
+        <div>
+            <button id="b-add-dialogue-node">Add a Node</button>
+            <button id="b-delete-dialogue-node">Remove this Node</button>
+        </div>
+        <br>
         <div class="e-item">
-            <div>Key</div>
-            <div><input type="text" id="e-key" disabled /></div>
+            <div class="e-label">Key</div>
+            <div class="e-label"><input type="text" id="e-key" /></div>
         </div>
         <div class="e-item">
-            <div>Q</div>
+            <div class="e-label">Q</div>
             <div><input type="text" id="e-q"/></div>
         </div>
         <div id="e-options-container">
             <!-- This will be filled by the script -->
         </div>
         <button id="b-add-answer-option">+ Answer</button>
-        <button id="b-add-dialogue-node">+ Node</button>
-        <button id="b-delete-dialogue-node">- Node</button>
 
     </div>
+
+    <button id="b-export-json"></button>
+    <button id="b-import-json"></button>
+    <input id="input-upload-file" type="file" accept=".json" class="v-hidden"/>
+
 </body> 
 </html>

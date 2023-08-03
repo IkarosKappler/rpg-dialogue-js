@@ -26,10 +26,23 @@ div#attribute-editor {
 
 .a-droparea {
     height : 20px;
+    background-image: url('img/bgtile2.png');
 }
 
 .dragover {
     border: 1px solid black;
+}
+
+.e-hint {
+    font-size: 9pt;
+}
+
+.e-label {
+    font-family: monospace;
+}
+
+#e-q {
+    width: 95%;
 }
 
 .answer-wrapper-element {
@@ -45,7 +58,14 @@ div#attribute-editor {
 .a-dnd-element {
     width: 32px;
     height: 100%;
-    background: rgb(128,128,128)
+    background: rgba(128,128,128,0.5);
+    border-radius: 3px;;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    cursor: move;
 }
 
 .a-delete-button {
@@ -62,4 +82,34 @@ div#attribute-editor {
 
 #b-delete-dialogue-node {
     
+}
+
+.v-hidden {
+    visibility: hidden;
+}
+
+#b-export-json {
+    position: absolute;
+    left: 15px;
+    bottom: 10px;
+    width: 24px;
+    height: 24px;
+    border: none;
+    background-color: transparent;
+    background-image: url('img/icon-download-512x512.png');
+    background-size: cover;
+    cursor: pointer;
+}
+
+#b-import-json {
+    position: absolute;
+    left: 45px;
+    bottom: 10px;
+    width: 24px;
+    height: 24px;
+    border: none;
+    background-color: transparent;
+    background-image: url('img/icon-upload-512x512.png');
+    background-size: cover;
+    cursor: pointer;
 }

@@ -12,14 +12,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RPGDOMHelpers = void 0;
 var editorHelpers_1 = require("./editorHelpers");
 var RPGDOMHelpers = /** @class */ (function () {
-    function RPGDOMHelpers(editorHelpers, dialogConfigWithPositions) {
+    function RPGDOMHelpers(editorHelpers) {
         this.editorHelpers = editorHelpers;
-        // this.dialogConfigWithPositions = dialogConfigWithPositions;
         this.editorElement = document.getElementById("attribute-editor");
         this.optionsElement = document.getElementById("e-options-container");
         this.keyElement = this.editorElement.querySelector("input#e-key");
         this.qElement = this.editorElement.querySelector("input#e-q");
         this.qElement.addEventListener("change", this.handleQChanged(this));
+        this.keyElement.addEventListener("change", this.handleKeyChanged(this));
         document.getElementById("b-export-json").addEventListener("click", this.exportJSON(this));
         document.getElementById("b-add-answer-option").addEventListener("click", this.addAnswerOption(this));
         document.getElementById("b-add-dialogue-node").addEventListener("click", this.addDialogueNode(this));
@@ -56,11 +56,9 @@ var RPGDOMHelpers = /** @class */ (function () {
     RPGDOMHelpers.prototype.removeDialogueNode = function (_self) {
         return function () {
             _self.editorHelpers.removeNewDialogueNode(_self.currentNodeName);
+            _self.toggleVisibility(false);
         };
     };
-    // setDialogConfig(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>) {
-    //   this.dialogConfigWithPositions = dialogConfigWithPositions;
-    // }
     RPGDOMHelpers.prototype.toggleVisibility = function (isVisible) {
         if (isVisible) {
             this.editorElement.classList.remove("d-none");
@@ -73,6 +71,16 @@ var RPGDOMHelpers = /** @class */ (function () {
         return function (changeEvent) {
             _self.currentGraphNode.q = changeEvent.target.value;
             _self.editorHelpers.pb.redraw();
+        };
+    };
+    RPGDOMHelpers.prototype.handleKeyChanged = function (_self) {
+        var _this = this;
+        return function (_changeEvent) {
+            var newName = _this.keyElement.value;
+            if (!newName || (newName = newName.trim()).length === 0) {
+                return;
+            }
+            _self.editorHelpers.renameGraphNode(_self.currentNodeName, newName);
         };
     };
     RPGDOMHelpers.prototype.handleATextChanged = function (_self, answer) {
@@ -153,6 +161,7 @@ var RPGDOMHelpers = /** @class */ (function () {
             var textElement = document.createElement("input");
             var selectElement = this.createNodeSelectElement(nodeName, option.next);
             labelElement.innerHTML = "A#".concat(i);
+            labelElement.classList.add("e-label");
             textElement.setAttribute("value", option.a);
             answerElement.appendChild(labelElement);
             answerElement.appendChild(textElement);

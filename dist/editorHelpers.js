@@ -18,7 +18,7 @@ var EditorHelper = /** @class */ (function () {
         this.pb = pb;
         this.boxSize = boxSize;
         this.selectedNodeName = null;
-        this.domHelper = new domHelpers_1.RPGDOMHelpers(this, null);
+        this.domHelper = new domHelpers_1.RPGDOMHelpers(this);
     }
     EditorHelper.prototype.setDialogConfig = function (dialogConfigWithPositions) {
         this.dialogConfigWithPositions = dialogConfigWithPositions;
@@ -31,7 +31,8 @@ var EditorHelper = /** @class */ (function () {
         }
     };
     EditorHelper.prototype.setHighlightedOption = function (hightlightedOption) {
-        var isRedrawRequired = this.hightlightedOption !== hightlightedOption;
+        // const isRedrawRequired = this.hightlightedOption !== hightlightedOption;
+        var isRedrawRequired = !this.isEqualOptionIdentifyer(this.hightlightedOption, hightlightedOption);
         this.hightlightedOption = hightlightedOption;
         if (isRedrawRequired) {
             this.pb.redraw();
@@ -177,7 +178,6 @@ var EditorHelper = /** @class */ (function () {
     };
     EditorHelper.prototype.boxMovehandler = function () {
         var _this = this;
-        //dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>) {
         var _self = this;
         // +---------------------------------------------------------------------------------
         // | Add a mouse listener to track the mouse position.
@@ -275,15 +275,50 @@ var EditorHelper = /** @class */ (function () {
         sourceNode.o[this.selectedOption.optionIndex].next = clickedNodeName;
         this.domHelper.showAnswerOptions(this.selectedNodeName, this.selectedNode);
     };
-    // isEqualOptionIdentifyer(identA: IOptionIdentifyer, identB: IOptionIdentifyer): boolean {
-    //   if ((!identA && identB) || (identA && !identB)) {
-    //     return false;
-    //   }
-    //   if (identA === identB) {
-    //     return true;
-    //   }
-    //   return identA.nodeName === identB.nodeName && identA.optionIndex === identB.optionIndex;
-    // }
+    EditorHelper.prototype.isEqualOptionIdentifyer = function (identA, identB) {
+        if ((!identA && identB) || (identA && !identB)) {
+            return false;
+        }
+        if ((typeof identA === "undefined" && typeof identB !== "undefined") ||
+            (typeof identA !== "undefined" && typeof identB === "undefined")) {
+            return false;
+        }
+        if (identA === identB || (typeof identA === "undefined" && typeof identB === "undefined")) {
+            return true;
+        }
+        return identA.nodeName === identB.nodeName && identA.optionIndex === identB.optionIndex;
+    };
+    EditorHelper.prototype.renameGraphNode = function (oldName, newName) {
+        if (!this.dialogConfigWithPositions.graph.hasOwnProperty(oldName)) {
+            console.warn("Warning: cannot rename node, because old name does not exist.", oldName);
+            return false;
+        }
+        if (oldName === "intro") {
+            console.warn("Warning: cannot rename node, because 'intro' must not be renamed'.");
+            return false;
+        }
+        if (this.dialogConfigWithPositions.graph.hasOwnProperty(newName)) {
+            console.warn("Warning: cannot rename node, because new name already exists.", newName);
+            return false;
+        }
+        var graphNode = this.dialogConfigWithPositions.graph[oldName];
+        this.dialogConfigWithPositions.graph[newName] = graphNode;
+        delete this.dialogConfigWithPositions.graph[oldName];
+        // Update all references
+        for (var nodeName in this.dialogConfigWithPositions.graph) {
+            if (!this.dialogConfigWithPositions.graph.hasOwnProperty(nodeName)) {
+                continue;
+            }
+            var tmpNode = this.dialogConfigWithPositions.graph[nodeName];
+            for (var j = 0; j < tmpNode.o.length; j++) {
+                if (tmpNode.o[j].next === oldName) {
+                    tmpNode.o[j].next = newName;
+                }
+            }
+        }
+        this.pb.redraw();
+        return true;
+    };
     EditorHelper.ellipsify = function (text, maxLength) {
         if (!text || text.length <= maxLength) {
             return text;

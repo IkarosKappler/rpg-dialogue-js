@@ -8,7 +8,7 @@
 
 body {
     background-color: #003776;
-    background-image: url('bgtile2.png');
+    background-image: url('img/bgtile2.png');
     font-family: unifontregular;
     font-size: 16pt;
     font-weight: 900;
@@ -31,5 +31,6 @@ body {
     color:blueviolet;
 }
 #rpg-output-options a:hover {
-    color:darkmagenta
+    color:darkmagenta;
+    background-color: #003776;
 }

@@ -68,7 +68,7 @@ export class EditorHelper {
     this.pb = pb;
     this.boxSize = boxSize;
     this.selectedNodeName = null;
-    this.domHelper = new RPGDOMHelpers(this, null);
+    this.domHelper = new RPGDOMHelpers(this);
   }
 
   setDialogConfig(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>) {
@@ -84,7 +84,9 @@ export class EditorHelper {
   }
 
   setHighlightedOption(hightlightedOption: IOptionIdentifyer | null) {
-    const isRedrawRequired = this.hightlightedOption !== hightlightedOption;
+    // const isRedrawRequired = this.hightlightedOption !== hightlightedOption;
+    const isRedrawRequired = !this.isEqualOptionIdentifyer(this.hightlightedOption, hightlightedOption);
+
     this.hightlightedOption = hightlightedOption;
     if (isRedrawRequired) {
       this.pb.redraw();
@@ -250,7 +252,6 @@ export class EditorHelper {
   }
 
   boxMovehandler() {
-    //dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>) {
     const _self = this;
     // +---------------------------------------------------------------------------------
     // | Add a mouse listener to track the mouse position.
@@ -349,15 +350,54 @@ export class EditorHelper {
     this.domHelper.showAnswerOptions(this.selectedNodeName, this.selectedNode);
   }
 
-  // isEqualOptionIdentifyer(identA: IOptionIdentifyer, identB: IOptionIdentifyer): boolean {
-  //   if ((!identA && identB) || (identA && !identB)) {
-  //     return false;
-  //   }
-  //   if (identA === identB) {
-  //     return true;
-  //   }
-  //   return identA.nodeName === identB.nodeName && identA.optionIndex === identB.optionIndex;
-  // }
+  isEqualOptionIdentifyer(identA: IOptionIdentifyer, identB: IOptionIdentifyer): boolean {
+    if ((!identA && identB) || (identA && !identB)) {
+      return false;
+    }
+    if (
+      (typeof identA === "undefined" && typeof identB !== "undefined") ||
+      (typeof identA !== "undefined" && typeof identB === "undefined")
+    ) {
+      return false;
+    }
+    if (identA === identB || (typeof identA === "undefined" && typeof identB === "undefined")) {
+      return true;
+    }
+    return identA.nodeName === identB.nodeName && identA.optionIndex === identB.optionIndex;
+  }
+
+  renameGraphNode(oldName: string, newName: string): boolean {
+    if (!this.dialogConfigWithPositions.graph.hasOwnProperty(oldName)) {
+      console.warn("Warning: cannot rename node, because old name does not exist.", oldName);
+      return false;
+    }
+    if (oldName === "intro") {
+      console.warn("Warning: cannot rename node, because 'intro' must not be renamed'.");
+      return false;
+    }
+    if (this.dialogConfigWithPositions.graph.hasOwnProperty(newName)) {
+      console.warn("Warning: cannot rename node, because new name already exists.", newName);
+      return false;
+    }
+    const graphNode = this.dialogConfigWithPositions.graph[oldName];
+    this.dialogConfigWithPositions.graph[newName] = graphNode;
+    delete this.dialogConfigWithPositions.graph[oldName];
+
+    // Update all references
+    for (var nodeName in this.dialogConfigWithPositions.graph) {
+      if (!this.dialogConfigWithPositions.graph.hasOwnProperty(nodeName)) {
+        continue;
+      }
+      const tmpNode = this.dialogConfigWithPositions.graph[nodeName];
+      for (var j = 0; j < tmpNode.o.length; j++) {
+        if (tmpNode.o[j].next === oldName) {
+          tmpNode.o[j].next = newName;
+        }
+      }
+    }
+    this.pb.redraw();
+    return true;
+  }
 
   static ellipsify(text: string, maxLength: number): string {
     if (!text || text.length <= maxLength) {

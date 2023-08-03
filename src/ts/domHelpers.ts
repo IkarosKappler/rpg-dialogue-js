@@ -13,7 +13,6 @@ import { IAnswer, IDialogueConfig, IDialogueGraph, IMiniQuestionaire, IMiniQuest
 
 export class RPGDOMHelpers {
   editorHelpers: EditorHelper;
-  // dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>;
 
   editorElement: HTMLDivElement;
   keyElement: HTMLInputElement;
@@ -24,9 +23,8 @@ export class RPGDOMHelpers {
   currentNodeName: string | null;
   currentGraphNode: IMiniQuestionaire;
 
-  constructor(editorHelpers: EditorHelper, dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>) {
+  constructor(editorHelpers: EditorHelper) {
     this.editorHelpers = editorHelpers;
-    // this.dialogConfigWithPositions = dialogConfigWithPositions;
 
     this.editorElement = document.getElementById("attribute-editor") as HTMLDivElement;
     this.optionsElement = document.getElementById("e-options-container") as HTMLDivElement;
@@ -35,6 +33,7 @@ export class RPGDOMHelpers {
     this.qElement = this.editorElement.querySelector("input#e-q");
 
     this.qElement.addEventListener("change", this.handleQChanged(this));
+    this.keyElement.addEventListener("change", this.handleKeyChanged(this));
 
     document.getElementById("b-export-json").addEventListener("click", this.exportJSON(this));
     document.getElementById("b-add-answer-option").addEventListener("click", this.addAnswerOption(this));
@@ -76,12 +75,9 @@ export class RPGDOMHelpers {
   private removeDialogueNode(_self: RPGDOMHelpers): () => void {
     return () => {
       _self.editorHelpers.removeNewDialogueNode(_self.currentNodeName);
+      _self.toggleVisibility(false);
     };
   }
-
-  // setDialogConfig(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>) {
-  //   this.dialogConfigWithPositions = dialogConfigWithPositions;
-  // }
 
   toggleVisibility(isVisible: boolean) {
     if (isVisible) {
@@ -95,6 +91,16 @@ export class RPGDOMHelpers {
     return (changeEvent: Event) => {
       _self.currentGraphNode.q = (changeEvent.target as HTMLInputElement).value;
       _self.editorHelpers.pb.redraw();
+    };
+  }
+
+  private handleKeyChanged(_self: RPGDOMHelpers): (changeEvent: Event) => void {
+    return (_changeEvent: Event) => {
+      let newName: string = this.keyElement.value;
+      if (!newName || (newName = newName.trim()).length === 0) {
+        return;
+      }
+      _self.editorHelpers.renameGraphNode(_self.currentNodeName, newName);
     };
   }
 
@@ -187,6 +193,7 @@ export class RPGDOMHelpers {
       const textElement = document.createElement("input") as HTMLInputElement;
       const selectElement = this.createNodeSelectElement(nodeName, option.next);
       labelElement.innerHTML = `A#${i}`;
+      labelElement.classList.add("e-label");
       textElement.setAttribute("value", option.a);
 
       answerElement.appendChild(labelElement);

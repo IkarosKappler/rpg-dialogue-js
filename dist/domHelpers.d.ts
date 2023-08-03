@@ -8,7 +8,7 @@
  * @version  1.0.0
  **/
 import { EditorHelper } from "./editorHelpers";
-import { IDialogueConfig, IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
+import { IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
 export declare class RPGDOMHelpers {
     editorHelpers: EditorHelper;
     editorElement: HTMLDivElement;
@@ -17,13 +17,14 @@ export declare class RPGDOMHelpers {
     optionsElement: HTMLDivElement;
     currentNodeName: string | null;
     currentGraphNode: IMiniQuestionaire;
-    constructor(editorHelpers: EditorHelper, dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>);
+    constructor(editorHelpers: EditorHelper);
     exportJSON(_self: RPGDOMHelpers): () => void;
     addAnswerOption(_self: RPGDOMHelpers): () => void;
     private addDialogueNode;
     private removeDialogueNode;
     toggleVisibility(isVisible: boolean): void;
     private handleQChanged;
+    private handleKeyChanged;
     private handleATextChanged;
     private handleASuccessorChanged;
     updateAnswerOptions(): void;

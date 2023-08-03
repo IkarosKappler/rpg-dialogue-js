@@ -80,7 +80,6 @@ export class Editor {
 
     RPGDialogueLogic.loadConfigFromJSON(dialogueConfigJSONPath).then((config: IDialogueConfig<IMiniQuestionaire>) => {
       console.log("structure", config);
-
       handleDialogConfigLoaded(config);
     });
 
@@ -88,7 +87,6 @@ export class Editor {
       // Check if all graph nodes have positions to render.
       dialogConfig = editorHelpers.enrichPositions(config);
       editorHelpers.setDialogConfig(dialogConfig);
-      // editorHelpers.domHelper.setDialogConfig(dialogConfig);
 
       // Ad DnD support for boxes.
       if (currentMouseHandler) {
@@ -108,21 +106,35 @@ export class Editor {
     };
 
     // Install DnD with FileDrop
-    var fileDrop = new FileDrop(pb.eventCatcher);
-    fileDrop.onFileJSONDropped(function (jsonObject) {
+    const fileDrop = new FileDrop(pb.eventCatcher);
+    fileDrop.onFileJSONDropped((jsonObject: object) => {
       console.log("[onFileJSONDropped] jsonObject", jsonObject);
       // TODO: properly convert to dialog-config
       handleDialogConfigLoaded(EditorHelper.fromObject(jsonObject));
     });
 
-    // const editorHelpers = new EditorHelper(pb, boxSize);
-    // const randPos = getRandomPosition(pb, boxSize);
-    // const addPositions = editorHelpers.enrichPositions(pb, boxSize);
+    // Also accept uploads via button
+    const importJSON = () => {
+      document.getElementById("input-upload-file").click();
+    };
+    document.getElementById("b-import-json").addEventListener("click", importJSON);
+    document.getElementById("input-upload-file").addEventListener("change", (evt: Event) => {
+      var fileInput = document.getElementById("input-upload-file") as HTMLInputElement;
+      if (!fileInput.files || fileInput.files.length === 0) {
+        return;
+      }
+      console.log("pictureFile", fileInput.files[0]);
+      var reader = new FileReader();
+      reader.onload = function () {
+        const jsonText = reader.result as string;
+        console.log(reader.result);
+        handleDialogConfigLoaded(EditorHelper.fromObject(JSON.parse(jsonText)));
+      };
+      reader.readAsText(fileInput.files[0]);
+    });
 
     // +---------------------------------------------------------------------------------
-    // | Initialize dat.gui
+    // | END Editor
     // +-------------------------------
-    // pb.createGUI();
-    // END init dat.gui
   }
 }

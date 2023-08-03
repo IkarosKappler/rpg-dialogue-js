@@ -76,7 +76,6 @@ var Editor = /** @class */ (function () {
             // Check if all graph nodes have positions to render.
             dialogConfig = editorHelpers.enrichPositions(config);
             editorHelpers.setDialogConfig(dialogConfig);
-            // editorHelpers.domHelper.setDialogConfig(dialogConfig);
             // Ad DnD support for boxes.
             if (currentMouseHandler) {
                 currentMouseHandler.destroy();
@@ -98,14 +97,28 @@ var Editor = /** @class */ (function () {
             // TODO: properly convert to dialog-config
             handleDialogConfigLoaded(editorHelpers_1.EditorHelper.fromObject(jsonObject));
         });
-        // const editorHelpers = new EditorHelper(pb, boxSize);
-        // const randPos = getRandomPosition(pb, boxSize);
-        // const addPositions = editorHelpers.enrichPositions(pb, boxSize);
+        // Also accept uploads via button
+        var importJSON = function () {
+            document.getElementById("input-upload-file").click();
+        };
+        document.getElementById("b-import-json").addEventListener("click", importJSON);
+        document.getElementById("input-upload-file").addEventListener("change", function (evt) {
+            var fileInput = document.getElementById("input-upload-file");
+            if (!fileInput.files || fileInput.files.length === 0) {
+                return;
+            }
+            console.log("pictureFile", fileInput.files[0]);
+            var reader = new FileReader();
+            reader.onload = function () {
+                var jsonText = reader.result;
+                console.log(reader.result);
+                handleDialogConfigLoaded(editorHelpers_1.EditorHelper.fromObject(JSON.parse(jsonText)));
+            };
+            reader.readAsText(fileInput.files[0]);
+        });
         // +---------------------------------------------------------------------------------
-        // | Initialize dat.gui
+        // | END Editor
         // +-------------------------------
-        // pb.createGUI();
-        // END init dat.gui
     }
     return Editor;
 }());
