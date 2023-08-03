@@ -8,7 +8,7 @@ Load some JSON file into your app.
 Have a smooth dialogue logic for NPC characters.
 
 Maybe an editor could look like this?
-![Screenshot](/resources/20230803-0-add-remove-update.png)
+![Screenshot](/resources/screenshots/20230803-0-add-remove-update.png)
 
 ## Example
 
