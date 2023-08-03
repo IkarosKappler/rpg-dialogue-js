@@ -7,6 +7,6 @@ globalThis.addEventListener("load", function () {
   RPGDialogueLogic.loadFromJSON(path).then(rpgDialogue => {
     console.log("rpgDialogue", rpgDialogue);
 
-    rpgDialogue.beginConversation("output-question", "output-options");
+    rpgDialogue.beginConversation("rpg-output-question", "rpg-output-options");
   });
 });

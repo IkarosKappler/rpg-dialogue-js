@@ -1,0 +1,65 @@
+body {
+    background: #a8a8a8;
+}
+
+canvas#my-canvas {
+    position: absolute !important;
+}
+
+div#attribute-editor {
+    position: absolute;
+    width: 33%;
+    height: calc( 100% - 12px );
+    background: rgba(255,255,255, 0.8);
+    border: 1px solid grey;
+    border-radius: 4px;
+    right: 0;
+    margin: 5px;
+    padding: 5px;
+    box-sizing: border-box;
+    overflow: scroll;
+}
+
+.d-none {
+    display: none;
+}
+
+.a-droparea {
+    height : 20px;
+}
+
+.dragover {
+    border: 1px solid black;
+}
+
+.answer-wrapper-element {
+    display: flex;
+    flex-direction: row;
+}
+
+.answer-controls-element {
+    display: flex;
+    flex-direction: row;
+}
+
+.a-dnd-element {
+    width: 32px;
+    height: 100%;
+    background: rgb(128,128,128)
+}
+
+.a-delete-button {
+
+}
+
+#b-add-answer-option{
+
+}
+
+#b-add-dialogue-node {
+
+}
+
+#b-delete-dialogue-node {
+    
+}
