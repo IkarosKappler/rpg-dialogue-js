@@ -7,7 +7,7 @@
  * @date     2023-07-28
  * @version  1.0.0
  **/
-import { FontOptions, PlotBoilerplate, Vertex, XYDimension } from "plotboilerplate";
+import { FontOptions, PlotBoilerplate, Vertex, XYCoords, XYDimension } from "plotboilerplate";
 import { IDialogueConfig, IMiniQuestionaireWithPosition } from "./interfaces";
 import { EditorHelper } from "./editorHelpers";
 export declare class EditorRenderer {
@@ -22,7 +22,7 @@ export declare class EditorRenderer {
     private renderGraphNode;
     private renderOptions;
     renderConnections(dialogConfig: IDialogueConfig<IMiniQuestionaireWithPosition>): void;
-    drawBezierConnection(graphNode: IMiniQuestionaireWithPosition, successorNode: IMiniQuestionaireWithPosition, j: number, isHighlighted: boolean): void;
+    drawBezierConnection(graphNode: IMiniQuestionaireWithPosition, j: number, successorNodePosition: XYCoords, isHighlighted: boolean, isSelected: boolean): void;
     /**
      * Draw a line and an arrow at the end (zB) of the given line with the specified (CSS-) color.
      *

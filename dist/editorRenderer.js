@@ -55,14 +55,23 @@ var EditorRenderer = /** @class */ (function () {
             this.renderGraphNode(nodeName, graphNode);
             this.renderOptions(nodeName, graphNode);
         }
+        // Render recommended new connection
+        if (this.editorHelpers.selectedOption) {
+            var bezierTargetPosition = this.editorHelpers.highlightedNode
+                ? this.editorHelpers.highlightedNode.editor.position
+                : this.editorHelpers.relativeMousePosition;
+            // console.log("render recommended connection");
+            this.drawBezierConnection(this.editorHelpers.selectedOption.node, this.editorHelpers.selectedOption.optionIndex, bezierTargetPosition, true, true);
+        }
     };
     EditorRenderer.prototype.renderGraphNode = function (nodeName, graphNode) {
         var isNodeSelected = this.editorHelpers.selectedNodeName === nodeName;
+        var isNodeHighlighted = this.editorHelpers.isNodeHighlighted(nodeName);
         this.pb.fill.text(nodeName, graphNode.editor.position.x, graphNode.editor.position.y - this.boxSize.height, __assign(__assign({}, this.fontOptions), { color: "grey" }));
         this.pb.draw.rect(graphNode.editor.position, this.boxSize.width, this.boxSize.height, isNodeSelected ? "rgba(255,128,0,1.0)" : "rgba(0,255,0,1.0)", 1.0);
         // Show initial and terminal nodes with fill color
-        if (!graphNode.o || graphNode.o.length === 0 || nodeName === "intro") {
-            this.pb.fill.rect({ x: graphNode.editor.position.x, y: graphNode.editor.position.y }, this.boxSize.width, this.boxSize.height, isNodeSelected ? "rgba(255,128,0,0.3)" : "rgba(0,255,0,0.3)", 1.0);
+        if (!graphNode.o || graphNode.o.length === 0 || nodeName === "intro" || isNodeHighlighted) {
+            this.pb.fill.rect({ x: graphNode.editor.position.x, y: graphNode.editor.position.y }, this.boxSize.width, this.boxSize.height, isNodeHighlighted ? "rgba(255,128,0,0.5)" : isNodeSelected ? "rgba(255,128,0,0.3)" : "rgba(0,255,0,0.3)", 1.0);
         }
         this.pb.fill.text(graphNode.q ? (isNodeSelected ? graphNode.q : editorHelpers_1.EditorHelper.ellipsify(graphNode.q, this.TEXT_MAX_LENGTH)) : "-no text-", graphNode.editor.position.x, graphNode.editor.position.y, this.fontOptions);
     };
@@ -70,18 +79,19 @@ var EditorRenderer = /** @class */ (function () {
         var isNodeSelected = this.editorHelpers.selectedNodeName === nodeName;
         var offsetY = graphNode.editor.position.y + this.boxSize.height;
         var offsetX = graphNode.editor.position.x + EditorRenderer.OPTION_OFFSET_X;
-        for (var i = 0; i < graphNode.o.length; i++) {
-            var option = graphNode.o[i];
+        for (var j = 0; j < graphNode.o.length; j++) {
+            var option = graphNode.o[j];
             // Render highlighted option?
-            var isHighlighted = this.editorHelpers.isOptionHighlighted(nodeName, i);
-            if (isHighlighted) {
+            var isHighlighted = this.editorHelpers.isOptionHighlighted(nodeName, j);
+            var isSelected = this.editorHelpers.isOptionSelected(nodeName, j);
+            if (isHighlighted || isSelected) {
                 this.pb.fill.rect({ x: offsetX, y: offsetY }, this.boxSize.width, this.boxSize.height, "rgba(255,192,0,0.5)", 1);
             }
             this.pb.draw.rect({ x: offsetX, y: offsetY }, this.boxSize.width, this.boxSize.height, "grey", 1);
-            this.pb.fill.text(option.a ? (isNodeSelected ? option.a : editorHelpers_1.EditorHelper.ellipsify(option.a, this.TEXT_MAX_LENGTH)) : "-no text-", offsetX, offsetY, __assign(__assign({}, this.fontOptions), { color: isHighlighted ? "black" : "grey" }));
-            if (isHighlighted) {
+            this.pb.fill.text(option.a ? (isNodeSelected ? option.a : editorHelpers_1.EditorHelper.ellipsify(option.a, this.TEXT_MAX_LENGTH)) : "-no text-", offsetX, offsetY, __assign(__assign({}, this.fontOptions), { color: isHighlighted || isSelected ? "black" : "grey" }));
+            if (isHighlighted || isSelected) {
                 // Draw connect indicator when highlighted
-                var zA = new plotboilerplate_1.Vertex(graphNode.editor.position).addXY(this.boxSize.width + 16, this.boxSize.height / 2.0 + (i + 1) * this.boxSize.height);
+                var zA = new plotboilerplate_1.Vertex(graphNode.editor.position).addXY(this.boxSize.width + 16, this.boxSize.height / 2.0 + (j + 1) * this.boxSize.height);
                 this.pb.fill.circle(zA, 5, "orange");
             }
             offsetY += this.boxSize.height + 2;
@@ -103,8 +113,9 @@ var EditorRenderer = /** @class */ (function () {
                     continue;
                 }
                 var isHighlighted = this.editorHelpers.isOptionHighlighted(nodeName, j);
+                var isSelected = this.editorHelpers.isOptionSelected(nodeName, j);
                 // this.drawLinearConnection(graphNode, successorNode, j);
-                this.drawBezierConnection(graphNode, successorNode, j, isHighlighted);
+                this.drawBezierConnection(graphNode, j, successorNode.editor.position, isHighlighted, isSelected);
             }
         }
     };
@@ -120,9 +131,9 @@ var EditorRenderer = /** @class */ (function () {
         2
       );
     } */
-    EditorRenderer.prototype.drawBezierConnection = function (graphNode, successorNode, j, isHighlighted) {
+    EditorRenderer.prototype.drawBezierConnection = function (graphNode, j, successorNodePosition, isHighlighted, isSelected) {
         var zA = new plotboilerplate_1.Vertex(graphNode.editor.position).addXY(this.boxSize.width + 16, this.boxSize.height / 2.0 + (j + 1) * this.boxSize.height);
-        var zB = new plotboilerplate_1.Vertex(successorNode.editor.position);
+        var zB = new plotboilerplate_1.Vertex(successorNodePosition);
         var cA = zA.clone().addXY(50, 0);
         var cB = zB.clone().subXY(50, 50);
         // console.log("canvas", typeof this.pb.canvas);
@@ -136,7 +147,7 @@ var EditorRenderer = /** @class */ (function () {
                 this.pb.draw.ctx.setLineDash([0]);
             }
         }
-        this.cubicBezierArrow(zA, zB, cA, cB, isHighlighted ? "rgba(0,192,255,0.5)" : "rgba(255,192,0,0.5)", 2);
+        this.cubicBezierArrow(zA, zB, cA, cB, isHighlighted || isSelected ? "rgba(0,192,255,0.5)" : "rgba(255,192,0,0.5)", 2);
         if (isCanvas) {
             this.pb.draw.ctx.setLineDash([0]);
         }

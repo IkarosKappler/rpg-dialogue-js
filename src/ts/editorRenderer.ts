@@ -52,10 +52,25 @@ export class EditorRenderer {
       this.renderGraphNode(nodeName, graphNode);
       this.renderOptions(nodeName, graphNode);
     }
+    // Render recommended new connection
+    if (this.editorHelpers.selectedOption) {
+      const bezierTargetPosition = this.editorHelpers.highlightedNode
+        ? this.editorHelpers.highlightedNode.editor.position
+        : this.editorHelpers.relativeMousePosition;
+      // console.log("render recommended connection");
+      this.drawBezierConnection(
+        this.editorHelpers.selectedOption.node,
+        this.editorHelpers.selectedOption.optionIndex,
+        bezierTargetPosition,
+        true,
+        true
+      );
+    }
   }
 
   private renderGraphNode(nodeName: string, graphNode: IMiniQuestionaireWithPosition) {
     const isNodeSelected: boolean = this.editorHelpers.selectedNodeName === nodeName;
+    const isNodeHighlighted: boolean = this.editorHelpers.isNodeHighlighted(nodeName);
     this.pb.fill.text(nodeName, graphNode.editor.position.x, graphNode.editor.position.y - this.boxSize.height, {
       ...this.fontOptions,
       color: "grey"
@@ -68,12 +83,12 @@ export class EditorRenderer {
       1.0
     );
     // Show initial and terminal nodes with fill color
-    if (!graphNode.o || graphNode.o.length === 0 || nodeName === "intro") {
+    if (!graphNode.o || graphNode.o.length === 0 || nodeName === "intro" || isNodeHighlighted) {
       this.pb.fill.rect(
         { x: graphNode.editor.position.x, y: graphNode.editor.position.y },
         this.boxSize.width,
         this.boxSize.height,
-        isNodeSelected ? "rgba(255,128,0,0.3)" : "rgba(0,255,0,0.3)",
+        isNodeHighlighted ? "rgba(255,128,0,0.5)" : isNodeSelected ? "rgba(255,128,0,0.3)" : "rgba(0,255,0,0.3)",
         1.0
       );
     }
@@ -90,12 +105,13 @@ export class EditorRenderer {
 
     var offsetY = graphNode.editor.position.y + this.boxSize.height;
     var offsetX = graphNode.editor.position.x + EditorRenderer.OPTION_OFFSET_X;
-    for (var i = 0; i < graphNode.o.length; i++) {
-      const option: IAnswer = graphNode.o[i];
+    for (var j = 0; j < graphNode.o.length; j++) {
+      const option: IAnswer = graphNode.o[j];
 
       // Render highlighted option?
-      const isHighlighted = this.editorHelpers.isOptionHighlighted(nodeName, i);
-      if (isHighlighted) {
+      const isHighlighted = this.editorHelpers.isOptionHighlighted(nodeName, j);
+      const isSelected = this.editorHelpers.isOptionSelected(nodeName, j);
+      if (isHighlighted || isSelected) {
         this.pb.fill.rect({ x: offsetX, y: offsetY }, this.boxSize.width, this.boxSize.height, "rgba(255,192,0,0.5)", 1);
       }
       this.pb.draw.rect({ x: offsetX, y: offsetY }, this.boxSize.width, this.boxSize.height, "grey", 1);
@@ -103,13 +119,13 @@ export class EditorRenderer {
         option.a ? (isNodeSelected ? option.a : EditorHelper.ellipsify(option.a, this.TEXT_MAX_LENGTH)) : "-no text-",
         offsetX,
         offsetY,
-        { ...this.fontOptions, color: isHighlighted ? "black" : "grey" }
+        { ...this.fontOptions, color: isHighlighted || isSelected ? "black" : "grey" }
       );
-      if (isHighlighted) {
+      if (isHighlighted || isSelected) {
         // Draw connect indicator when highlighted
         const zA = new Vertex(graphNode.editor.position).addXY(
           this.boxSize.width + 16,
-          this.boxSize.height / 2.0 + (i + 1) * this.boxSize.height
+          this.boxSize.height / 2.0 + (j + 1) * this.boxSize.height
         );
         this.pb.fill.circle(zA, 5, "orange");
       }
@@ -134,9 +150,10 @@ export class EditorRenderer {
           continue;
         }
         const isHighlighted = this.editorHelpers.isOptionHighlighted(nodeName, j);
+        const isSelected = this.editorHelpers.isOptionSelected(nodeName, j);
 
         // this.drawLinearConnection(graphNode, successorNode, j);
-        this.drawBezierConnection(graphNode, successorNode, j, isHighlighted);
+        this.drawBezierConnection(graphNode, j, successorNode.editor.position, isHighlighted, isSelected);
       }
     }
   }
@@ -156,15 +173,16 @@ export class EditorRenderer {
 
   drawBezierConnection(
     graphNode: IMiniQuestionaireWithPosition,
-    successorNode: IMiniQuestionaireWithPosition,
     j: number,
-    isHighlighted: boolean
+    successorNodePosition: XYCoords,
+    isHighlighted: boolean,
+    isSelected: boolean
   ) {
     const zA = new Vertex(graphNode.editor.position).addXY(
       this.boxSize.width + 16,
       this.boxSize.height / 2.0 + (j + 1) * this.boxSize.height
     );
-    const zB = new Vertex(successorNode.editor.position);
+    const zB = new Vertex(successorNodePosition);
     const cA = zA.clone().addXY(50, 0);
     const cB = zB.clone().subXY(50, 50);
 
@@ -178,7 +196,7 @@ export class EditorRenderer {
         (this.pb.draw as drawutils).ctx.setLineDash([0]);
       }
     }
-    this.cubicBezierArrow(zA, zB, cA, cB, isHighlighted ? "rgba(0,192,255,0.5)" : "rgba(255,192,0,0.5)", 2);
+    this.cubicBezierArrow(zA, zB, cA, cB, isHighlighted || isSelected ? "rgba(0,192,255,0.5)" : "rgba(255,192,0,0.5)", 2);
 
     if (isCanvas) {
       (this.pb.draw as drawutils).ctx.setLineDash([0]);

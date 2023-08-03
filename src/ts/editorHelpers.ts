@@ -23,6 +23,19 @@ export class EditorHelper {
   pb: PlotBoilerplate;
   boxSize: XYDimension;
 
+  // TODO: convert into node identifyer
+  /**
+   * The highlighted node's name or null if none is highlighted.
+   * Used to highlight nodes when the mouse is over.
+   */
+  highlightedNodeName: string | null;
+
+  /**
+   * The highlighted node itself or null if none is highligted.
+   * Used to determine rendering colors.
+   */
+  highlightedNode: IMiniQuestionaireWithPosition | null;
+
   /**
    * The selected node's name or null if none is selected.
    * Used to determine the node editor's contents.
@@ -47,6 +60,12 @@ export class EditorHelper {
    */
   hightlightedOption: IOptionIdentifyer | null;
 
+  /**
+   * The current mouse position (or null if mouse is not on canvas).
+   * In local relative coordinate system.
+   */
+  relativeMousePosition: XYCoords | null;
+
   domHelper: RPGDOMHelpers;
 
   dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>;
@@ -62,14 +81,26 @@ export class EditorHelper {
     this.dialogConfigWithPositions = dialogConfigWithPositions;
   }
 
-  setSelectedOption(selectedOption: IOptionIdentifyer | null) {
+  setSelectedOption(selectedOption: IOptionIdentifyer | null, noRedraw?: boolean) {
+    console.log("Set selected option", selectedOption);
     this.selectedOption = selectedOption;
+    if (!noRedraw) {
+      this.pb.redraw();
+    }
   }
 
   setHighlightedOption(hightlightedOption: IOptionIdentifyer | null) {
     const isRedrawRequired = this.hightlightedOption !== hightlightedOption;
     this.hightlightedOption = hightlightedOption;
     if (isRedrawRequired) {
+      this.pb.redraw();
+    }
+  }
+
+  setHighlightedNode(nodeName: string, noRedraw?: boolean) {
+    this.highlightedNodeName = nodeName;
+    this.highlightedNode = nodeName ? this.dialogConfigWithPositions.graph[nodeName] : null;
+    if (!noRedraw) {
       this.pb.redraw();
     }
   }
@@ -184,12 +215,20 @@ export class EditorHelper {
     return null;
   }
 
+  isNodeHighlighted(nodName: string) {
+    return this.highlightedNodeName === nodName;
+  }
+
   isOptionHighlighted(nodeName: string, optionIndex: number): boolean {
     return (
       this.hightlightedOption &&
       this.hightlightedOption.nodeName === nodeName &&
       this.hightlightedOption.optionIndex === optionIndex
     );
+  }
+
+  isOptionSelected(nodeName: string, optionIndex: number): boolean {
+    return this.selectedOption && this.selectedOption.nodeName === nodeName && this.selectedOption.optionIndex === optionIndex;
   }
 
   addNewDialogueNode() {
@@ -248,15 +287,19 @@ export class EditorHelper {
         draggingNode.editor.position.y += evt.params.dragAmount.y / this.pb.draw.scale.y;
       })
       .move((evt: XMouseEvent) => {
-        // ...
+        // Check if mouse pointer hovers over an option -> set highlighted
         const mouseMovePos = this.pb.transformMousePosition(evt.params.pos.x, evt.params.pos.y);
-        // lastMouseDownPos = { x: evt.params.mouseDownPos.x, y: evt.params.mouseDownPos.y };
-        const hoveringNodeIdentifyer: IOptionIdentifyer = this.locateOptionBoxNameAtPos(mouseMovePos);
-        // if (hoveringNodeIdentifyer) {
-        // const hoveringNode = this.dialogConfigWithPositions.graph[hoveringNodeName];
+        _self.relativeMousePosition = { x: mouseMovePos.x, y: mouseMovePos.y };
+        const hoveringOptionIdentifyer: IOptionIdentifyer = this.locateOptionBoxNameAtPos(mouseMovePos);
         // Can be null
-        _self.setHighlightedOption(hoveringNodeIdentifyer);
-        // }
+        _self.setHighlightedOption(hoveringOptionIdentifyer);
+        if (!hoveringOptionIdentifyer) {
+          // Check if hover on graph node
+          const hoveringNodeName = this.locateNodeBoxNameAtPos(mouseMovePos);
+          this.setHighlightedNode(hoveringNodeName);
+        } else {
+          this.setHighlightedNode(null);
+        }
       })
       .click((evt: XMouseEvent) => {
         // Stop if mouse was moved
@@ -264,21 +307,61 @@ export class EditorHelper {
         if (lastMouseDownPos && (lastMouseDownPos.x !== evt.params.pos.x || lastMouseDownPos.y !== evt.params.pos.y)) {
           return;
         }
+        // Check if mouse pointer hovers over an option -> set selected AND select node
         const mouseClickPos = this.pb.transformMousePosition(evt.params.pos.x, evt.params.pos.y);
-        const clickedNodeName = this.locateNodeBoxNameAtPos(mouseClickPos);
-        console.log("Click", clickedNodeName);
-        if (clickedNodeName) {
-          this.setSelectedNode(clickedNodeName, this.dialogConfigWithPositions.graph[clickedNodeName]);
-          // this.pb.redraw();
-        } else {
-          this.setSelectedNode(null, null);
-          // this.selectedNode = null;
-          // this.pb.redraw();
-        }
+        _self.handleClick(mouseClickPos);
       });
 
     return handler;
   }
+
+  handleClick(mouseClickPos: XYCoords) {
+    const clickedOptionIdentifyer: IOptionIdentifyer = this.locateOptionBoxNameAtPos(mouseClickPos);
+    if (clickedOptionIdentifyer) {
+      this.setSelectedOption(clickedOptionIdentifyer);
+    } else {
+      // Otherwise (no option was clicked) check if a node was clicked directly.
+      const clickedNodeName = this.locateNodeBoxNameAtPos(mouseClickPos);
+      console.log("Click", clickedNodeName);
+      if (clickedNodeName) {
+        if (this.selectedOption) {
+          this.handleOptionReconnect(clickedNodeName);
+          this.domHelper.showAnswerOptions(null, null);
+          this.pb.redraw();
+        } else {
+          this.setSelectedNode(clickedNodeName, this.dialogConfigWithPositions.graph[clickedNodeName]);
+          // this.pb.redraw();
+        }
+      } else {
+        this.setSelectedNode(null, null);
+        // this.selectedNode = null;
+        // this.pb.redraw();
+      }
+      this.setSelectedOption(null, false);
+    }
+  }
+
+  handleOptionReconnect(clickedNodeName: string) {
+    if (!this.selectedOption) {
+      // Actually this fuction should not be called at all in that case.
+      console.warn("Warn: cannot reconnect option when no option is selected.");
+    }
+    const graph = this.dialogConfigWithPositions.graph;
+    const clickedNode: IMiniQuestionaireWithPosition = graph[clickedNodeName];
+    const sourceNode = this.selectedOption.node;
+    console.log("Reconnect");
+    sourceNode.o[this.selectedOption.optionIndex].next = clickedNodeName;
+  }
+
+  // isEqualOptionIdentifyer(identA: IOptionIdentifyer, identB: IOptionIdentifyer): boolean {
+  //   if ((!identA && identB) || (identA && !identB)) {
+  //     return false;
+  //   }
+  //   if (identA === identB) {
+  //     return true;
+  //   }
+  //   return identA.nodeName === identB.nodeName && identA.optionIndex === identB.optionIndex;
+  // }
 
   static ellipsify(text: string, maxLength: number): string {
     if (!text || text.length <= maxLength) {

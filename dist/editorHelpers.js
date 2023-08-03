@@ -23,13 +23,24 @@ var EditorHelper = /** @class */ (function () {
     EditorHelper.prototype.setDialogConfig = function (dialogConfigWithPositions) {
         this.dialogConfigWithPositions = dialogConfigWithPositions;
     };
-    EditorHelper.prototype.setSelectedOption = function (selectedOption) {
+    EditorHelper.prototype.setSelectedOption = function (selectedOption, noRedraw) {
+        console.log("Set selected option", selectedOption);
         this.selectedOption = selectedOption;
+        if (!noRedraw) {
+            this.pb.redraw();
+        }
     };
     EditorHelper.prototype.setHighlightedOption = function (hightlightedOption) {
         var isRedrawRequired = this.hightlightedOption !== hightlightedOption;
         this.hightlightedOption = hightlightedOption;
         if (isRedrawRequired) {
+            this.pb.redraw();
+        }
+    };
+    EditorHelper.prototype.setHighlightedNode = function (nodeName, noRedraw) {
+        this.highlightedNodeName = nodeName;
+        this.highlightedNode = nodeName ? this.dialogConfigWithPositions.graph[nodeName] : null;
+        if (!noRedraw) {
             this.pb.redraw();
         }
     };
@@ -131,10 +142,16 @@ var EditorHelper = /** @class */ (function () {
         }
         return null;
     };
+    EditorHelper.prototype.isNodeHighlighted = function (nodName) {
+        return this.highlightedNodeName === nodName;
+    };
     EditorHelper.prototype.isOptionHighlighted = function (nodeName, optionIndex) {
         return (this.hightlightedOption &&
             this.hightlightedOption.nodeName === nodeName &&
             this.hightlightedOption.optionIndex === optionIndex);
+    };
+    EditorHelper.prototype.isOptionSelected = function (nodeName, optionIndex) {
+        return this.selectedOption && this.selectedOption.nodeName === nodeName && this.selectedOption.optionIndex === optionIndex;
     };
     EditorHelper.prototype.addNewDialogueNode = function () {
         var nodeName = this.randomNodeKey();
@@ -191,15 +208,20 @@ var EditorHelper = /** @class */ (function () {
             draggingNode.editor.position.y += evt.params.dragAmount.y / _this.pb.draw.scale.y;
         })
             .move(function (evt) {
-            // ...
+            // Check if mouse pointer hovers over an option -> set highlighted
             var mouseMovePos = _this.pb.transformMousePosition(evt.params.pos.x, evt.params.pos.y);
-            // lastMouseDownPos = { x: evt.params.mouseDownPos.x, y: evt.params.mouseDownPos.y };
-            var hoveringNodeIdentifyer = _this.locateOptionBoxNameAtPos(mouseMovePos);
-            // if (hoveringNodeIdentifyer) {
-            // const hoveringNode = this.dialogConfigWithPositions.graph[hoveringNodeName];
+            _self.relativeMousePosition = { x: mouseMovePos.x, y: mouseMovePos.y };
+            var hoveringOptionIdentifyer = _this.locateOptionBoxNameAtPos(mouseMovePos);
             // Can be null
-            _self.setHighlightedOption(hoveringNodeIdentifyer);
-            // }
+            _self.setHighlightedOption(hoveringOptionIdentifyer);
+            if (!hoveringOptionIdentifyer) {
+                // Check if hover on graph node
+                var hoveringNodeName = _this.locateNodeBoxNameAtPos(mouseMovePos);
+                _this.setHighlightedNode(hoveringNodeName);
+            }
+            else {
+                _this.setHighlightedNode(null);
+            }
         })
             .click(function (evt) {
             // Stop if mouse was moved
@@ -207,21 +229,60 @@ var EditorHelper = /** @class */ (function () {
             if (lastMouseDownPos && (lastMouseDownPos.x !== evt.params.pos.x || lastMouseDownPos.y !== evt.params.pos.y)) {
                 return;
             }
+            // Check if mouse pointer hovers over an option -> set selected AND select node
             var mouseClickPos = _this.pb.transformMousePosition(evt.params.pos.x, evt.params.pos.y);
-            var clickedNodeName = _this.locateNodeBoxNameAtPos(mouseClickPos);
-            console.log("Click", clickedNodeName);
-            if (clickedNodeName) {
-                _this.setSelectedNode(clickedNodeName, _this.dialogConfigWithPositions.graph[clickedNodeName]);
-                // this.pb.redraw();
-            }
-            else {
-                _this.setSelectedNode(null, null);
-                // this.selectedNode = null;
-                // this.pb.redraw();
-            }
+            _self.handleClick(mouseClickPos);
         });
         return handler;
     };
+    EditorHelper.prototype.handleClick = function (mouseClickPos) {
+        var clickedOptionIdentifyer = this.locateOptionBoxNameAtPos(mouseClickPos);
+        if (clickedOptionIdentifyer) {
+            this.setSelectedOption(clickedOptionIdentifyer);
+        }
+        else {
+            // Otherwise (no option was clicked) check if a node was clicked directly.
+            var clickedNodeName = this.locateNodeBoxNameAtPos(mouseClickPos);
+            console.log("Click", clickedNodeName);
+            if (clickedNodeName) {
+                if (this.selectedOption) {
+                    this.handleOptionReconnect(clickedNodeName);
+                    this.domHelper.showAnswerOptions(null, null);
+                    this.pb.redraw();
+                }
+                else {
+                    this.setSelectedNode(clickedNodeName, this.dialogConfigWithPositions.graph[clickedNodeName]);
+                    // this.pb.redraw();
+                }
+            }
+            else {
+                this.setSelectedNode(null, null);
+                // this.selectedNode = null;
+                // this.pb.redraw();
+            }
+            this.setSelectedOption(null, false);
+        }
+    };
+    EditorHelper.prototype.handleOptionReconnect = function (clickedNodeName) {
+        if (!this.selectedOption) {
+            // Actually this fuction should not be called at all in that case.
+            console.warn("Warn: cannot reconnect option when no option is selected.");
+        }
+        var graph = this.dialogConfigWithPositions.graph;
+        var clickedNode = graph[clickedNodeName];
+        var sourceNode = this.selectedOption.node;
+        console.log("Reconnect");
+        sourceNode.o[this.selectedOption.optionIndex].next = clickedNodeName;
+    };
+    // isEqualOptionIdentifyer(identA: IOptionIdentifyer, identB: IOptionIdentifyer): boolean {
+    //   if ((!identA && identB) || (identA && !identB)) {
+    //     return false;
+    //   }
+    //   if (identA === identB) {
+    //     return true;
+    //   }
+    //   return identA.nodeName === identB.nodeName && identA.optionIndex === identB.optionIndex;
+    // }
     EditorHelper.ellipsify = function (text, maxLength) {
         if (!text || text.length <= maxLength) {
             return text;
