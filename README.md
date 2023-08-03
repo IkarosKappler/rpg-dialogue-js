@@ -2,13 +2,13 @@
 
 A simple RPG non-linear dialogue engine.
 
-![Screenshot](/resources/screenshots/20230803-1-styled-dialogue.png)
+![Screenshot](/resources/screenshots/20230803-0-styled-dialogue.png)
 
 Load some JSON file into your app.
 Have a smooth dialogue logic for NPC characters.
 
 Maybe an editor could look like this?
-![Screenshot](/resources/screenshots/20230803-0-add-remove-update.png)
+![Screenshot](/resources/screenshots/20230803-1-styled-editor.png)
 
 ## Example
 
