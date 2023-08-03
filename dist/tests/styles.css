@@ -30,3 +30,31 @@ div#attribute-editor {
 .dragover {
     border: 1px solid black;
 }
+
+.answer-wrapper-element {
+    display: flex;
+    flex-direction: row;
+}
+
+.answer-controls-element {
+    display: flex;
+    flex-direction: row;
+}
+
+.a-dnd-element {
+    width: 32px;
+    height: 100%;
+    background: rgb(128,128,128)
+}
+
+.a-delete-button {
+
+}
+
+#b-add-answer-option{
+
+}
+
+#b-add-dialogue-node {
+    
+}

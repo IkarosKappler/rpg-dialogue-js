@@ -14,17 +14,19 @@ var editorHelpers_1 = require("./editorHelpers");
 var RPGDOMHelpers = /** @class */ (function () {
     function RPGDOMHelpers(editorHelpers, dialogConfigWithPositions) {
         this.editorHelpers = editorHelpers;
-        this.dialogConfigWithPositions = dialogConfigWithPositions;
+        // this.dialogConfigWithPositions = dialogConfigWithPositions;
         this.editorElement = document.getElementById("attribute-editor");
         this.optionsElement = document.getElementById("e-options-container");
         this.keyElement = this.editorElement.querySelector("input#e-key");
         this.qElement = this.editorElement.querySelector("input#e-q");
         this.qElement.addEventListener("change", this.handleQChanged(this));
         document.getElementById("b-export-json").addEventListener("click", this.exportJSON(this));
+        document.getElementById("b-add-answer-option").addEventListener("click", this.addAnswerOption(this));
+        document.getElementById("b-add-dialogue-node").addEventListener("click", this.addDialogueNode(this));
     }
     RPGDOMHelpers.prototype.exportJSON = function (_self) {
         return function () {
-            var jsonString = JSON.stringify(_self.dialogConfigWithPositions);
+            var jsonString = JSON.stringify(_self.editorHelpers.dialogConfigWithPositions);
             var blob = new Blob([jsonString], { type: "application/json" });
             var url = URL.createObjectURL(blob);
             var a = document.createElement("a");
@@ -34,9 +36,35 @@ var RPGDOMHelpers = /** @class */ (function () {
             a.click();
         };
     };
-    RPGDOMHelpers.prototype.setDialogConfig = function (dialogConfigWithPositions) {
-        this.dialogConfigWithPositions = dialogConfigWithPositions;
+    RPGDOMHelpers.prototype.addAnswerOption = function (_self) {
+        return function () {
+            var newOption = {
+                a: "",
+                next: null
+            };
+            _self.currentGraphNode.o.push(newOption);
+            _self.updateAnswerOptions();
+            _self.editorHelpers.pb.redraw();
+        };
     };
+    RPGDOMHelpers.prototype.addDialogueNode = function (_self) {
+        return function () {
+            // const graph: IDialogueGraph<IMiniQuestionaireWithPosition> = _self.editorHelpers.dialogConfigWithPositions.graph;
+            // const nodeName = this.randomAnswerKey(graph);
+            // const newNode: IMiniQuestionaireWithPosition = {
+            //   q: "",
+            //   o: [{ a: "", next: null }]
+            // };
+            // _self.currentGraphNode[nodeName] = newNode;
+            // _self.showAnswerOptions(nodeName, newNode);
+            // // _self.updateAnswerOptions();
+            // _self.editorHelpers.pb.redraw();
+            _self.editorHelpers.addNewDialogueNode();
+        };
+    };
+    // setDialogConfig(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>) {
+    //   this.dialogConfigWithPositions = dialogConfigWithPositions;
+    // }
     RPGDOMHelpers.prototype.toggleVisibility = function (isVisible) {
         if (isVisible) {
             this.editorElement.classList.remove("d-none");
@@ -62,6 +90,9 @@ var RPGDOMHelpers = /** @class */ (function () {
             answer.next = changeEvent.target.value;
             _self.editorHelpers.pb.redraw();
         };
+    };
+    RPGDOMHelpers.prototype.updateAnswerOptions = function () {
+        this.showAnswerOptions(this.currentNodeName, this.currentGraphNode);
     };
     RPGDOMHelpers.prototype.showAnswerOptions = function (nodeName, graphNode) {
         var _this = this;
@@ -111,13 +142,16 @@ var RPGDOMHelpers = /** @class */ (function () {
             _this.currentGraphNode.o[answerIndex] = _this.currentGraphNode.o[dropIndex];
             _this.currentGraphNode.o[dropIndex] = old;
             // Re-build the list : )
-            _self.showAnswerOptions(nodeName, graphNode);
+            _self.updateAnswerOptions();
             _self.editorHelpers.pb.redraw();
         };
         var dropArea = this.makeADropArea(0, drop, onDragOver, onDragLeave);
         this.optionsElement.appendChild(dropArea);
         for (var i = 0; i < graphNode.o.length; i++) {
             var option = graphNode.o[i];
+            var answerWrapperElement = document.createElement("div");
+            // const answerContentElement = document.createElement("div") as HTMLDivElement;
+            var answerControlsElement = this.makeAnswerControlElement(i);
             var answerElement = document.createElement("div");
             var labelElement = document.createElement("div");
             var textElement = document.createElement("input");
@@ -131,15 +165,41 @@ var RPGDOMHelpers = /** @class */ (function () {
                 // ev.dataTransfer.setData("text", ev.target.id);
                 ev.dataTransfer.setData("answerindex", ev.target.getAttribute("data-answerindex"));
             };
-            answerElement.setAttribute("draggable", "true");
-            answerElement.setAttribute("data-answerindex", "".concat(i));
-            answerElement.addEventListener("dragstart", handleDrag);
+            answerWrapperElement.classList.add("answer-wrapper-element");
+            answerWrapperElement.setAttribute("draggable", "true");
+            answerWrapperElement.setAttribute("data-answerindex", "".concat(i));
+            answerWrapperElement.addEventListener("dragstart", handleDrag);
+            answerWrapperElement.appendChild(answerElement);
+            answerWrapperElement.appendChild(answerControlsElement);
             var dropArea_1 = this.makeADropArea(i + 1, drop, onDragOver, onDragLeave);
-            this.optionsElement.appendChild(answerElement);
+            this.optionsElement.appendChild(answerWrapperElement);
             this.optionsElement.appendChild(dropArea_1);
             textElement.addEventListener("change", this.handleATextChanged(this, option));
             selectElement.addEventListener("change", this.handleASuccessorChanged(this, option));
         }
+        // Add 'add' button
+    };
+    RPGDOMHelpers.prototype.makeAnswerControlElement = function (index) {
+        var controlElement = document.createElement("div");
+        var dndElement = document.createElement("div");
+        dndElement.classList.add("a-dnd-element");
+        dndElement.innerHTML = "&vellip;";
+        var deleteButton = document.createElement("button");
+        deleteButton.classList.add("a-delete-button");
+        deleteButton.addEventListener("click", this.handleDelete(index));
+        deleteButton.innerHTML = "&#x1F5D1;";
+        controlElement.classList.add("answer-controls-element");
+        controlElement.appendChild(dndElement);
+        controlElement.appendChild(deleteButton);
+        return controlElement;
+    };
+    RPGDOMHelpers.prototype.handleDelete = function (index) {
+        var _self = this;
+        return function () {
+            _self.currentGraphNode.o.splice(index, 1);
+            _self.updateAnswerOptions();
+            _self.editorHelpers.pb.redraw();
+        };
     };
     RPGDOMHelpers.prototype.makeADropArea = function (dropIndex, drop, onDragOver, onDragLeave) {
         var dropArea = document.createElement("div");
@@ -152,28 +212,44 @@ var RPGDOMHelpers = /** @class */ (function () {
     };
     RPGDOMHelpers.prototype.createNodeSelectElement = function (currentKey, selectedKey) {
         var selectElement = document.createElement("select");
-        if (!this.dialogConfigWithPositions) {
+        if (!this.editorHelpers.dialogConfigWithPositions) {
             console.warn("Warning: cannout populate nodeSelectElement. No dialogConfig set.");
         }
         else {
-            for (var key in this.dialogConfigWithPositions.graph) {
-                if (!this.dialogConfigWithPositions.graph.hasOwnProperty(key)) {
+            var optionElement = this.createNodeSelectOptionElement("", false, null, false);
+            selectElement.appendChild(optionElement);
+            for (var key in this.editorHelpers.dialogConfigWithPositions.graph) {
+                if (!this.editorHelpers.dialogConfigWithPositions.graph.hasOwnProperty(key)) {
                     return;
                 }
-                var questionaire = this.dialogConfigWithPositions.graph[key];
-                var optionElement = document.createElement("option");
-                optionElement.setAttribute("value", key);
-                optionElement.innerHTML = "".concat(key, ": ").concat(editorHelpers_1.EditorHelper.ellipsify(questionaire.q, 20));
-                if (key === currentKey) {
-                    optionElement.setAttribute("disabled", "true");
-                }
-                if (key === selectedKey) {
-                    optionElement.setAttribute("selected", "true");
-                }
-                selectElement.appendChild(optionElement);
+                var questionaire = this.editorHelpers.dialogConfigWithPositions.graph[key];
+                var optionElement_1 = this.createNodeSelectOptionElement(questionaire.q, key === currentKey, key, key === selectedKey);
+                selectElement.appendChild(optionElement_1);
             }
         }
         return selectElement;
+    };
+    RPGDOMHelpers.prototype.createNodeSelectOptionElement = function (questionaireText, isCurrent, key, isSelected) {
+        var optionElement = document.createElement("option");
+        optionElement.setAttribute("value", key);
+        optionElement.innerHTML = "".concat(key !== null && key !== void 0 ? key : "", ": ").concat(editorHelpers_1.EditorHelper.ellipsify(questionaireText, 20));
+        if (isCurrent) {
+            optionElement.setAttribute("disabled", "true");
+        }
+        if (isSelected) {
+            optionElement.setAttribute("selected", "true");
+        }
+        return optionElement;
+    };
+    RPGDOMHelpers.prototype.randomAnswerKey = function (graph) {
+        var keys = Object.keys(graph);
+        var count = keys.length;
+        var key = "New " + count;
+        while (graph.hasOwnProperty(key)) {
+            key = "New " + count;
+            count++;
+        }
+        return key;
     };
     return RPGDOMHelpers;
 }());

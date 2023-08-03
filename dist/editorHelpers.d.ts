@@ -16,7 +16,9 @@ export declare class EditorHelper {
     selectedNodeName: string;
     selectedNode: IMiniQuestionaireWithPosition;
     domHelper: RPGDOMHelpers;
+    dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>;
     constructor(pb: PlotBoilerplate, boxSize: XYDimension);
+    setDialogConfig(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>): void;
     /**
      * A helper function to create random safe positions in the viewport area.
      * @param {PlotBoilerplate} pb
@@ -37,7 +39,9 @@ export declare class EditorHelper {
     enrichPositions(baseConfig: IDialogueConfig<IMiniQuestionaire>): IDialogueConfig<IMiniQuestionaireWithPosition>;
     isPosInGraphNodeBox(pos: XYCoords, graphNode: IMiniQuestionaireWithPosition): boolean;
     locateBoxNameAtPos(pos: XYCoords, dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>): string | null;
+    addNewDialogueNode(): void;
     boxMovehandler(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>): MouseHandler;
     static ellipsify(text: string, maxLength: number): string;
     static fromObject(object: object): IDialogueConfig<IMiniQuestionaire>;
+    private randomNodeKey;
 }

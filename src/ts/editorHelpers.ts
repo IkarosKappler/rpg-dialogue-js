@@ -21,11 +21,17 @@ export class EditorHelper {
 
   domHelper: RPGDOMHelpers;
 
+  dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>;
+
   constructor(pb: PlotBoilerplate, boxSize: XYDimension) {
     this.pb = pb;
     this.boxSize = boxSize;
     this.selectedNodeName = null;
     this.domHelper = new RPGDOMHelpers(this, null);
+  }
+
+  setDialogConfig(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>) {
+    this.dialogConfigWithPositions = dialogConfigWithPositions;
   }
 
   /**
@@ -116,6 +122,28 @@ export class EditorHelper {
     return null;
   }
 
+  addNewDialogueNode() {
+    // graph: IDialogueGraph<IMiniQuestionaireWithPosition>
+    // const graph: IDialogueGraph<IMiniQuestionaireWithPosition> = _self.editorHelpers.dialogConfigWithPositions.graph;
+    const nodeName = this.randomNodeKey();
+    const newNode: IMiniQuestionaireWithPosition = {
+      q: "",
+      o: [{ a: "", next: null }],
+      editor: {
+        position: this.getRandomPosition()
+      }
+    };
+
+    this.dialogConfigWithPositions.graph[nodeName] = newNode;
+    this.selectedNodeName = nodeName;
+    this.selectedNode = newNode;
+
+    // _self.currentGraphNode[nodeName] = newNode;
+    this.domHelper.showAnswerOptions(nodeName, newNode);
+    // _self.updateAnswerOptions();
+    this.pb.redraw();
+  }
+
   boxMovehandler(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>) {
     // +---------------------------------------------------------------------------------
     // | Add a mouse listener to track the mouse position.
@@ -202,5 +230,16 @@ export class EditorHelper {
     }
 
     return object as IDialogueConfig<IMiniQuestionaire>;
+  }
+
+  private randomNodeKey(): string {
+    const keys = Object.keys(this.dialogConfigWithPositions.graph);
+    var count = keys.length;
+    let key = "New " + count;
+    while (this.dialogConfigWithPositions.graph.hasOwnProperty(key)) {
+      key = "New " + count;
+      count++;
+    }
+    return key;
   }
 }

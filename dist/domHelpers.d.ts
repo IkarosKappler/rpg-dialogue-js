@@ -11,7 +11,6 @@ import { EditorHelper } from "./editorHelpers";
 import { IDialogueConfig, IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
 export declare class RPGDOMHelpers {
     editorHelpers: EditorHelper;
-    dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>;
     editorElement: HTMLDivElement;
     keyElement: HTMLInputElement;
     qElement: HTMLInputElement;
@@ -20,12 +19,18 @@ export declare class RPGDOMHelpers {
     currentGraphNode: IMiniQuestionaire;
     constructor(editorHelpers: EditorHelper, dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>);
     exportJSON(_self: RPGDOMHelpers): () => void;
-    setDialogConfig(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>): void;
+    addAnswerOption(_self: RPGDOMHelpers): () => void;
+    private addDialogueNode;
     toggleVisibility(isVisible: boolean): void;
     private handleQChanged;
     private handleATextChanged;
     private handleASuccessorChanged;
+    updateAnswerOptions(): void;
     showAnswerOptions(nodeName: string, graphNode: IMiniQuestionaireWithPosition | null): void;
+    private makeAnswerControlElement;
+    private handleDelete;
     private makeADropArea;
     private createNodeSelectElement;
+    private createNodeSelectOptionElement;
+    private randomAnswerKey;
 }

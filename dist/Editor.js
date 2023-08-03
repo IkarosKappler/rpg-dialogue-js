@@ -75,7 +75,8 @@ var Editor = /** @class */ (function () {
         var handleDialogConfigLoaded = function (config) {
             // Check if all graph nodes have positions to render.
             dialogConfig = editorHelpers.enrichPositions(config);
-            editorHelpers.domHelper.setDialogConfig(dialogConfig);
+            editorHelpers.setDialogConfig(dialogConfig);
+            // editorHelpers.domHelper.setDialogConfig(dialogConfig);
             // Ad DnD support for boxes.
             if (currentMouseHandler) {
                 currentMouseHandler.destroy();

@@ -9,11 +9,11 @@
  **/
 
 import { EditorHelper } from "./editorHelpers";
-import { IAnswer, IDialogueConfig, IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
+import { IAnswer, IDialogueConfig, IDialogueGraph, IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
 
 export class RPGDOMHelpers {
   editorHelpers: EditorHelper;
-  dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>;
+  // dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>;
 
   editorElement: HTMLDivElement;
   keyElement: HTMLInputElement;
@@ -26,7 +26,7 @@ export class RPGDOMHelpers {
 
   constructor(editorHelpers: EditorHelper, dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>) {
     this.editorHelpers = editorHelpers;
-    this.dialogConfigWithPositions = dialogConfigWithPositions;
+    // this.dialogConfigWithPositions = dialogConfigWithPositions;
 
     this.editorElement = document.getElementById("attribute-editor") as HTMLDivElement;
     this.optionsElement = document.getElementById("e-options-container") as HTMLDivElement;
@@ -37,11 +37,14 @@ export class RPGDOMHelpers {
     this.qElement.addEventListener("change", this.handleQChanged(this));
 
     document.getElementById("b-export-json").addEventListener("click", this.exportJSON(this));
+    document.getElementById("b-add-answer-option").addEventListener("click", this.addAnswerOption(this));
+
+    document.getElementById("b-add-dialogue-node").addEventListener("click", this.addDialogueNode(this));
   }
 
   exportJSON(_self: RPGDOMHelpers): () => void {
     return () => {
-      const jsonString = JSON.stringify(_self.dialogConfigWithPositions);
+      const jsonString = JSON.stringify(_self.editorHelpers.dialogConfigWithPositions);
       var blob = new Blob([jsonString], { type: "application/json" });
       var url = URL.createObjectURL(blob);
       var a = document.createElement("a");
@@ -52,9 +55,38 @@ export class RPGDOMHelpers {
     };
   }
 
-  setDialogConfig(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>) {
-    this.dialogConfigWithPositions = dialogConfigWithPositions;
+  addAnswerOption(_self: RPGDOMHelpers): () => void {
+    return () => {
+      const newOption: IAnswer = {
+        a: "",
+        next: null
+      };
+      _self.currentGraphNode.o.push(newOption);
+      _self.updateAnswerOptions();
+      _self.editorHelpers.pb.redraw();
+    };
   }
+
+  private addDialogueNode(_self: RPGDOMHelpers): () => void {
+    return () => {
+      // const graph: IDialogueGraph<IMiniQuestionaireWithPosition> = _self.editorHelpers.dialogConfigWithPositions.graph;
+      // const nodeName = this.randomAnswerKey(graph);
+      // const newNode: IMiniQuestionaireWithPosition = {
+      //   q: "",
+      //   o: [{ a: "", next: null }]
+      // };
+
+      // _self.currentGraphNode[nodeName] = newNode;
+      // _self.showAnswerOptions(nodeName, newNode);
+      // // _self.updateAnswerOptions();
+      // _self.editorHelpers.pb.redraw();
+      _self.editorHelpers.addNewDialogueNode();
+    };
+  }
+
+  // setDialogConfig(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>) {
+  //   this.dialogConfigWithPositions = dialogConfigWithPositions;
+  // }
 
   toggleVisibility(isVisible: boolean) {
     if (isVisible) {
@@ -83,6 +115,10 @@ export class RPGDOMHelpers {
       answer.next = (changeEvent.target as HTMLInputElement).value;
       _self.editorHelpers.pb.redraw();
     };
+  }
+
+  updateAnswerOptions() {
+    this.showAnswerOptions(this.currentNodeName, this.currentGraphNode);
   }
 
   showAnswerOptions(nodeName: string, graphNode: IMiniQuestionaireWithPosition | null) {
@@ -137,7 +173,7 @@ export class RPGDOMHelpers {
       this.currentGraphNode.o[dropIndex] = old;
 
       // Re-build the list : )
-      _self.showAnswerOptions(nodeName, graphNode);
+      _self.updateAnswerOptions();
       _self.editorHelpers.pb.redraw();
     };
 
@@ -146,6 +182,10 @@ export class RPGDOMHelpers {
 
     for (var i = 0; i < graphNode.o.length; i++) {
       const option: IAnswer = graphNode.o[i];
+
+      const answerWrapperElement = document.createElement("div") as HTMLDivElement;
+      // const answerContentElement = document.createElement("div") as HTMLDivElement;
+      const answerControlsElement = this.makeAnswerControlElement(i);
 
       const answerElement = document.createElement("div") as HTMLDivElement;
       const labelElement = document.createElement("div") as HTMLDivElement;
@@ -163,18 +203,49 @@ export class RPGDOMHelpers {
         ev.dataTransfer.setData("answerindex", ev.target.getAttribute("data-answerindex"));
       };
 
-      answerElement.setAttribute("draggable", "true");
-      answerElement.setAttribute("data-answerindex", `${i}`);
-      answerElement.addEventListener("dragstart", handleDrag);
+      answerWrapperElement.classList.add("answer-wrapper-element");
+      answerWrapperElement.setAttribute("draggable", "true");
+      answerWrapperElement.setAttribute("data-answerindex", `${i}`);
+      answerWrapperElement.addEventListener("dragstart", handleDrag);
+      answerWrapperElement.appendChild(answerElement);
+      answerWrapperElement.appendChild(answerControlsElement);
 
       const dropArea = this.makeADropArea(i + 1, drop, onDragOver, onDragLeave);
 
-      this.optionsElement.appendChild(answerElement);
+      this.optionsElement.appendChild(answerWrapperElement);
       this.optionsElement.appendChild(dropArea);
 
       textElement.addEventListener("change", this.handleATextChanged(this, option));
       selectElement.addEventListener("change", this.handleASuccessorChanged(this, option));
     }
+
+    // Add 'add' button
+  }
+
+  private makeAnswerControlElement(index: number) {
+    const controlElement = document.createElement("div") as HTMLDivElement;
+    const dndElement = document.createElement("div") as HTMLDivElement;
+    dndElement.classList.add("a-dnd-element");
+    dndElement.innerHTML = "&vellip;";
+    const deleteButton = document.createElement("button") as HTMLButtonElement;
+    deleteButton.classList.add("a-delete-button");
+    deleteButton.addEventListener("click", this.handleDelete(index));
+    deleteButton.innerHTML = "&#x1F5D1;";
+
+    controlElement.classList.add("answer-controls-element");
+
+    controlElement.appendChild(dndElement);
+    controlElement.appendChild(deleteButton);
+    return controlElement;
+  }
+
+  private handleDelete(index: number): () => void {
+    const _self = this;
+    return () => {
+      _self.currentGraphNode.o.splice(index, 1);
+      _self.updateAnswerOptions();
+      _self.editorHelpers.pb.redraw();
+    };
   }
 
   private makeADropArea(
@@ -194,27 +265,46 @@ export class RPGDOMHelpers {
 
   private createNodeSelectElement(currentKey: string, selectedKey): HTMLSelectElement {
     const selectElement = document.createElement("select") as HTMLSelectElement;
-    if (!this.dialogConfigWithPositions) {
+    if (!this.editorHelpers.dialogConfigWithPositions) {
       console.warn("Warning: cannout populate nodeSelectElement. No dialogConfig set.");
     } else {
-      for (var key in this.dialogConfigWithPositions.graph) {
-        if (!this.dialogConfigWithPositions.graph.hasOwnProperty(key)) {
+      const optionElement = this.createNodeSelectOptionElement("", false, null, false);
+      selectElement.appendChild(optionElement);
+
+      for (var key in this.editorHelpers.dialogConfigWithPositions.graph) {
+        if (!this.editorHelpers.dialogConfigWithPositions.graph.hasOwnProperty(key)) {
           return;
         }
-        const questionaire: IMiniQuestionaire = this.dialogConfigWithPositions.graph[key];
-        const optionElement = document.createElement("option") as HTMLOptionElement;
-        optionElement.setAttribute("value", key);
-        optionElement.innerHTML = `${key}: ${EditorHelper.ellipsify(questionaire.q, 20)}`;
-        if (key === currentKey) {
-          optionElement.setAttribute("disabled", "true");
-        }
-        if (key === selectedKey) {
-          optionElement.setAttribute("selected", "true");
-        }
+        const questionaire: IMiniQuestionaire = this.editorHelpers.dialogConfigWithPositions.graph[key];
+        const optionElement = this.createNodeSelectOptionElement(questionaire.q, key === currentKey, key, key === selectedKey);
 
         selectElement.appendChild(optionElement);
       }
     }
     return selectElement;
+  }
+
+  private createNodeSelectOptionElement(questionaireText: string, isCurrent: boolean, key: string | null, isSelected: boolean) {
+    const optionElement = document.createElement("option") as HTMLOptionElement;
+    optionElement.setAttribute("value", key);
+    optionElement.innerHTML = `${key ?? ""}: ${EditorHelper.ellipsify(questionaireText, 20)}`;
+    if (isCurrent) {
+      optionElement.setAttribute("disabled", "true");
+    }
+    if (isSelected) {
+      optionElement.setAttribute("selected", "true");
+    }
+    return optionElement;
+  }
+
+  private randomAnswerKey(graph: IDialogueGraph<IMiniQuestionaireWithPosition>): string {
+    const keys = Object.keys(graph);
+    var count = keys.length;
+    let key = "New " + count;
+    while (graph.hasOwnProperty(key)) {
+      key = "New " + count;
+      count++;
+    }
+    return key;
   }
 }

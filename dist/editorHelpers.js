@@ -19,6 +19,9 @@ var EditorHelper = /** @class */ (function () {
         this.selectedNodeName = null;
         this.domHelper = new domHelpers_1.RPGDOMHelpers(this, null);
     }
+    EditorHelper.prototype.setDialogConfig = function (dialogConfigWithPositions) {
+        this.dialogConfigWithPositions = dialogConfigWithPositions;
+    };
     /**
      * A helper function to create random safe positions in the viewport area.
      * @param {PlotBoilerplate} pb
@@ -98,6 +101,25 @@ var EditorHelper = /** @class */ (function () {
             }
         }
         return null;
+    };
+    EditorHelper.prototype.addNewDialogueNode = function () {
+        // graph: IDialogueGraph<IMiniQuestionaireWithPosition>
+        // const graph: IDialogueGraph<IMiniQuestionaireWithPosition> = _self.editorHelpers.dialogConfigWithPositions.graph;
+        var nodeName = this.randomNodeKey();
+        var newNode = {
+            q: "",
+            o: [{ a: "", next: null }],
+            editor: {
+                position: this.getRandomPosition()
+            }
+        };
+        this.dialogConfigWithPositions.graph[nodeName] = newNode;
+        this.selectedNodeName = nodeName;
+        this.selectedNode = newNode;
+        // _self.currentGraphNode[nodeName] = newNode;
+        this.domHelper.showAnswerOptions(nodeName, newNode);
+        // _self.updateAnswerOptions();
+        this.pb.redraw();
     };
     EditorHelper.prototype.boxMovehandler = function (dialogConfigWithPositions) {
         var _this = this;
@@ -179,6 +201,16 @@ var EditorHelper = /** @class */ (function () {
             // Check if 'q' (string) and 'o' (array) attributes are present?
         }
         return object;
+    };
+    EditorHelper.prototype.randomNodeKey = function () {
+        var keys = Object.keys(this.dialogConfigWithPositions.graph);
+        var count = keys.length;
+        var key = "New " + count;
+        while (this.dialogConfigWithPositions.graph.hasOwnProperty(key)) {
+            key = "New " + count;
+            count++;
+        }
+        return key;
     };
     return EditorHelper;
 }());
