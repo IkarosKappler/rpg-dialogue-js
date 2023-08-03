@@ -17,6 +17,7 @@ div#attribute-editor {
     margin: 5px;
     padding: 5px;
     box-sizing: border-box;
+    overflow: scroll;
 }
 
 .d-none {
