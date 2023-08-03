@@ -103,8 +103,6 @@ var EditorHelper = /** @class */ (function () {
         return null;
     };
     EditorHelper.prototype.addNewDialogueNode = function () {
-        // graph: IDialogueGraph<IMiniQuestionaireWithPosition>
-        // const graph: IDialogueGraph<IMiniQuestionaireWithPosition> = _self.editorHelpers.dialogConfigWithPositions.graph;
         var nodeName = this.randomNodeKey();
         var newNode = {
             q: "",
@@ -116,9 +114,14 @@ var EditorHelper = /** @class */ (function () {
         this.dialogConfigWithPositions.graph[nodeName] = newNode;
         this.selectedNodeName = nodeName;
         this.selectedNode = newNode;
-        // _self.currentGraphNode[nodeName] = newNode;
         this.domHelper.showAnswerOptions(nodeName, newNode);
-        // _self.updateAnswerOptions();
+        this.pb.redraw();
+    };
+    EditorHelper.prototype.removeNewDialogueNode = function (nodeName) {
+        delete this.dialogConfigWithPositions.graph[nodeName];
+        this.selectedNodeName = null;
+        this.selectedNode = null;
+        this.domHelper.showAnswerOptions(null, null);
         this.pb.redraw();
     };
     EditorHelper.prototype.boxMovehandler = function (dialogConfigWithPositions) {

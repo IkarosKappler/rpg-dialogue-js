@@ -38,8 +38,8 @@ export class RPGDOMHelpers {
 
     document.getElementById("b-export-json").addEventListener("click", this.exportJSON(this));
     document.getElementById("b-add-answer-option").addEventListener("click", this.addAnswerOption(this));
-
     document.getElementById("b-add-dialogue-node").addEventListener("click", this.addDialogueNode(this));
+    document.getElementById("b-delete-dialogue-node").addEventListener("click", this.removeDialogueNode(this));
   }
 
   exportJSON(_self: RPGDOMHelpers): () => void {
@@ -69,18 +69,13 @@ export class RPGDOMHelpers {
 
   private addDialogueNode(_self: RPGDOMHelpers): () => void {
     return () => {
-      // const graph: IDialogueGraph<IMiniQuestionaireWithPosition> = _self.editorHelpers.dialogConfigWithPositions.graph;
-      // const nodeName = this.randomAnswerKey(graph);
-      // const newNode: IMiniQuestionaireWithPosition = {
-      //   q: "",
-      //   o: [{ a: "", next: null }]
-      // };
-
-      // _self.currentGraphNode[nodeName] = newNode;
-      // _self.showAnswerOptions(nodeName, newNode);
-      // // _self.updateAnswerOptions();
-      // _self.editorHelpers.pb.redraw();
       _self.editorHelpers.addNewDialogueNode();
+    };
+  }
+
+  private removeDialogueNode(_self: RPGDOMHelpers): () => void {
+    return () => {
+      _self.editorHelpers.removeNewDialogueNode(_self.currentNodeName);
     };
   }
 
@@ -295,16 +290,5 @@ export class RPGDOMHelpers {
       optionElement.setAttribute("selected", "true");
     }
     return optionElement;
-  }
-
-  private randomAnswerKey(graph: IDialogueGraph<IMiniQuestionaireWithPosition>): string {
-    const keys = Object.keys(graph);
-    var count = keys.length;
-    let key = "New " + count;
-    while (graph.hasOwnProperty(key)) {
-      key = "New " + count;
-      count++;
-    }
-    return key;
   }
 }

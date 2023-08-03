@@ -123,8 +123,6 @@ export class EditorHelper {
   }
 
   addNewDialogueNode() {
-    // graph: IDialogueGraph<IMiniQuestionaireWithPosition>
-    // const graph: IDialogueGraph<IMiniQuestionaireWithPosition> = _self.editorHelpers.dialogConfigWithPositions.graph;
     const nodeName = this.randomNodeKey();
     const newNode: IMiniQuestionaireWithPosition = {
       q: "",
@@ -133,14 +131,18 @@ export class EditorHelper {
         position: this.getRandomPosition()
       }
     };
-
     this.dialogConfigWithPositions.graph[nodeName] = newNode;
     this.selectedNodeName = nodeName;
     this.selectedNode = newNode;
-
-    // _self.currentGraphNode[nodeName] = newNode;
     this.domHelper.showAnswerOptions(nodeName, newNode);
-    // _self.updateAnswerOptions();
+    this.pb.redraw();
+  }
+
+  removeNewDialogueNode(nodeName: string) {
+    delete this.dialogConfigWithPositions.graph[nodeName];
+    this.selectedNodeName = null;
+    this.selectedNode = null;
+    this.domHelper.showAnswerOptions(null, null);
     this.pb.redraw();
   }
 

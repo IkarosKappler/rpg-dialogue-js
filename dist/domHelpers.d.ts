@@ -21,6 +21,7 @@ export declare class RPGDOMHelpers {
     exportJSON(_self: RPGDOMHelpers): () => void;
     addAnswerOption(_self: RPGDOMHelpers): () => void;
     private addDialogueNode;
+    private removeDialogueNode;
     toggleVisibility(isVisible: boolean): void;
     private handleQChanged;
     private handleATextChanged;
@@ -32,5 +33,4 @@ export declare class RPGDOMHelpers {
     private makeADropArea;
     private createNodeSelectElement;
     private createNodeSelectOptionElement;
-    private randomAnswerKey;
 }

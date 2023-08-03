@@ -23,6 +23,7 @@ var RPGDOMHelpers = /** @class */ (function () {
         document.getElementById("b-export-json").addEventListener("click", this.exportJSON(this));
         document.getElementById("b-add-answer-option").addEventListener("click", this.addAnswerOption(this));
         document.getElementById("b-add-dialogue-node").addEventListener("click", this.addDialogueNode(this));
+        document.getElementById("b-delete-dialogue-node").addEventListener("click", this.removeDialogueNode(this));
     }
     RPGDOMHelpers.prototype.exportJSON = function (_self) {
         return function () {
@@ -49,17 +50,12 @@ var RPGDOMHelpers = /** @class */ (function () {
     };
     RPGDOMHelpers.prototype.addDialogueNode = function (_self) {
         return function () {
-            // const graph: IDialogueGraph<IMiniQuestionaireWithPosition> = _self.editorHelpers.dialogConfigWithPositions.graph;
-            // const nodeName = this.randomAnswerKey(graph);
-            // const newNode: IMiniQuestionaireWithPosition = {
-            //   q: "",
-            //   o: [{ a: "", next: null }]
-            // };
-            // _self.currentGraphNode[nodeName] = newNode;
-            // _self.showAnswerOptions(nodeName, newNode);
-            // // _self.updateAnswerOptions();
-            // _self.editorHelpers.pb.redraw();
             _self.editorHelpers.addNewDialogueNode();
+        };
+    };
+    RPGDOMHelpers.prototype.removeDialogueNode = function (_self) {
+        return function () {
+            _self.editorHelpers.removeNewDialogueNode(_self.currentNodeName);
         };
     };
     // setDialogConfig(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>) {
@@ -240,16 +236,6 @@ var RPGDOMHelpers = /** @class */ (function () {
             optionElement.setAttribute("selected", "true");
         }
         return optionElement;
-    };
-    RPGDOMHelpers.prototype.randomAnswerKey = function (graph) {
-        var keys = Object.keys(graph);
-        var count = keys.length;
-        var key = "New " + count;
-        while (graph.hasOwnProperty(key)) {
-            key = "New " + count;
-            count++;
-        }
-        return key;
     };
     return RPGDOMHelpers;
 }());

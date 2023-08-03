@@ -40,6 +40,7 @@ export declare class EditorHelper {
     isPosInGraphNodeBox(pos: XYCoords, graphNode: IMiniQuestionaireWithPosition): boolean;
     locateBoxNameAtPos(pos: XYCoords, dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>): string | null;
     addNewDialogueNode(): void;
+    removeNewDialogueNode(nodeName: string): void;
     boxMovehandler(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>): MouseHandler;
     static ellipsify(text: string, maxLength: number): string;
     static fromObject(object: object): IDialogueConfig<IMiniQuestionaire>;
