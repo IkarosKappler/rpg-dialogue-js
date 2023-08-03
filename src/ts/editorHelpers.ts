@@ -379,6 +379,10 @@ export class EditorHelper {
       console.warn("Warning: cannot rename node, because new name already exists.", newName);
       return false;
     }
+    if (newName === oldName) {
+      console.warn("Warning: cannot rename node, because old name and new name are the same.", oldName);
+      return false;
+    }
     const graphNode = this.dialogConfigWithPositions.graph[oldName];
     this.dialogConfigWithPositions.graph[newName] = graphNode;
     delete this.dialogConfigWithPositions.graph[oldName];
@@ -395,6 +399,13 @@ export class EditorHelper {
         }
       }
     }
+
+    // Update local selected fields
+    if (oldName === this.selectedNodeName) {
+      this.selectedNodeName = newName;
+      this.selectedNode = this.dialogConfigWithPositions.graph[newName];
+    }
+
     this.pb.redraw();
     return true;
   }

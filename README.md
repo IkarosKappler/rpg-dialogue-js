@@ -135,3 +135,7 @@ Live example: https://www.int2byte.de/public/rpg-dialogue/dist/tests/test-dialog
 Live editor example: https://www.int2byte.de/public/rpg-dialogue/dist/tests/editor.html
 
 All this stuff is highly unfinished.
+
+## Credits
+
+- Freeiconsshop for the download icon.

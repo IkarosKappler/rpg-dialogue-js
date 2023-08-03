@@ -100,7 +100,10 @@ export class RPGDOMHelpers {
       if (!newName || (newName = newName.trim()).length === 0) {
         return;
       }
-      _self.editorHelpers.renameGraphNode(_self.currentNodeName, newName);
+      const renameSuccessful = _self.editorHelpers.renameGraphNode(_self.currentNodeName, newName);
+      if (renameSuccessful) {
+        _self.currentNodeName = newName;
+      }
     };
   }
 
@@ -128,7 +131,9 @@ export class RPGDOMHelpers {
     this.currentGraphNode = graphNode;
 
     this.keyElement.setAttribute("value", nodeName ? nodeName : "");
+    this.keyElement.value = nodeName ? nodeName : "";
     this.qElement.setAttribute("value", graphNode ? graphNode.q : "");
+    this.qElement.value = graphNode ? graphNode.q : "";
     this.optionsElement.innerHTML = "";
     if (!graphNode) {
       return;
@@ -185,7 +190,6 @@ export class RPGDOMHelpers {
       const option: IAnswer = graphNode.o[i];
 
       const answerWrapperElement = document.createElement("div") as HTMLDivElement;
-      // const answerContentElement = document.createElement("div") as HTMLDivElement;
       const answerControlsElement = this.makeAnswerControlElement(i);
 
       const answerElement = document.createElement("div") as HTMLDivElement;
@@ -201,7 +205,6 @@ export class RPGDOMHelpers {
       answerElement.appendChild(selectElement);
 
       const handleDrag = ev => {
-        // ev.dataTransfer.setData("text", ev.target.id);
         ev.dataTransfer.setData("answerindex", ev.target.getAttribute("data-answerindex"));
       };
 

@@ -21,7 +21,7 @@
     // END init dat.gui
 
     // var editor = new Editor("../../resources/20230721_floatsim_storyline_dialog.json");
-    var editor = new Editor("../../resources/export-test/dialog-config-5.json");
+    var editor = new Editor("../../resources/export-test/dialog-config-7.json");
   };
 
   window.addEventListener("load", window.initializePB);

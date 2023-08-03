@@ -80,7 +80,10 @@ var RPGDOMHelpers = /** @class */ (function () {
             if (!newName || (newName = newName.trim()).length === 0) {
                 return;
             }
-            _self.editorHelpers.renameGraphNode(_self.currentNodeName, newName);
+            var renameSuccessful = _self.editorHelpers.renameGraphNode(_self.currentNodeName, newName);
+            if (renameSuccessful) {
+                _self.currentNodeName = newName;
+            }
         };
     };
     RPGDOMHelpers.prototype.handleATextChanged = function (_self, answer) {
@@ -104,7 +107,9 @@ var RPGDOMHelpers = /** @class */ (function () {
         this.currentNodeName = nodeName;
         this.currentGraphNode = graphNode;
         this.keyElement.setAttribute("value", nodeName ? nodeName : "");
+        this.keyElement.value = nodeName ? nodeName : "";
         this.qElement.setAttribute("value", graphNode ? graphNode.q : "");
+        this.qElement.value = graphNode ? graphNode.q : "";
         this.optionsElement.innerHTML = "";
         if (!graphNode) {
             return;
@@ -154,7 +159,6 @@ var RPGDOMHelpers = /** @class */ (function () {
         for (var i = 0; i < graphNode.o.length; i++) {
             var option = graphNode.o[i];
             var answerWrapperElement = document.createElement("div");
-            // const answerContentElement = document.createElement("div") as HTMLDivElement;
             var answerControlsElement = this.makeAnswerControlElement(i);
             var answerElement = document.createElement("div");
             var labelElement = document.createElement("div");
@@ -167,7 +171,6 @@ var RPGDOMHelpers = /** @class */ (function () {
             answerElement.appendChild(textElement);
             answerElement.appendChild(selectElement);
             var handleDrag = function (ev) {
-                // ev.dataTransfer.setData("text", ev.target.id);
                 ev.dataTransfer.setData("answerindex", ev.target.getAttribute("data-answerindex"));
             };
             answerWrapperElement.classList.add("answer-wrapper-element");

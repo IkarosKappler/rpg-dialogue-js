@@ -3,6 +3,7 @@
 - 2023-08-03
   - Adding highlighted options connectors (on mouse over).
   - Can visually reconnect nodes now (by mouse).
+  - Can now also upload JSON files via upload button.
 - 2023-08-02
   - Fixing drag amount when moving boxes.
   - Drawing connections more beautiful with cubic Bézier curves.
