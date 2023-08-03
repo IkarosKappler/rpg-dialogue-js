@@ -10,7 +10,7 @@ import { AlloyFingerOptions } from "alloyfinger-typescript/src/cjs/alloy_finger"
 import AlloyFinger from "alloyfinger-typescript";
 import { PlotBoilerplate, Vertex, XYCoords } from "plotboilerplate";
 import { EditorHelper } from "./editorHelpers";
-import { IDialogueConfig, IMiniQuestionaireWithPosition } from "./interfaces";
+import { IDialogueConfig, IMiniQuestionaireWithPosition, IOptionIdentifyer } from "./interfaces";
 
 export class TouchHandler {
   private alloyFinger: AlloyFinger;
@@ -28,23 +28,17 @@ export class TouchHandler {
       return { x: pos.x - bounds.left, y: pos.y - bounds.top };
     };
 
-    var draggedElements = null;
-    var draggedElementName: string = null;
+    var draggedNodeName: string = null;
     var draggedNode: IMiniQuestionaireWithPosition = null;
+    var draggedOption: IOptionIdentifyer;
     var wasDragged: boolean = false;
 
     var touchMovePos: Vertex | undefined | null = null;
     var touchDownPos: Vertex | undefined | null = null;
-    // var draggedElement: IDraggable | undefined | null = null;
-    var multiTouchStartScale: Vertex | undefined | null = null;
     const clearTouch = () => {
       touchMovePos = null;
       touchDownPos = null;
-      //   draggedElement = null;
-      draggedElementName = null;
-      draggedElementName = null;
-      multiTouchStartScale = null;
-      draggedElements = [];
+      draggedNodeName = null;
     };
     const afProps: AlloyFingerOptions = {
       touchStart: (evt: TouchEvent) => {
@@ -52,9 +46,11 @@ export class TouchHandler {
         if (evt.touches.length == 1) {
           touchMovePos = new Vertex(relPos({ x: evt.touches[0].clientX, y: evt.touches[0].clientY }));
           touchDownPos = new Vertex(relPos({ x: evt.touches[0].clientX, y: evt.touches[0].clientY }));
-          draggedElementName = editorHelper.locateNodeBoxNameAtPos(pb.transformMousePosition(touchMovePos.x, touchMovePos.y));
-          if (draggedElementName) {
-            draggedNode = dialogConfigWithPositions.graph[draggedElementName];
+          draggedNodeName = editorHelper.locateNodeBoxNameAtPos(pb.transformMousePosition(touchMovePos.x, touchMovePos.y));
+          if (draggedNodeName) {
+            draggedNode = dialogConfigWithPositions.graph[draggedNodeName];
+          } else {
+            draggedOption = editorHelper.locateOptionBoxNameAtPos(pb.transformMousePosition(touchMovePos.x, touchMovePos.y));
           }
           wasDragged = false;
         }
@@ -84,8 +80,19 @@ export class TouchHandler {
           }
           if (!wasDragged) {
             wasDragged = false;
-            editorHelper.setSelectedNode(draggedElementName, draggedNode);
-            // pb.redraw();
+            if (draggedNode) {
+              if (editorHelper.selectedOption) {
+                // reconnect
+                editorHelper.handleOptionReconnect(draggedNodeName);
+              } else {
+                editorHelper.setSelectedOption(null, false);
+                editorHelper.setSelectedNode(draggedNodeName, draggedNode);
+              }
+            } else {
+              // Option can be null, too.
+              editorHelper.setSelectedOption(draggedOption, true);
+              editorHelper.setSelectedNode(null, null);
+            }
           }
         }
         clearTouch();

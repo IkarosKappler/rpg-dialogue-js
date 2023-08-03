@@ -17,22 +17,16 @@ var TouchHandler = /** @class */ (function () {
             var bounds = pb.canvas.getBoundingClientRect();
             return { x: pos.x - bounds.left, y: pos.y - bounds.top };
         };
-        var draggedElements = null;
-        var draggedElementName = null;
+        var draggedNodeName = null;
         var draggedNode = null;
+        var draggedOption;
         var wasDragged = false;
         var touchMovePos = null;
         var touchDownPos = null;
-        // var draggedElement: IDraggable | undefined | null = null;
-        var multiTouchStartScale = null;
         var clearTouch = function () {
             touchMovePos = null;
             touchDownPos = null;
-            //   draggedElement = null;
-            draggedElementName = null;
-            draggedElementName = null;
-            multiTouchStartScale = null;
-            draggedElements = [];
+            draggedNodeName = null;
         };
         var afProps = {
             touchStart: function (evt) {
@@ -40,9 +34,12 @@ var TouchHandler = /** @class */ (function () {
                 if (evt.touches.length == 1) {
                     touchMovePos = new plotboilerplate_1.Vertex(relPos({ x: evt.touches[0].clientX, y: evt.touches[0].clientY }));
                     touchDownPos = new plotboilerplate_1.Vertex(relPos({ x: evt.touches[0].clientX, y: evt.touches[0].clientY }));
-                    draggedElementName = editorHelper.locateNodeBoxNameAtPos(pb.transformMousePosition(touchMovePos.x, touchMovePos.y));
-                    if (draggedElementName) {
-                        draggedNode = dialogConfigWithPositions.graph[draggedElementName];
+                    draggedNodeName = editorHelper.locateNodeBoxNameAtPos(pb.transformMousePosition(touchMovePos.x, touchMovePos.y));
+                    if (draggedNodeName) {
+                        draggedNode = dialogConfigWithPositions.graph[draggedNodeName];
+                    }
+                    else {
+                        draggedOption = editorHelper.locateOptionBoxNameAtPos(pb.transformMousePosition(touchMovePos.x, touchMovePos.y));
                     }
                     wasDragged = false;
                 }
@@ -72,8 +69,21 @@ var TouchHandler = /** @class */ (function () {
                     }
                     if (!wasDragged) {
                         wasDragged = false;
-                        editorHelper.setSelectedNode(draggedElementName, draggedNode);
-                        // pb.redraw();
+                        if (draggedNode) {
+                            if (editorHelper.selectedOption) {
+                                // reconnect
+                                editorHelper.handleOptionReconnect(draggedNodeName);
+                            }
+                            else {
+                                editorHelper.setSelectedOption(null, false);
+                                editorHelper.setSelectedNode(draggedNodeName, draggedNode);
+                            }
+                        }
+                        else {
+                            // Option can be null, too.
+                            editorHelper.setSelectedOption(draggedOption, true);
+                            editorHelper.setSelectedNode(null, null);
+                        }
                     }
                 }
                 clearTouch();

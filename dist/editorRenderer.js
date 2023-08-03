@@ -55,13 +55,22 @@ var EditorRenderer = /** @class */ (function () {
             this.renderGraphNode(nodeName, graphNode);
             this.renderOptions(nodeName, graphNode);
         }
-        // Render recommended new connection
+        // Render suggested new connection
+        this.renderSuggestedConnection();
+    };
+    EditorRenderer.prototype.renderSuggestedConnection = function () {
         if (this.editorHelpers.selectedOption) {
+            // console.log("MousePosition", this.editorHelpers.relativeMousePosition);
+            var isMousePosInsideOption = this.editorHelpers.isPosInOptionNodeBox(this.editorHelpers.relativeMousePosition, this.editorHelpers.selectedOption.node, this.editorHelpers.selectedOption.optionIndex);
             var bezierTargetPosition = this.editorHelpers.highlightedNode
                 ? this.editorHelpers.highlightedNode.editor.position
-                : this.editorHelpers.relativeMousePosition;
+                : isMousePosInsideOption
+                    ? null
+                    : this.editorHelpers.relativeMousePosition;
             // console.log("render recommended connection");
-            this.drawBezierConnection(this.editorHelpers.selectedOption.node, this.editorHelpers.selectedOption.optionIndex, bezierTargetPosition, true, true);
+            if (bezierTargetPosition) {
+                this.drawBezierConnection(this.editorHelpers.selectedOption.node, this.editorHelpers.selectedOption.optionIndex, bezierTargetPosition, true, true);
+            }
         }
     };
     EditorRenderer.prototype.renderGraphNode = function (nodeName, graphNode) {
@@ -91,7 +100,7 @@ var EditorRenderer = /** @class */ (function () {
             this.pb.fill.text(option.a ? (isNodeSelected ? option.a : editorHelpers_1.EditorHelper.ellipsify(option.a, this.TEXT_MAX_LENGTH)) : "-no text-", offsetX, offsetY, __assign(__assign({}, this.fontOptions), { color: isHighlighted || isSelected ? "black" : "grey" }));
             if (isHighlighted || isSelected) {
                 // Draw connect indicator when highlighted
-                var zA = new plotboilerplate_1.Vertex(graphNode.editor.position).addXY(this.boxSize.width + 16, this.boxSize.height / 2.0 + (j + 1) * this.boxSize.height);
+                var zA = new plotboilerplate_1.Vertex(graphNode.editor.position).addXY(this.boxSize.width + 16, this.boxSize.height / 2.0 + (j + 1) * (this.boxSize.height + 2) - 2);
                 this.pb.fill.circle(zA, 5, "orange");
             }
             offsetY += this.boxSize.height + 2;
@@ -132,7 +141,7 @@ var EditorRenderer = /** @class */ (function () {
       );
     } */
     EditorRenderer.prototype.drawBezierConnection = function (graphNode, j, successorNodePosition, isHighlighted, isSelected) {
-        var zA = new plotboilerplate_1.Vertex(graphNode.editor.position).addXY(this.boxSize.width + 16, this.boxSize.height / 2.0 + (j + 1) * this.boxSize.height);
+        var zA = new plotboilerplate_1.Vertex(graphNode.editor.position).addXY(this.boxSize.width + 16, this.boxSize.height / 2.0 + (j + 1) * (this.boxSize.height + 2) - 2);
         var zB = new plotboilerplate_1.Vertex(successorNodePosition);
         var cA = zA.clone().addXY(50, 0);
         var cB = zB.clone().subXY(50, 50);

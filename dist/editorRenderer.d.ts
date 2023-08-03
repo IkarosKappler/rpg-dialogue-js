@@ -19,6 +19,7 @@ export declare class EditorRenderer {
     static OPTION_OFFSET_X: number;
     constructor(pb: PlotBoilerplate, boxSize: XYDimension, editorHelpers: EditorHelper, isDarkmode: boolean);
     renderBoxes(dialogConfig: IDialogueConfig<IMiniQuestionaireWithPosition>): void;
+    private renderSuggestedConnection;
     private renderGraphNode;
     private renderOptions;
     renderConnections(dialogConfig: IDialogueConfig<IMiniQuestionaireWithPosition>): void;

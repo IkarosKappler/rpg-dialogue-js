@@ -52,19 +52,33 @@ export class EditorRenderer {
       this.renderGraphNode(nodeName, graphNode);
       this.renderOptions(nodeName, graphNode);
     }
-    // Render recommended new connection
+    // Render suggested new connection
+    this.renderSuggestedConnection();
+  }
+
+  private renderSuggestedConnection() {
     if (this.editorHelpers.selectedOption) {
+      // console.log("MousePosition", this.editorHelpers.relativeMousePosition);
+      const isMousePosInsideOption: boolean = this.editorHelpers.isPosInOptionNodeBox(
+        this.editorHelpers.relativeMousePosition,
+        this.editorHelpers.selectedOption.node,
+        this.editorHelpers.selectedOption.optionIndex
+      );
       const bezierTargetPosition = this.editorHelpers.highlightedNode
         ? this.editorHelpers.highlightedNode.editor.position
+        : isMousePosInsideOption
+        ? null
         : this.editorHelpers.relativeMousePosition;
       // console.log("render recommended connection");
-      this.drawBezierConnection(
-        this.editorHelpers.selectedOption.node,
-        this.editorHelpers.selectedOption.optionIndex,
-        bezierTargetPosition,
-        true,
-        true
-      );
+      if (bezierTargetPosition) {
+        this.drawBezierConnection(
+          this.editorHelpers.selectedOption.node,
+          this.editorHelpers.selectedOption.optionIndex,
+          bezierTargetPosition,
+          true,
+          true
+        );
+      }
     }
   }
 
@@ -125,7 +139,7 @@ export class EditorRenderer {
         // Draw connect indicator when highlighted
         const zA = new Vertex(graphNode.editor.position).addXY(
           this.boxSize.width + 16,
-          this.boxSize.height / 2.0 + (j + 1) * this.boxSize.height
+          this.boxSize.height / 2.0 + (j + 1) * (this.boxSize.height + 2) - 2
         );
         this.pb.fill.circle(zA, 5, "orange");
       }
@@ -180,7 +194,7 @@ export class EditorRenderer {
   ) {
     const zA = new Vertex(graphNode.editor.position).addXY(
       this.boxSize.width + 16,
-      this.boxSize.height / 2.0 + (j + 1) * this.boxSize.height
+      this.boxSize.height / 2.0 + (j + 1) * (this.boxSize.height + 2) - 2
     );
     const zB = new Vertex(successorNodePosition);
     const cA = zA.clone().addXY(50, 0);

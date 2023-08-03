@@ -42,3 +42,11 @@ export interface IDialogueGraph<T extends IDialogueNodeType> extends Record<TDia
 export interface IDialogueConfig<T extends IDialogueNodeType> {
     graph: IDialogueGraph<T>;
 }
+/**
+ * Used to identify options.
+ */
+export interface IOptionIdentifyer {
+    nodeName: string;
+    node: IMiniQuestionaireWithPosition;
+    optionIndex: number;
+}

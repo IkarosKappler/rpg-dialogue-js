@@ -8,13 +8,8 @@
  * @version  1.0.0
  **/
 import { MouseHandler, PlotBoilerplate, XYCoords, XYDimension } from "plotboilerplate";
-import { IDialogueConfig, IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
+import { IDialogueConfig, IMiniQuestionaire, IMiniQuestionaireWithPosition, IOptionIdentifyer } from "./interfaces";
 import { RPGDOMHelpers } from "./domHelpers";
-interface IOptionIdentifyer {
-    nodeName: string;
-    node: IMiniQuestionaireWithPosition;
-    optionIndex: number;
-}
 export declare class EditorHelper {
     pb: PlotBoilerplate;
     boxSize: XYDimension;
@@ -94,4 +89,3 @@ export declare class EditorHelper {
     static fromObject(object: object): IDialogueConfig<IMiniQuestionaire>;
     private randomNodeKey;
 }
-export {};

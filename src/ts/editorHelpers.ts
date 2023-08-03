@@ -9,15 +9,9 @@
  **/
 
 import { MouseHandler, PlotBoilerplate, XMouseEvent, XYCoords, XYDimension } from "plotboilerplate";
-import { IDialogueConfig, IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
+import { IDialogueConfig, IMiniQuestionaire, IMiniQuestionaireWithPosition, IOptionIdentifyer } from "./interfaces";
 import { RPGDOMHelpers } from "./domHelpers";
 import { EditorRenderer } from "./editorRenderer";
-
-interface IOptionIdentifyer {
-  nodeName: string;
-  node: IMiniQuestionaireWithPosition;
-  optionIndex: number;
-}
 
 export class EditorHelper {
   pb: PlotBoilerplate;
@@ -287,6 +281,7 @@ export class EditorHelper {
         draggingNode.editor.position.y += evt.params.dragAmount.y / this.pb.draw.scale.y;
       })
       .move((evt: XMouseEvent) => {
+        // console.log("move", evt);
         // Check if mouse pointer hovers over an option -> set highlighted
         const mouseMovePos = this.pb.transformMousePosition(evt.params.pos.x, evt.params.pos.y);
         _self.relativeMousePosition = { x: mouseMovePos.x, y: mouseMovePos.y };
@@ -326,7 +321,6 @@ export class EditorHelper {
       if (clickedNodeName) {
         if (this.selectedOption) {
           this.handleOptionReconnect(clickedNodeName);
-          this.domHelper.showAnswerOptions(null, null);
           this.pb.redraw();
         } else {
           this.setSelectedNode(clickedNodeName, this.dialogConfigWithPositions.graph[clickedNodeName]);
@@ -351,6 +345,8 @@ export class EditorHelper {
     const sourceNode = this.selectedOption.node;
     console.log("Reconnect");
     sourceNode.o[this.selectedOption.optionIndex].next = clickedNodeName;
+
+    this.domHelper.showAnswerOptions(this.selectedNodeName, this.selectedNode);
   }
 
   // isEqualOptionIdentifyer(identA: IOptionIdentifyer, identB: IOptionIdentifyer): boolean {

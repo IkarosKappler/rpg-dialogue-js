@@ -208,6 +208,7 @@ var EditorHelper = /** @class */ (function () {
             draggingNode.editor.position.y += evt.params.dragAmount.y / _this.pb.draw.scale.y;
         })
             .move(function (evt) {
+            // console.log("move", evt);
             // Check if mouse pointer hovers over an option -> set highlighted
             var mouseMovePos = _this.pb.transformMousePosition(evt.params.pos.x, evt.params.pos.y);
             _self.relativeMousePosition = { x: mouseMovePos.x, y: mouseMovePos.y };
@@ -247,7 +248,6 @@ var EditorHelper = /** @class */ (function () {
             if (clickedNodeName) {
                 if (this.selectedOption) {
                     this.handleOptionReconnect(clickedNodeName);
-                    this.domHelper.showAnswerOptions(null, null);
                     this.pb.redraw();
                 }
                 else {
@@ -273,6 +273,7 @@ var EditorHelper = /** @class */ (function () {
         var sourceNode = this.selectedOption.node;
         console.log("Reconnect");
         sourceNode.o[this.selectedOption.optionIndex].next = clickedNodeName;
+        this.domHelper.showAnswerOptions(this.selectedNodeName, this.selectedNode);
     };
     // isEqualOptionIdentifyer(identA: IOptionIdentifyer, identB: IOptionIdentifyer): boolean {
     //   if ((!identA && identB) || (identA && !identB)) {
