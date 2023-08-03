@@ -40,7 +40,7 @@ var TouchHandler = /** @class */ (function () {
                 if (evt.touches.length == 1) {
                     touchMovePos = new plotboilerplate_1.Vertex(relPos({ x: evt.touches[0].clientX, y: evt.touches[0].clientY }));
                     touchDownPos = new plotboilerplate_1.Vertex(relPos({ x: evt.touches[0].clientX, y: evt.touches[0].clientY }));
-                    draggedElementName = editorHelper.locateBoxNameAtPos(pb.transformMousePosition(touchMovePos.x, touchMovePos.y), dialogConfigWithPositions);
+                    draggedElementName = editorHelper.locateNodeBoxNameAtPos(pb.transformMousePosition(touchMovePos.x, touchMovePos.y));
                     if (draggedElementName) {
                         draggedNode = dialogConfigWithPositions.graph[draggedElementName];
                     }

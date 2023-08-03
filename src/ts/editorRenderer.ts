@@ -7,7 +7,7 @@
  * @date     2023-07-28
  * @version  1.0.0
  **/
-import { FontOptions, PlotBoilerplate, Vertex, XYCoords, XYDimension } from "plotboilerplate";
+import { FontOptions, PlotBoilerplate, Vertex, XYCoords, XYDimension, drawutils } from "plotboilerplate";
 import { IAnswer, IDialogueConfig, IMiniQuestionaireWithPosition } from "./interfaces";
 import { EditorHelper } from "./editorHelpers";
 import { getContrastColor } from "plotboilerplate/src/cjs/utils/algorithms/getContrastColor";
@@ -21,6 +21,7 @@ export class EditorRenderer {
   fontOptions: FontOptions;
 
   TEXT_MAX_LENGTH = 20;
+  static OPTION_OFFSET_X = 16;
 
   constructor(pb: PlotBoilerplate, boxSize: XYDimension, editorHelpers: EditorHelper, isDarkmode: boolean) {
     this.pb = pb;
@@ -88,17 +89,30 @@ export class EditorRenderer {
     const isNodeSelected: boolean = this.editorHelpers.selectedNodeName === nodeName;
 
     var offsetY = graphNode.editor.position.y + this.boxSize.height;
-    var offsetX = graphNode.editor.position.x + 16;
-    for (var i in graphNode.o) {
+    var offsetX = graphNode.editor.position.x + EditorRenderer.OPTION_OFFSET_X;
+    for (var i = 0; i < graphNode.o.length; i++) {
       const option: IAnswer = graphNode.o[i];
 
+      // Render highlighted option?
+      const isHighlighted = this.editorHelpers.isOptionHighlighted(nodeName, i);
+      if (isHighlighted) {
+        this.pb.fill.rect({ x: offsetX, y: offsetY }, this.boxSize.width, this.boxSize.height, "rgba(255,192,0,0.5)", 1);
+      }
       this.pb.draw.rect({ x: offsetX, y: offsetY }, this.boxSize.width, this.boxSize.height, "grey", 1);
       this.pb.fill.text(
         option.a ? (isNodeSelected ? option.a : EditorHelper.ellipsify(option.a, this.TEXT_MAX_LENGTH)) : "-no text-",
         offsetX,
         offsetY,
-        { ...this.fontOptions, color: "grey" }
+        { ...this.fontOptions, color: isHighlighted ? "black" : "grey" }
       );
+      if (isHighlighted) {
+        // Draw connect indicator when highlighted
+        const zA = new Vertex(graphNode.editor.position).addXY(
+          this.boxSize.width + 16,
+          this.boxSize.height / 2.0 + (i + 1) * this.boxSize.height
+        );
+        this.pb.fill.circle(zA, 5, "orange");
+      }
 
       offsetY += this.boxSize.height + 2;
     }
@@ -119,8 +133,10 @@ export class EditorRenderer {
         if (!successorNode) {
           continue;
         }
+        const isHighlighted = this.editorHelpers.isOptionHighlighted(nodeName, j);
+
         // this.drawLinearConnection(graphNode, successorNode, j);
-        this.drawBezierConnection(graphNode, successorNode, j);
+        this.drawBezierConnection(graphNode, successorNode, j, isHighlighted);
       }
     }
   }
@@ -138,16 +154,35 @@ export class EditorRenderer {
     );
   } */
 
-  drawBezierConnection(graphNode: IMiniQuestionaireWithPosition, successorNode: IMiniQuestionaireWithPosition, j: number) {
+  drawBezierConnection(
+    graphNode: IMiniQuestionaireWithPosition,
+    successorNode: IMiniQuestionaireWithPosition,
+    j: number,
+    isHighlighted: boolean
+  ) {
     const zA = new Vertex(graphNode.editor.position).addXY(
       this.boxSize.width + 16,
-      this.boxSize.height / 2.0 + (j + 1) * (this.boxSize.height + 2)
+      this.boxSize.height / 2.0 + (j + 1) * this.boxSize.height
     );
     const zB = new Vertex(successorNode.editor.position);
     const cA = zA.clone().addXY(50, 0);
     const cB = zB.clone().subXY(50, 50);
 
-    this.cubicBezierArrow(zA, zB, cA, cB, "rgba(255,192,0,0.5)", 2);
+    // console.log("canvas", typeof this.pb.canvas);
+    const isCanvas = this.pb.canvas instanceof HTMLCanvasElement;
+    if (isCanvas) {
+      // Maybe future versions of PlotBoilerplate support this for Canvas & SVG nodes
+      if (isHighlighted) {
+        (this.pb.draw as drawutils).ctx.setLineDash([10, 6]);
+      } else {
+        (this.pb.draw as drawutils).ctx.setLineDash([0]);
+      }
+    }
+    this.cubicBezierArrow(zA, zB, cA, cB, isHighlighted ? "rgba(0,192,255,0.5)" : "rgba(255,192,0,0.5)", 2);
+
+    if (isCanvas) {
+      (this.pb.draw as drawutils).ctx.setLineDash([0]);
+    }
   }
 
   /**

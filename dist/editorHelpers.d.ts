@@ -10,15 +10,40 @@
 import { MouseHandler, PlotBoilerplate, XYCoords, XYDimension } from "plotboilerplate";
 import { IDialogueConfig, IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
 import { RPGDOMHelpers } from "./domHelpers";
+interface IOptionIdentifyer {
+    nodeName: string;
+    node: IMiniQuestionaireWithPosition;
+    optionIndex: number;
+}
 export declare class EditorHelper {
     pb: PlotBoilerplate;
     boxSize: XYDimension;
-    selectedNodeName: string;
-    selectedNode: IMiniQuestionaireWithPosition;
+    /**
+     * The selected node's name or null if none is selected.
+     * Used to determine the node editor's contents.
+     */
+    selectedNodeName: string | null;
+    /**
+     * The selected node itself or null if none is selected.
+     * Used to determine the node editor's contents.
+     */
+    selectedNode: IMiniQuestionaireWithPosition | null;
+    /**
+     * The currently selected option or null if none is selected.
+     * Used to re-connect an option with a new successor node.
+     */
+    selectedOption: IOptionIdentifyer | null;
+    /**
+     * The currently highlighted option.
+     * Used to draw on-mouse-over options with a different color.
+     */
+    hightlightedOption: IOptionIdentifyer | null;
     domHelper: RPGDOMHelpers;
     dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>;
     constructor(pb: PlotBoilerplate, boxSize: XYDimension);
     setDialogConfig(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>): void;
+    setSelectedOption(selectedOption: IOptionIdentifyer | null): void;
+    setHighlightedOption(hightlightedOption: IOptionIdentifyer | null): void;
     /**
      * A helper function to create random safe positions in the viewport area.
      * @param {PlotBoilerplate} pb
@@ -38,11 +63,15 @@ export declare class EditorHelper {
      */
     enrichPositions(baseConfig: IDialogueConfig<IMiniQuestionaire>): IDialogueConfig<IMiniQuestionaireWithPosition>;
     isPosInGraphNodeBox(pos: XYCoords, graphNode: IMiniQuestionaireWithPosition): boolean;
-    locateBoxNameAtPos(pos: XYCoords, dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>): string | null;
+    isPosInOptionNodeBox(pos: XYCoords, graphNode: IMiniQuestionaireWithPosition, optionIndex: number): boolean;
+    locateNodeBoxNameAtPos(pos: XYCoords): string | null;
+    locateOptionBoxNameAtPos(pos: XYCoords): IOptionIdentifyer;
+    isOptionHighlighted(nodeName: string, optionIndex: number): boolean;
     addNewDialogueNode(): void;
     removeNewDialogueNode(nodeName: string): void;
-    boxMovehandler(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>): MouseHandler;
+    boxMovehandler(): MouseHandler;
     static ellipsify(text: string, maxLength: number): string;
     static fromObject(object: object): IDialogueConfig<IMiniQuestionaire>;
     private randomNodeKey;
 }
+export {};

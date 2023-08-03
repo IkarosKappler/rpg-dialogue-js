@@ -16,12 +16,13 @@ export declare class EditorRenderer {
     editorHelpers: EditorHelper;
     fontOptions: FontOptions;
     TEXT_MAX_LENGTH: number;
+    static OPTION_OFFSET_X: number;
     constructor(pb: PlotBoilerplate, boxSize: XYDimension, editorHelpers: EditorHelper, isDarkmode: boolean);
     renderBoxes(dialogConfig: IDialogueConfig<IMiniQuestionaireWithPosition>): void;
     private renderGraphNode;
     private renderOptions;
     renderConnections(dialogConfig: IDialogueConfig<IMiniQuestionaireWithPosition>): void;
-    drawBezierConnection(graphNode: IMiniQuestionaireWithPosition, successorNode: IMiniQuestionaireWithPosition, j: number): void;
+    drawBezierConnection(graphNode: IMiniQuestionaireWithPosition, successorNode: IMiniQuestionaireWithPosition, j: number, isHighlighted: boolean): void;
     /**
      * Draw a line and an arrow at the end (zB) of the given line with the specified (CSS-) color.
      *

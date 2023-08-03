@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.EditorHelper = void 0;
 var plotboilerplate_1 = require("plotboilerplate");
 var domHelpers_1 = require("./domHelpers");
+var editorRenderer_1 = require("./editorRenderer");
 var EditorHelper = /** @class */ (function () {
     function EditorHelper(pb, boxSize) {
         this.pb = pb;
@@ -21,6 +22,16 @@ var EditorHelper = /** @class */ (function () {
     }
     EditorHelper.prototype.setDialogConfig = function (dialogConfigWithPositions) {
         this.dialogConfigWithPositions = dialogConfigWithPositions;
+    };
+    EditorHelper.prototype.setSelectedOption = function (selectedOption) {
+        this.selectedOption = selectedOption;
+    };
+    EditorHelper.prototype.setHighlightedOption = function (hightlightedOption) {
+        var isRedrawRequired = this.hightlightedOption !== hightlightedOption;
+        this.hightlightedOption = hightlightedOption;
+        if (isRedrawRequired) {
+            this.pb.redraw();
+        }
     };
     /**
      * A helper function to create random safe positions in the viewport area.
@@ -93,14 +104,37 @@ var EditorHelper = /** @class */ (function () {
             graphNode.editor.position.x + this.boxSize.width > pos.x &&
             graphNode.editor.position.y + this.boxSize.height > pos.y);
     };
-    EditorHelper.prototype.locateBoxNameAtPos = function (pos, dialogConfigWithPositions) {
-        for (var nodeName in dialogConfigWithPositions.graph) {
-            var graphNode = dialogConfigWithPositions.graph[nodeName];
+    EditorHelper.prototype.isPosInOptionNodeBox = function (pos, graphNode, optionIndex) {
+        editorRenderer_1.EditorRenderer.OPTION_OFFSET_X;
+        return (graphNode.editor.position.x + editorRenderer_1.EditorRenderer.OPTION_OFFSET_X <= pos.x &&
+            graphNode.editor.position.y + (optionIndex + 1) * this.boxSize.height <= pos.y &&
+            graphNode.editor.position.x + editorRenderer_1.EditorRenderer.OPTION_OFFSET_X + this.boxSize.width > pos.x &&
+            graphNode.editor.position.y + (optionIndex + 1) * this.boxSize.height + this.boxSize.height > pos.y);
+    };
+    EditorHelper.prototype.locateNodeBoxNameAtPos = function (pos) {
+        for (var nodeName in this.dialogConfigWithPositions.graph) {
+            var graphNode = this.dialogConfigWithPositions.graph[nodeName];
             if (this.isPosInGraphNodeBox(pos, graphNode)) {
                 return nodeName;
             }
         }
         return null;
+    };
+    EditorHelper.prototype.locateOptionBoxNameAtPos = function (pos) {
+        for (var nodeName in this.dialogConfigWithPositions.graph) {
+            var graphNode = this.dialogConfigWithPositions.graph[nodeName];
+            for (var i = 0; i < graphNode.o.length; i++) {
+                if (this.isPosInOptionNodeBox(pos, graphNode, i)) {
+                    return { nodeName: nodeName, node: graphNode, optionIndex: i };
+                }
+            }
+        }
+        return null;
+    };
+    EditorHelper.prototype.isOptionHighlighted = function (nodeName, optionIndex) {
+        return (this.hightlightedOption &&
+            this.hightlightedOption.nodeName === nodeName &&
+            this.hightlightedOption.optionIndex === optionIndex);
     };
     EditorHelper.prototype.addNewDialogueNode = function () {
         var nodeName = this.randomNodeKey();
@@ -124,8 +158,10 @@ var EditorHelper = /** @class */ (function () {
         this.domHelper.showAnswerOptions(null, null);
         this.pb.redraw();
     };
-    EditorHelper.prototype.boxMovehandler = function (dialogConfigWithPositions) {
+    EditorHelper.prototype.boxMovehandler = function () {
         var _this = this;
+        //dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>) {
+        var _self = this;
         // +---------------------------------------------------------------------------------
         // | Add a mouse listener to track the mouse position.
         // +-------------------------------
@@ -137,9 +173,9 @@ var EditorHelper = /** @class */ (function () {
             .down(function (evt) {
             mouseDownPos = _this.pb.transformMousePosition(evt.params.mouseDownPos.x, evt.params.mouseDownPos.y);
             lastMouseDownPos = { x: evt.params.mouseDownPos.x, y: evt.params.mouseDownPos.y };
-            draggingNodeName = _this.locateBoxNameAtPos(mouseDownPos, dialogConfigWithPositions);
+            draggingNodeName = _this.locateNodeBoxNameAtPos(mouseDownPos);
             if (draggingNodeName) {
-                draggingNode = dialogConfigWithPositions.graph[draggingNodeName];
+                draggingNode = _this.dialogConfigWithPositions.graph[draggingNodeName];
             }
         })
             .up(function (_evt) {
@@ -154,6 +190,17 @@ var EditorHelper = /** @class */ (function () {
             draggingNode.editor.position.x += evt.params.dragAmount.x / _this.pb.draw.scale.x;
             draggingNode.editor.position.y += evt.params.dragAmount.y / _this.pb.draw.scale.y;
         })
+            .move(function (evt) {
+            // ...
+            var mouseMovePos = _this.pb.transformMousePosition(evt.params.pos.x, evt.params.pos.y);
+            // lastMouseDownPos = { x: evt.params.mouseDownPos.x, y: evt.params.mouseDownPos.y };
+            var hoveringNodeIdentifyer = _this.locateOptionBoxNameAtPos(mouseMovePos);
+            // if (hoveringNodeIdentifyer) {
+            // const hoveringNode = this.dialogConfigWithPositions.graph[hoveringNodeName];
+            // Can be null
+            _self.setHighlightedOption(hoveringNodeIdentifyer);
+            // }
+        })
             .click(function (evt) {
             // Stop if mouse was moved
             console.log("lastMouseDownPos", lastMouseDownPos, " evt.params.pos", evt.params.pos);
@@ -161,10 +208,10 @@ var EditorHelper = /** @class */ (function () {
                 return;
             }
             var mouseClickPos = _this.pb.transformMousePosition(evt.params.pos.x, evt.params.pos.y);
-            var clickedNodeName = _this.locateBoxNameAtPos(mouseClickPos, dialogConfigWithPositions);
+            var clickedNodeName = _this.locateNodeBoxNameAtPos(mouseClickPos);
             console.log("Click", clickedNodeName);
             if (clickedNodeName) {
-                _this.setSelectedNode(clickedNodeName, dialogConfigWithPositions.graph[clickedNodeName]);
+                _this.setSelectedNode(clickedNodeName, _this.dialogConfigWithPositions.graph[clickedNodeName]);
                 // this.pb.redraw();
             }
             else {

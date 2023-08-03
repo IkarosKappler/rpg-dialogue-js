@@ -82,7 +82,7 @@ var Editor = /** @class */ (function () {
                 currentMouseHandler.destroy();
                 currentMouseHandler = null;
             }
-            currentMouseHandler = editorHelpers.boxMovehandler(dialogConfig);
+            currentMouseHandler = editorHelpers.boxMovehandler(); // dialogConfig);
             // Ad DnD support for boxes.
             if (currentTouchHandler) {
                 currentTouchHandler.destroy();

@@ -52,10 +52,7 @@ export class TouchHandler {
         if (evt.touches.length == 1) {
           touchMovePos = new Vertex(relPos({ x: evt.touches[0].clientX, y: evt.touches[0].clientY }));
           touchDownPos = new Vertex(relPos({ x: evt.touches[0].clientX, y: evt.touches[0].clientY }));
-          draggedElementName = editorHelper.locateBoxNameAtPos(
-            pb.transformMousePosition(touchMovePos.x, touchMovePos.y),
-            dialogConfigWithPositions
-          );
+          draggedElementName = editorHelper.locateNodeBoxNameAtPos(pb.transformMousePosition(touchMovePos.x, touchMovePos.y));
           if (draggedElementName) {
             draggedNode = dialogConfigWithPositions.graph[draggedElementName];
           }

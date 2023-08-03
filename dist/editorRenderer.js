@@ -69,11 +69,21 @@ var EditorRenderer = /** @class */ (function () {
     EditorRenderer.prototype.renderOptions = function (nodeName, graphNode) {
         var isNodeSelected = this.editorHelpers.selectedNodeName === nodeName;
         var offsetY = graphNode.editor.position.y + this.boxSize.height;
-        var offsetX = graphNode.editor.position.x + 16;
-        for (var i in graphNode.o) {
+        var offsetX = graphNode.editor.position.x + EditorRenderer.OPTION_OFFSET_X;
+        for (var i = 0; i < graphNode.o.length; i++) {
             var option = graphNode.o[i];
+            // Render highlighted option?
+            var isHighlighted = this.editorHelpers.isOptionHighlighted(nodeName, i);
+            if (isHighlighted) {
+                this.pb.fill.rect({ x: offsetX, y: offsetY }, this.boxSize.width, this.boxSize.height, "rgba(255,192,0,0.5)", 1);
+            }
             this.pb.draw.rect({ x: offsetX, y: offsetY }, this.boxSize.width, this.boxSize.height, "grey", 1);
-            this.pb.fill.text(option.a ? (isNodeSelected ? option.a : editorHelpers_1.EditorHelper.ellipsify(option.a, this.TEXT_MAX_LENGTH)) : "-no text-", offsetX, offsetY, __assign(__assign({}, this.fontOptions), { color: "grey" }));
+            this.pb.fill.text(option.a ? (isNodeSelected ? option.a : editorHelpers_1.EditorHelper.ellipsify(option.a, this.TEXT_MAX_LENGTH)) : "-no text-", offsetX, offsetY, __assign(__assign({}, this.fontOptions), { color: isHighlighted ? "black" : "grey" }));
+            if (isHighlighted) {
+                // Draw connect indicator when highlighted
+                var zA = new plotboilerplate_1.Vertex(graphNode.editor.position).addXY(this.boxSize.width + 16, this.boxSize.height / 2.0 + (i + 1) * this.boxSize.height);
+                this.pb.fill.circle(zA, 5, "orange");
+            }
             offsetY += this.boxSize.height + 2;
         }
     };
@@ -92,8 +102,9 @@ var EditorRenderer = /** @class */ (function () {
                 if (!successorNode) {
                     continue;
                 }
+                var isHighlighted = this.editorHelpers.isOptionHighlighted(nodeName, j);
                 // this.drawLinearConnection(graphNode, successorNode, j);
-                this.drawBezierConnection(graphNode, successorNode, j);
+                this.drawBezierConnection(graphNode, successorNode, j, isHighlighted);
             }
         }
     };
@@ -109,12 +120,26 @@ var EditorRenderer = /** @class */ (function () {
         2
       );
     } */
-    EditorRenderer.prototype.drawBezierConnection = function (graphNode, successorNode, j) {
-        var zA = new plotboilerplate_1.Vertex(graphNode.editor.position).addXY(this.boxSize.width + 16, this.boxSize.height / 2.0 + (j + 1) * (this.boxSize.height + 2));
+    EditorRenderer.prototype.drawBezierConnection = function (graphNode, successorNode, j, isHighlighted) {
+        var zA = new plotboilerplate_1.Vertex(graphNode.editor.position).addXY(this.boxSize.width + 16, this.boxSize.height / 2.0 + (j + 1) * this.boxSize.height);
         var zB = new plotboilerplate_1.Vertex(successorNode.editor.position);
         var cA = zA.clone().addXY(50, 0);
         var cB = zB.clone().subXY(50, 50);
-        this.cubicBezierArrow(zA, zB, cA, cB, "rgba(255,192,0,0.5)", 2);
+        // console.log("canvas", typeof this.pb.canvas);
+        var isCanvas = this.pb.canvas instanceof HTMLCanvasElement;
+        if (isCanvas) {
+            // Maybe future versions of PlotBoilerplate support this for Canvas & SVG nodes
+            if (isHighlighted) {
+                this.pb.draw.ctx.setLineDash([10, 6]);
+            }
+            else {
+                this.pb.draw.ctx.setLineDash([0]);
+            }
+        }
+        this.cubicBezierArrow(zA, zB, cA, cB, isHighlighted ? "rgba(0,192,255,0.5)" : "rgba(255,192,0,0.5)", 2);
+        if (isCanvas) {
+            this.pb.draw.ctx.setLineDash([0]);
+        }
     };
     /**
      * Draw a line and an arrow at the end (zB) of the given line with the specified (CSS-) color.
@@ -142,6 +167,7 @@ var EditorRenderer = /** @class */ (function () {
         // this.pb.draw.line(zA, cA, "grey", 1);
         // this.pb.draw.line(zB, cB, "grey", 1);
     };
+    EditorRenderer.OPTION_OFFSET_X = 16;
     return EditorRenderer;
 }());
 exports.EditorRenderer = EditorRenderer;

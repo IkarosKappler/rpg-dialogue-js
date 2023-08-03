@@ -11,13 +11,41 @@
 import { MouseHandler, PlotBoilerplate, XMouseEvent, XYCoords, XYDimension } from "plotboilerplate";
 import { IDialogueConfig, IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
 import { RPGDOMHelpers } from "./domHelpers";
+import { EditorRenderer } from "./editorRenderer";
+
+interface IOptionIdentifyer {
+  nodeName: string;
+  node: IMiniQuestionaireWithPosition;
+  optionIndex: number;
+}
 
 export class EditorHelper {
   pb: PlotBoilerplate;
   boxSize: XYDimension;
 
-  selectedNodeName: string;
-  selectedNode: IMiniQuestionaireWithPosition;
+  /**
+   * The selected node's name or null if none is selected.
+   * Used to determine the node editor's contents.
+   */
+  selectedNodeName: string | null;
+
+  /**
+   * The selected node itself or null if none is selected.
+   * Used to determine the node editor's contents.
+   */
+  selectedNode: IMiniQuestionaireWithPosition | null;
+
+  /**
+   * The currently selected option or null if none is selected.
+   * Used to re-connect an option with a new successor node.
+   */
+  selectedOption: IOptionIdentifyer | null;
+
+  /**
+   * The currently highlighted option.
+   * Used to draw on-mouse-over options with a different color.
+   */
+  hightlightedOption: IOptionIdentifyer | null;
 
   domHelper: RPGDOMHelpers;
 
@@ -32,6 +60,18 @@ export class EditorHelper {
 
   setDialogConfig(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>) {
     this.dialogConfigWithPositions = dialogConfigWithPositions;
+  }
+
+  setSelectedOption(selectedOption: IOptionIdentifyer | null) {
+    this.selectedOption = selectedOption;
+  }
+
+  setHighlightedOption(hightlightedOption: IOptionIdentifyer | null) {
+    const isRedrawRequired = this.hightlightedOption !== hightlightedOption;
+    this.hightlightedOption = hightlightedOption;
+    if (isRedrawRequired) {
+      this.pb.redraw();
+    }
   }
 
   /**
@@ -112,14 +152,44 @@ export class EditorHelper {
     );
   }
 
-  locateBoxNameAtPos(pos: XYCoords, dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>): string | null {
-    for (var nodeName in dialogConfigWithPositions.graph) {
-      const graphNode: IMiniQuestionaireWithPosition = dialogConfigWithPositions.graph[nodeName];
+  isPosInOptionNodeBox(pos: XYCoords, graphNode: IMiniQuestionaireWithPosition, optionIndex: number): boolean {
+    EditorRenderer.OPTION_OFFSET_X;
+    return (
+      graphNode.editor.position.x + EditorRenderer.OPTION_OFFSET_X <= pos.x &&
+      graphNode.editor.position.y + (optionIndex + 1) * this.boxSize.height <= pos.y &&
+      graphNode.editor.position.x + EditorRenderer.OPTION_OFFSET_X + this.boxSize.width > pos.x &&
+      graphNode.editor.position.y + (optionIndex + 1) * this.boxSize.height + this.boxSize.height > pos.y
+    );
+  }
+
+  locateNodeBoxNameAtPos(pos: XYCoords): string | null {
+    for (var nodeName in this.dialogConfigWithPositions.graph) {
+      const graphNode: IMiniQuestionaireWithPosition = this.dialogConfigWithPositions.graph[nodeName];
       if (this.isPosInGraphNodeBox(pos, graphNode)) {
         return nodeName;
       }
     }
     return null;
+  }
+
+  locateOptionBoxNameAtPos(pos: XYCoords): IOptionIdentifyer {
+    for (var nodeName in this.dialogConfigWithPositions.graph) {
+      const graphNode: IMiniQuestionaireWithPosition = this.dialogConfigWithPositions.graph[nodeName];
+      for (var i = 0; i < graphNode.o.length; i++) {
+        if (this.isPosInOptionNodeBox(pos, graphNode, i)) {
+          return { nodeName: nodeName, node: graphNode, optionIndex: i };
+        }
+      }
+    }
+    return null;
+  }
+
+  isOptionHighlighted(nodeName: string, optionIndex: number): boolean {
+    return (
+      this.hightlightedOption &&
+      this.hightlightedOption.nodeName === nodeName &&
+      this.hightlightedOption.optionIndex === optionIndex
+    );
   }
 
   addNewDialogueNode() {
@@ -146,7 +216,9 @@ export class EditorHelper {
     this.pb.redraw();
   }
 
-  boxMovehandler(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>) {
+  boxMovehandler() {
+    //dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>) {
+    const _self = this;
     // +---------------------------------------------------------------------------------
     // | Add a mouse listener to track the mouse position.
     // +-------------------------------
@@ -158,9 +230,9 @@ export class EditorHelper {
       .down((evt: XMouseEvent) => {
         mouseDownPos = this.pb.transformMousePosition(evt.params.mouseDownPos.x, evt.params.mouseDownPos.y);
         lastMouseDownPos = { x: evt.params.mouseDownPos.x, y: evt.params.mouseDownPos.y };
-        draggingNodeName = this.locateBoxNameAtPos(mouseDownPos, dialogConfigWithPositions);
+        draggingNodeName = this.locateNodeBoxNameAtPos(mouseDownPos);
         if (draggingNodeName) {
-          draggingNode = dialogConfigWithPositions.graph[draggingNodeName];
+          draggingNode = this.dialogConfigWithPositions.graph[draggingNodeName];
         }
       })
       .up((_evt: XMouseEvent) => {
@@ -175,6 +247,17 @@ export class EditorHelper {
         draggingNode.editor.position.x += evt.params.dragAmount.x / this.pb.draw.scale.x;
         draggingNode.editor.position.y += evt.params.dragAmount.y / this.pb.draw.scale.y;
       })
+      .move((evt: XMouseEvent) => {
+        // ...
+        const mouseMovePos = this.pb.transformMousePosition(evt.params.pos.x, evt.params.pos.y);
+        // lastMouseDownPos = { x: evt.params.mouseDownPos.x, y: evt.params.mouseDownPos.y };
+        const hoveringNodeIdentifyer: IOptionIdentifyer = this.locateOptionBoxNameAtPos(mouseMovePos);
+        // if (hoveringNodeIdentifyer) {
+        // const hoveringNode = this.dialogConfigWithPositions.graph[hoveringNodeName];
+        // Can be null
+        _self.setHighlightedOption(hoveringNodeIdentifyer);
+        // }
+      })
       .click((evt: XMouseEvent) => {
         // Stop if mouse was moved
         console.log("lastMouseDownPos", lastMouseDownPos, " evt.params.pos", evt.params.pos);
@@ -182,10 +265,10 @@ export class EditorHelper {
           return;
         }
         const mouseClickPos = this.pb.transformMousePosition(evt.params.pos.x, evt.params.pos.y);
-        const clickedNodeName = this.locateBoxNameAtPos(mouseClickPos, dialogConfigWithPositions);
+        const clickedNodeName = this.locateNodeBoxNameAtPos(mouseClickPos);
         console.log("Click", clickedNodeName);
         if (clickedNodeName) {
-          this.setSelectedNode(clickedNodeName, dialogConfigWithPositions.graph[clickedNodeName]);
+          this.setSelectedNode(clickedNodeName, this.dialogConfigWithPositions.graph[clickedNodeName]);
           // this.pb.redraw();
         } else {
           this.setSelectedNode(null, null);
