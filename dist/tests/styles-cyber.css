@@ -34,3 +34,28 @@ body {
     color:darkmagenta;
     background-color: #003776;
 }
+
+.room {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.npc {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.npc div.active {
+    color: green
+}
+
+.pixelate {
+    image-rendering: pixelated;
+}
+
+.npc-32x64 {
+    width: 100px;
+    height : 200px;
+}
