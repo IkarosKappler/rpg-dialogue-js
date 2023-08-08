@@ -125,6 +125,12 @@ Live editor example: https://www.int2byte.de/public/rpg-dialogue/dist/tests/edit
 
 All this stuff is highly unfinished.
 
+##
+
+Add some simple stylesheets to create a custom nice game dialogue.
+
+![Screenshot](/resources/screenshots/20230808-0-styled-cyber-demo.png)
+
 ## Credits
 
 - Freeiconsshop for the download icon.
