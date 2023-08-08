@@ -111,3 +111,77 @@ export class TouchHandler {
     this.alloyFinger.destroy();
   }
 }
+
+/**
+ * A class simulating non existing touchenter and touchleave events.
+ * Inspired by
+ *    https://stackoverflow.com/questions/23111671/touchenter-and-touchleave-events-support
+ */
+export class TouchEnterLeaveHandler {
+  private onTouchLeaveEvents = [];
+  private onTouchEnterEvents = [];
+
+  constructor() {
+    this._init();
+  }
+
+  onTouchEnter(selector, fn) {
+    this.onTouchEnterEvents.push([selector, fn]);
+    return function () {
+      this.onTouchEnterEvents.slice().map(function (e, i) {
+        if (e[0] === selector && e[1] === fn) {
+          this.onTouchEnterEvents.splice(1, i);
+        }
+      });
+    };
+  }
+
+  onTouchLeave = function (selector, fn) {
+    this.onTouchLeaveEvents.push([selector, fn]);
+    return function () {
+      this.onTouchLeaveEvents.slice().map(function (e, i) {
+        if (e[0] === selector && e[1] === fn) {
+          this.onTouchLeaveEvents.splice(1, i);
+        }
+      });
+    };
+  };
+
+  private _init() {
+    let lastTouchLeave;
+    let lastTouchEnter;
+    const _self = this;
+    document.addEventListener("touchmove", function (e) {
+      var el = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+      if (!el) {
+        return;
+      }
+
+      _self.onTouchLeaveEvents.map(event => {
+        if (el != lastTouchEnter && lastTouchEnter && lastTouchEnter.matches(event[0])) {
+          if (lastTouchEnter !== lastTouchLeave) {
+            event[1](lastTouchEnter, e);
+            lastTouchLeave = lastTouchEnter;
+            lastTouchEnter = null;
+          }
+        }
+      });
+
+      _self.onTouchEnterEvents.map(event => {
+        if (el.matches(event[0]) && el !== lastTouchEnter) {
+          lastTouchEnter = el;
+          lastTouchLeave = null;
+          event[1](el, e);
+        }
+      });
+    });
+  }
+}
+
+// Test
+// onTouchEnter('.area',function(el,e){
+//   el.classList.add('hover')
+// })
+// onTouchLeave('.area',function(el,e){
+//   el.classList.remove('hover')
+// })

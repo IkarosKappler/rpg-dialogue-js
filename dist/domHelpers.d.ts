@@ -7,6 +7,7 @@
  * @date     2023-08-01
  * @version  1.0.0
  **/
+import { TouchEnterLeaveHandler } from "./TouchHandler";
 import { EditorHelper } from "./editorHelpers";
 import { IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
 export declare class RPGDOMHelpers {
@@ -17,6 +18,9 @@ export declare class RPGDOMHelpers {
     optionsElement: HTMLDivElement;
     currentNodeName: string | null;
     currentGraphNode: IMiniQuestionaire;
+    currentDraggedAnswerIndex: number;
+    currentDropAnswerIndex: number;
+    touchEnterLeaveHandler: TouchEnterLeaveHandler;
     constructor(editorHelpers: EditorHelper);
     isExportWithoutPositions(): boolean;
     exportJSON(_self: RPGDOMHelpers): () => void;

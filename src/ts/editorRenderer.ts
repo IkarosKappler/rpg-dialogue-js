@@ -123,7 +123,9 @@ export class EditorRenderer {
       const option: IAnswer = graphNode.o[j];
 
       // Render highlighted option?
-      const isHighlighted = this.editorHelpers.isOptionHighlighted(nodeName, j);
+      const otherOptionIsSelected: boolean =
+        this.editorHelpers.selectedOption !== null && !this.editorHelpers.isOptionSelected(nodeName, j);
+      const isHighlighted = !otherOptionIsSelected && this.editorHelpers.isOptionHighlighted(nodeName, j);
       const isSelected = this.editorHelpers.isOptionSelected(nodeName, j);
       if (isHighlighted || isSelected) {
         this.pb.fill.rect({ x: offsetX, y: offsetY }, this.boxSize.width, this.boxSize.height, "rgba(255,192,0,0.5)", 1);
@@ -164,10 +166,19 @@ export class EditorRenderer {
           continue;
         }
         const isHighlighted = this.editorHelpers.isOptionHighlighted(nodeName, j);
+        const otherOptionIsSelected: boolean =
+          this.editorHelpers.selectedOption !== null && !this.editorHelpers.isOptionSelected(nodeName, j);
+
         const isSelected = this.editorHelpers.isOptionSelected(nodeName, j);
 
         // this.drawLinearConnection(graphNode, successorNode, j);
-        this.drawBezierConnection(graphNode, j, successorNode.editor.position, isHighlighted, isSelected);
+        this.drawBezierConnection(
+          graphNode,
+          j,
+          successorNode.editor.position,
+          isHighlighted && !otherOptionIsSelected,
+          isSelected
+        );
       }
     }
   }

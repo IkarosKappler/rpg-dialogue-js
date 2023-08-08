@@ -91,7 +91,8 @@ var EditorRenderer = /** @class */ (function () {
         for (var j = 0; j < graphNode.o.length; j++) {
             var option = graphNode.o[j];
             // Render highlighted option?
-            var isHighlighted = this.editorHelpers.isOptionHighlighted(nodeName, j);
+            var otherOptionIsSelected = this.editorHelpers.selectedOption !== null && !this.editorHelpers.isOptionSelected(nodeName, j);
+            var isHighlighted = !otherOptionIsSelected && this.editorHelpers.isOptionHighlighted(nodeName, j);
             var isSelected = this.editorHelpers.isOptionSelected(nodeName, j);
             if (isHighlighted || isSelected) {
                 this.pb.fill.rect({ x: offsetX, y: offsetY }, this.boxSize.width, this.boxSize.height, "rgba(255,192,0,0.5)", 1);
@@ -122,9 +123,10 @@ var EditorRenderer = /** @class */ (function () {
                     continue;
                 }
                 var isHighlighted = this.editorHelpers.isOptionHighlighted(nodeName, j);
+                var otherOptionIsSelected = this.editorHelpers.selectedOption !== null && !this.editorHelpers.isOptionSelected(nodeName, j);
                 var isSelected = this.editorHelpers.isOptionSelected(nodeName, j);
                 // this.drawLinearConnection(graphNode, successorNode, j);
-                this.drawBezierConnection(graphNode, j, successorNode.editor.position, isHighlighted, isSelected);
+                this.drawBezierConnection(graphNode, j, successorNode.editor.position, isHighlighted && !otherOptionIsSelected, isSelected);
             }
         }
     };

@@ -7,7 +7,7 @@
  * @version 1.0.0
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.TouchHandler = void 0;
+exports.TouchEnterLeaveHandler = exports.TouchHandler = void 0;
 var plotboilerplate_1 = require("plotboilerplate");
 var TouchHandler = /** @class */ (function () {
     function TouchHandler(pb, dialogConfigWithPositions, editorHelper) {
@@ -102,4 +102,72 @@ var TouchHandler = /** @class */ (function () {
     return TouchHandler;
 }());
 exports.TouchHandler = TouchHandler;
+/**
+ * A class simulating non existing touchenter and touchleave events.
+ * Inspired by
+ *    https://stackoverflow.com/questions/23111671/touchenter-and-touchleave-events-support
+ */
+var TouchEnterLeaveHandler = /** @class */ (function () {
+    function TouchEnterLeaveHandler() {
+        this.onTouchLeaveEvents = [];
+        this.onTouchEnterEvents = [];
+        this.onTouchLeave = function (selector, fn) {
+            this.onTouchLeaveEvents.push([selector, fn]);
+            return function () {
+                this.onTouchLeaveEvents.slice().map(function (e, i) {
+                    if (e[0] === selector && e[1] === fn) {
+                        this.onTouchLeaveEvents.splice(1, i);
+                    }
+                });
+            };
+        };
+        this._init();
+    }
+    TouchEnterLeaveHandler.prototype.onTouchEnter = function (selector, fn) {
+        this.onTouchEnterEvents.push([selector, fn]);
+        return function () {
+            this.onTouchEnterEvents.slice().map(function (e, i) {
+                if (e[0] === selector && e[1] === fn) {
+                    this.onTouchEnterEvents.splice(1, i);
+                }
+            });
+        };
+    };
+    TouchEnterLeaveHandler.prototype._init = function () {
+        var lastTouchLeave;
+        var lastTouchEnter;
+        var _self = this;
+        document.addEventListener("touchmove", function (e) {
+            var el = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+            if (!el) {
+                return;
+            }
+            _self.onTouchLeaveEvents.map(function (event) {
+                if (el != lastTouchEnter && lastTouchEnter && lastTouchEnter.matches(event[0])) {
+                    if (lastTouchEnter !== lastTouchLeave) {
+                        event[1](lastTouchEnter, e);
+                        lastTouchLeave = lastTouchEnter;
+                        lastTouchEnter = null;
+                    }
+                }
+            });
+            _self.onTouchEnterEvents.map(function (event) {
+                if (el.matches(event[0]) && el !== lastTouchEnter) {
+                    lastTouchEnter = el;
+                    lastTouchLeave = null;
+                    event[1](el, e);
+                }
+            });
+        });
+    };
+    return TouchEnterLeaveHandler;
+}());
+exports.TouchEnterLeaveHandler = TouchEnterLeaveHandler;
+// Test
+// onTouchEnter('.area',function(el,e){
+//   el.classList.add('hover')
+// })
+// onTouchLeave('.area',function(el,e){
+//   el.classList.remove('hover')
+// })
 //# sourceMappingURL=TouchHandler.js.map

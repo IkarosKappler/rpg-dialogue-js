@@ -15,6 +15,42 @@ var domHelpers_1 = require("./domHelpers");
 var editorRenderer_1 = require("./editorRenderer");
 var EditorHelper = /** @class */ (function () {
     function EditorHelper(pb, boxSize) {
+        // TODO: convert into node identifyer
+        /**
+         * The highlighted node's name or null if none is highlighted.
+         * Used to highlight nodes when the mouse is over.
+         */
+        this.highlightedNodeName = null;
+        /**
+         * The highlighted node itself or null if none is highligted.
+         * Used to determine rendering colors.
+         */
+        this.highlightedNode = null;
+        /**
+         * The selected node's name or null if none is selected.
+         * Used to determine the node editor's contents.
+         */
+        this.selectedNodeName = null;
+        /**
+         * The selected node itself or null if none is selected.
+         * Used to determine the node editor's contents.
+         */
+        this.selectedNode = null;
+        /**
+         * The currently selected option or null if none is selected.
+         * Used to re-connect an option with a new successor node.
+         */
+        this.selectedOption = null;
+        /**
+         * The currently highlighted option.
+         * Used to draw on-mouse-over options with a different color.
+         */
+        this.hightlightedOption = null;
+        /**
+         * The current mouse position (or null if mouse is not on canvas).
+         * In local relative coordinate system.
+         */
+        this.relativeMousePosition = null;
         this.pb = pb;
         this.boxSize = boxSize;
         this.selectedNodeName = null;

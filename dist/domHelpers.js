@@ -10,10 +10,14 @@
  **/
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RPGDOMHelpers = void 0;
+var TouchHandler_1 = require("./TouchHandler");
 var editorHelpers_1 = require("./editorHelpers");
 var RPGDOMHelpers = /** @class */ (function () {
     function RPGDOMHelpers(editorHelpers) {
+        this.currentDraggedAnswerIndex = -1;
+        this.currentDropAnswerIndex = -1;
         this.editorHelpers = editorHelpers;
+        this.touchEnterLeaveHandler = new TouchHandler_1.TouchEnterLeaveHandler();
         this.editorElement = document.getElementById("attribute-editor");
         this.optionsElement = document.getElementById("e-options-container");
         this.keyElement = this.editorElement.querySelector("input#e-key");
@@ -122,29 +126,76 @@ var RPGDOMHelpers = /** @class */ (function () {
         if (!graphNode) {
             return;
         }
-        var onDragOver = function (ev) {
-            console.log("ondragover", ev.target);
-            ev.preventDefault();
-            var target = ev.target;
-            var answerIndex = parseInt(ev.dataTransfer.getData("answerindex"));
+        var toggleDragEnterStyles = function (target) {
+            console.log("toggleDragEnterStyles");
+            var answerIndex = _self.currentDraggedAnswerIndex;
             var dropIndex = parseInt(target.getAttribute("data-dropindex"));
             if (target.classList.contains("droppable") && answerIndex !== dropIndex && answerIndex + 1 !== dropIndex) {
                 target.classList.add("dragover");
             }
         };
-        var onDragLeave = function (ev) {
-            console.log("ondragleave", ev.target);
-            ev.preventDefault();
-            var target = ev.target;
+        var toggleDragLeaveStyles = function (target) {
+            console.log("toggleDragLeaveStyles");
             if (target.classList.contains("droppable")) {
                 target.classList.remove("dragover");
             }
         };
+        var onDragOver = function (ev) {
+            console.log("ondragover", ev.target);
+            ev.preventDefault();
+            var target = ev.target;
+            toggleDragEnterStyles(target);
+            // const answerIndex = parseInt(ev.dataTransfer.getData("answerindex"));
+            // const answerIndex = _self.currentDraggedAnswerIndex;
+            // const dropIndex = parseInt(target.getAttribute("data-dropindex"));
+            // if (target.classList.contains("droppable") && answerIndex !== dropIndex && answerIndex + 1 !== dropIndex) {
+            //   target.classList.add("dragover");
+            // }
+        };
+        // const onTouchMoveDragOver = (ev: TouchEvent) => {
+        //   console.log("onTouchMoveDragOver");
+        //   // on touch move or dragging, we get the newly created image element
+        //   // let image = document.getElementById("image-float");
+        //   // // this will give us the dragging feeling of the element while actually it's a different element
+        //   // let left = e.touches[0].pageX;
+        //   // let top = e.touches[0].pageY;
+        //   // image.style.position = "absolute";
+        //   // image.style.left = left + "px";
+        //   // image.style.top = top + "px";
+        //   // this.touchX = e.touches[0].pageX;
+        //   // this.touchY = e.touches[0].pageY;
+        // };
+        var onDragLeave = function (ev) {
+            console.log("ondragleave", ev.target);
+            ev.preventDefault();
+            var target = ev.target;
+            // if (target.classList.contains("droppable")) {
+            //   target.classList.remove("dragover");
+            // }
+            toggleDragLeaveStyles(target);
+        };
+        // const onTouchMoveDragEnd = (ev: TouchEvent) => {
+        //   console.log("onTouchMoveDragOver");
+        // };
+        _self.touchEnterLeaveHandler.onTouchEnter(".a-droparea", function (element) {
+            console.log("onTouchEnter", element);
+            if (!element.classList.contains("a-droparea")) {
+                return;
+            }
+            _self.currentDropAnswerIndex = parseInt(element.getAttribute("data-dropIndex"));
+            toggleDragEnterStyles(element);
+        });
+        _self.touchEnterLeaveHandler.onTouchLeave(".a-droparea", function (element) {
+            console.log("onTouchLeave", element);
+            _self.currentDropAnswerIndex = -1;
+            toggleDragLeaveStyles(element);
+        });
         var drop = function (ev) {
             console.log("Drop", ev);
             ev.preventDefault();
             var target = ev.target;
-            var answerIndex = parseInt(ev.dataTransfer.getData("answerindex"));
+            // const answerIndex = parseInt(ev.dataTransfer.getData("answerindex"));
+            var answerIndex = _self.currentDraggedAnswerIndex;
             var dropIndex = parseInt(target.getAttribute("data-dropindex"));
             console.log("Move", answerIndex, "to", dropIndex);
             // target.appendChild(document.getElementById(data));
@@ -152,6 +203,9 @@ var RPGDOMHelpers = /** @class */ (function () {
                 // No real change
                 return;
             }
+            performDrop(answerIndex, dropIndex);
+        };
+        var performDrop = function (answerIndex, dropIndex) {
             if (dropIndex > answerIndex) {
                 dropIndex--;
             }
@@ -178,13 +232,47 @@ var RPGDOMHelpers = /** @class */ (function () {
             answerElement.appendChild(labelElement);
             answerElement.appendChild(textElement);
             answerElement.appendChild(selectElement);
-            var handleDrag = function (ev) {
-                ev.dataTransfer.setData("answerindex", ev.target.getAttribute("data-answerindex"));
+            var handleDragStart = function (ev) {
+                console.log("handleDragStart");
+                // ev.preventDefault(); // Is this required?!
+                // ev.dataTransfer.setData("answerindex", (ev.target as HTMLDivElement).getAttribute("data-answerindex"));
+                _self.currentDraggedAnswerIndex = parseInt(ev.target.getAttribute("data-answerindex"));
+                console.log("dragStart", _self.currentDraggedAnswerIndex);
+                // ev.dataTransfer.setData("answerindex", ev.target.getAttribute("data-answerindex"));
+                ev.dataTransfer.setData("answerindex", "".concat(_self.currentDraggedAnswerIndex));
+            };
+            var handleTouchDragStart = function (ev) {
+                ev.preventDefault(); // Is this required
+                // ev.dataTransfer.setData("answerindex", (ev.target as HTMLDivElement).getAttribute("data-answerindex"));
+                // ev.dataTransfer.setData("answerindex", ev.target.getAttribute("data-answerindex"));
+                var dragStartElement = ev.target;
+                _self.currentDraggedAnswerIndex = parseInt(dragStartElement.getAttribute("data-answerindex"));
+                if (Number.isNaN(_self.currentDraggedAnswerIndex)) {
+                    // touchStart on touch devices is a bit different than dragStart on Desktop devives.
+                    // Try to find enclosing draggable element
+                    if (dragStartElement.classList.contains("a-dnd-element")) {
+                        dragStartElement = dragStartElement.parentElement.parentElement;
+                    }
+                    // This should not be a node of class 'answer-wrapper-element' and draggable=true
+                    if (!dragStartElement.classList.contains("answer-wrapper-element") || !dragStartElement.getAttribute("draggable")) {
+                        console.log("Cannot find draggable element.");
+                        return;
+                    }
+                    _self.currentDraggedAnswerIndex = parseInt(dragStartElement.getAttribute("data-answerindex"));
+                }
+                console.log("handleTouchDragStart", _self.currentDraggedAnswerIndex);
+            };
+            var handleTouchDragEnd = function (ev) {
+                // ...
+                console.log("handleTouchDragEnd", "currentDraggedAnswerIndex", _self.currentDraggedAnswerIndex, "currentDropAnswerIndex", _self.currentDropAnswerIndex);
+                performDrop(_self.currentDraggedAnswerIndex, _self.currentDropAnswerIndex);
             };
             answerWrapperElement.classList.add("answer-wrapper-element");
             answerWrapperElement.setAttribute("draggable", "true");
             answerWrapperElement.setAttribute("data-answerindex", "".concat(i));
-            answerWrapperElement.addEventListener("dragstart", handleDrag);
+            answerWrapperElement.addEventListener("dragstart", handleDragStart);
+            answerWrapperElement.addEventListener("touchstart", handleTouchDragStart);
+            answerWrapperElement.addEventListener("touchend", handleTouchDragEnd);
             answerWrapperElement.appendChild(answerElement);
             answerWrapperElement.appendChild(answerControlsElement);
             var dropArea_1 = this.makeADropArea(i + 1, drop, onDragOver, onDragLeave);

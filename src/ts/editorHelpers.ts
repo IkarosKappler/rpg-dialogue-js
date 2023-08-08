@@ -22,43 +22,43 @@ export class EditorHelper {
    * The highlighted node's name or null if none is highlighted.
    * Used to highlight nodes when the mouse is over.
    */
-  highlightedNodeName: string | null;
+  highlightedNodeName: string | null = null;
 
   /**
    * The highlighted node itself or null if none is highligted.
    * Used to determine rendering colors.
    */
-  highlightedNode: IMiniQuestionaireWithPosition | null;
+  highlightedNode: IMiniQuestionaireWithPosition | null = null;
 
   /**
    * The selected node's name or null if none is selected.
    * Used to determine the node editor's contents.
    */
-  selectedNodeName: string | null;
+  selectedNodeName: string | null = null;
 
   /**
    * The selected node itself or null if none is selected.
    * Used to determine the node editor's contents.
    */
-  selectedNode: IMiniQuestionaireWithPosition | null;
+  selectedNode: IMiniQuestionaireWithPosition | null = null;
 
   /**
    * The currently selected option or null if none is selected.
    * Used to re-connect an option with a new successor node.
    */
-  selectedOption: IOptionIdentifyer | null;
+  selectedOption: IOptionIdentifyer | null = null;
 
   /**
    * The currently highlighted option.
    * Used to draw on-mouse-over options with a different color.
    */
-  hightlightedOption: IOptionIdentifyer | null;
+  hightlightedOption: IOptionIdentifyer | null = null;
 
   /**
    * The current mouse position (or null if mouse is not on canvas).
    * In local relative coordinate system.
    */
-  relativeMousePosition: XYCoords | null;
+  relativeMousePosition: XYCoords | null = null;
 
   domHelper: RPGDOMHelpers;
 
