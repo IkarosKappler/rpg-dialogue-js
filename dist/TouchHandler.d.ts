@@ -18,11 +18,13 @@ export declare class TouchHandler {
  * Inspired by
  *    https://stackoverflow.com/questions/23111671/touchenter-and-touchleave-events-support
  */
+type TouchEnterLeaveListener = (element: HTMLElement, event: TouchEvent) => void;
 export declare class TouchEnterLeaveHandler {
     private onTouchLeaveEvents;
     private onTouchEnterEvents;
     constructor();
-    onTouchEnter(selector: any, fn: any): () => void;
-    onTouchLeave: (selector: any, fn: any) => () => void;
+    onTouchEnter(selector: string, fn: TouchEnterLeaveListener): () => void;
+    onTouchLeave(selector: string, fn: TouchEnterLeaveListener): () => void;
     private _init;
 }
+export {};

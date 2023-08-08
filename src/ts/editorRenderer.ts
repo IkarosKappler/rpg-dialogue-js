@@ -46,7 +46,6 @@ export class EditorRenderer {
     const nodeNames: string[] = Object.keys(dialogConfig.graph);
     const count: number = nodeNames.length;
     for (var i = 0; i < count; i++) {
-      //   console.log("i", i);
       const nodeName = nodeNames[i];
       const graphNode: IMiniQuestionaireWithPosition = dialogConfig.graph[nodeName];
       this.renderGraphNode(nodeName, graphNode);
@@ -58,7 +57,6 @@ export class EditorRenderer {
 
   private renderSuggestedConnection() {
     if (this.editorHelpers.selectedOption) {
-      // console.log("MousePosition", this.editorHelpers.relativeMousePosition);
       const isMousePosInsideOption: boolean = this.editorHelpers.isPosInOptionNodeBox(
         this.editorHelpers.relativeMousePosition,
         this.editorHelpers.selectedOption.node,
@@ -69,7 +67,6 @@ export class EditorRenderer {
         : isMousePosInsideOption
         ? null
         : this.editorHelpers.relativeMousePosition;
-      // console.log("render recommended connection");
       if (bezierTargetPosition) {
         this.drawBezierConnection(
           this.editorHelpers.selectedOption.node,
@@ -183,19 +180,6 @@ export class EditorRenderer {
     }
   }
 
-  // Not in use
-  /* drawLinearConnection(graphNode: IMiniQuestionaireWithPosition, successorNode: IMiniQuestionaireWithPosition, j: number) {
-    this.pb.draw.arrow(
-      new Vertex(graphNode.editor.position).addXY(
-        this.boxSize.width + 16,
-        this.boxSize.height / 2.0 + (j + 1) * (this.boxSize.height + 2)
-      ),
-      new Vertex(successorNode.editor.position),
-      "rgba(255,192,0,0.5)",
-      2
-    );
-  } */
-
   drawBezierConnection(
     graphNode: IMiniQuestionaireWithPosition,
     j: number,
@@ -203,6 +187,7 @@ export class EditorRenderer {
     isHighlighted: boolean,
     isSelected: boolean
   ) {
+    // Construct Bézier handles.
     const zA = new Vertex(graphNode.editor.position).addXY(
       this.boxSize.width + 16,
       this.boxSize.height / 2.0 + (j + 1) * (this.boxSize.height + 2) - 2
@@ -211,7 +196,6 @@ export class EditorRenderer {
     const cA = zA.clone().addXY(50, 0);
     const cB = zB.clone().subXY(50, 50);
 
-    // console.log("canvas", typeof this.pb.canvas);
     const isCanvas = this.pb.canvas instanceof HTMLCanvasElement;
     if (isCanvas) {
       // Maybe future versions of PlotBoilerplate support this for Canvas & SVG nodes

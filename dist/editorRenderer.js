@@ -49,7 +49,6 @@ var EditorRenderer = /** @class */ (function () {
         var nodeNames = Object.keys(dialogConfig.graph);
         var count = nodeNames.length;
         for (var i = 0; i < count; i++) {
-            //   console.log("i", i);
             var nodeName = nodeNames[i];
             var graphNode = dialogConfig.graph[nodeName];
             this.renderGraphNode(nodeName, graphNode);
@@ -60,14 +59,12 @@ var EditorRenderer = /** @class */ (function () {
     };
     EditorRenderer.prototype.renderSuggestedConnection = function () {
         if (this.editorHelpers.selectedOption) {
-            // console.log("MousePosition", this.editorHelpers.relativeMousePosition);
             var isMousePosInsideOption = this.editorHelpers.isPosInOptionNodeBox(this.editorHelpers.relativeMousePosition, this.editorHelpers.selectedOption.node, this.editorHelpers.selectedOption.optionIndex);
             var bezierTargetPosition = this.editorHelpers.highlightedNode
                 ? this.editorHelpers.highlightedNode.editor.position
                 : isMousePosInsideOption
                     ? null
                     : this.editorHelpers.relativeMousePosition;
-            // console.log("render recommended connection");
             if (bezierTargetPosition) {
                 this.drawBezierConnection(this.editorHelpers.selectedOption.node, this.editorHelpers.selectedOption.optionIndex, bezierTargetPosition, true, true);
             }
@@ -130,24 +127,12 @@ var EditorRenderer = /** @class */ (function () {
             }
         }
     };
-    // Not in use
-    /* drawLinearConnection(graphNode: IMiniQuestionaireWithPosition, successorNode: IMiniQuestionaireWithPosition, j: number) {
-      this.pb.draw.arrow(
-        new Vertex(graphNode.editor.position).addXY(
-          this.boxSize.width + 16,
-          this.boxSize.height / 2.0 + (j + 1) * (this.boxSize.height + 2)
-        ),
-        new Vertex(successorNode.editor.position),
-        "rgba(255,192,0,0.5)",
-        2
-      );
-    } */
     EditorRenderer.prototype.drawBezierConnection = function (graphNode, j, successorNodePosition, isHighlighted, isSelected) {
+        // Construct Bézier handles.
         var zA = new plotboilerplate_1.Vertex(graphNode.editor.position).addXY(this.boxSize.width + 16, this.boxSize.height / 2.0 + (j + 1) * (this.boxSize.height + 2) - 2);
         var zB = new plotboilerplate_1.Vertex(successorNodePosition);
         var cA = zA.clone().addXY(50, 0);
         var cB = zB.clone().subXY(50, 50);
-        // console.log("canvas", typeof this.pb.canvas);
         var isCanvas = this.pb.canvas instanceof HTMLCanvasElement;
         if (isCanvas) {
             // Maybe future versions of PlotBoilerplate support this for Canvas & SVG nodes

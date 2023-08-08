@@ -176,39 +176,18 @@ export class RPGDOMHelpers {
       ev.preventDefault();
       const target = ev.target as HTMLDivElement;
       toggleDragEnterStyles(target);
-      // const answerIndex = parseInt(ev.dataTransfer.getData("answerindex"));
-      // const answerIndex = _self.currentDraggedAnswerIndex;
-      // const dropIndex = parseInt(target.getAttribute("data-dropindex"));
-      // if (target.classList.contains("droppable") && answerIndex !== dropIndex && answerIndex + 1 !== dropIndex) {
-      //   target.classList.add("dragover");
-      // }
     };
-    // const onTouchMoveDragOver = (ev: TouchEvent) => {
-    //   console.log("onTouchMoveDragOver");
-    //   // on touch move or dragging, we get the newly created image element
-    //   // let image = document.getElementById("image-float");
-    //   // // this will give us the dragging feeling of the element while actually it's a different element
-    //   // let left = e.touches[0].pageX;
-    //   // let top = e.touches[0].pageY;
-    //   // image.style.position = "absolute";
-    //   // image.style.left = left + "px";
-    //   // image.style.top = top + "px";
-    //   // this.touchX = e.touches[0].pageX;
-    //   // this.touchY = e.touches[0].pageY;
-    // };
     const onDragLeave = (ev: DragEvent) => {
       console.log("ondragleave", ev.target);
       ev.preventDefault();
       const target = ev.target as HTMLDivElement;
-      // if (target.classList.contains("droppable")) {
-      //   target.classList.remove("dragover");
-      // }
       toggleDragLeaveStyles(target);
     };
-    // const onTouchMoveDragEnd = (ev: TouchEvent) => {
-    //   console.log("onTouchMoveDragOver");
-    // };
 
+    /**
+     * Native browser DnD does not support touch events.
+     * So we need a workaround using our custom TouchEnterLeaverHandler here.
+     */
     _self.touchEnterLeaveHandler.onTouchEnter(".a-droparea", (element: HTMLElement) => {
       console.log("onTouchEnter", element);
       if (!element.classList.contains("a-droparea")) {

@@ -117,17 +117,18 @@ export class TouchHandler {
  * Inspired by
  *    https://stackoverflow.com/questions/23111671/touchenter-and-touchleave-events-support
  */
+type TouchEnterLeaveListener = (element: HTMLElement, event: TouchEvent) => void;
 export class TouchEnterLeaveHandler {
-  private onTouchLeaveEvents = [];
-  private onTouchEnterEvents = [];
+  private onTouchLeaveEvents: Array<[string, TouchEnterLeaveListener]> = [];
+  private onTouchEnterEvents: Array<[string, TouchEnterLeaveListener]> = [];
 
   constructor() {
     this._init();
   }
 
-  onTouchEnter(selector, fn) {
+  onTouchEnter(selector: string, fn: TouchEnterLeaveListener) {
     this.onTouchEnterEvents.push([selector, fn]);
-    return function () {
+    return () => {
       this.onTouchEnterEvents.slice().map(function (e, i) {
         if (e[0] === selector && e[1] === fn) {
           this.onTouchEnterEvents.splice(1, i);
@@ -136,7 +137,7 @@ export class TouchEnterLeaveHandler {
     };
   }
 
-  onTouchLeave = function (selector, fn) {
+  onTouchLeave(selector: string, fn: TouchEnterLeaveListener) {
     this.onTouchLeaveEvents.push([selector, fn]);
     return function () {
       this.onTouchLeaveEvents.slice().map(function (e, i) {
@@ -145,14 +146,14 @@ export class TouchEnterLeaveHandler {
         }
       });
     };
-  };
+  }
 
   private _init() {
-    let lastTouchLeave;
-    let lastTouchEnter;
+    let lastTouchLeave: Element | null;
+    let lastTouchEnter: Element | null;
     const _self = this;
-    document.addEventListener("touchmove", function (e) {
-      var el = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+    document.addEventListener("touchmove", e => {
+      const el: Element = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
       if (!el) {
         return;
       }
@@ -160,7 +161,7 @@ export class TouchEnterLeaveHandler {
       _self.onTouchLeaveEvents.map(event => {
         if (el != lastTouchEnter && lastTouchEnter && lastTouchEnter.matches(event[0])) {
           if (lastTouchEnter !== lastTouchLeave) {
-            event[1](lastTouchEnter, e);
+            event[1](lastTouchEnter as HTMLElement, e);
             lastTouchLeave = lastTouchEnter;
             lastTouchEnter = null;
           }
@@ -171,7 +172,7 @@ export class TouchEnterLeaveHandler {
         if (el.matches(event[0]) && el !== lastTouchEnter) {
           lastTouchEnter = el;
           lastTouchLeave = null;
-          event[1](el, e);
+          event[1](el as HTMLElement, e);
         }
       });
     });

@@ -102,33 +102,29 @@ var TouchHandler = /** @class */ (function () {
     return TouchHandler;
 }());
 exports.TouchHandler = TouchHandler;
-/**
- * A class simulating non existing touchenter and touchleave events.
- * Inspired by
- *    https://stackoverflow.com/questions/23111671/touchenter-and-touchleave-events-support
- */
 var TouchEnterLeaveHandler = /** @class */ (function () {
     function TouchEnterLeaveHandler() {
         this.onTouchLeaveEvents = [];
         this.onTouchEnterEvents = [];
-        this.onTouchLeave = function (selector, fn) {
-            this.onTouchLeaveEvents.push([selector, fn]);
-            return function () {
-                this.onTouchLeaveEvents.slice().map(function (e, i) {
-                    if (e[0] === selector && e[1] === fn) {
-                        this.onTouchLeaveEvents.splice(1, i);
-                    }
-                });
-            };
-        };
         this._init();
     }
     TouchEnterLeaveHandler.prototype.onTouchEnter = function (selector, fn) {
+        var _this = this;
         this.onTouchEnterEvents.push([selector, fn]);
         return function () {
-            this.onTouchEnterEvents.slice().map(function (e, i) {
+            _this.onTouchEnterEvents.slice().map(function (e, i) {
                 if (e[0] === selector && e[1] === fn) {
                     this.onTouchEnterEvents.splice(1, i);
+                }
+            });
+        };
+    };
+    TouchEnterLeaveHandler.prototype.onTouchLeave = function (selector, fn) {
+        this.onTouchLeaveEvents.push([selector, fn]);
+        return function () {
+            this.onTouchLeaveEvents.slice().map(function (e, i) {
+                if (e[0] === selector && e[1] === fn) {
+                    this.onTouchLeaveEvents.splice(1, i);
                 }
             });
         };
