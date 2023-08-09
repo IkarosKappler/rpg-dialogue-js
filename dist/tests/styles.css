@@ -4,5 +4,7 @@ body {
 
 #rpg-output {}
 #rpg-output-question {}
+#rpg-output-question .rpg-npcname { font-style: italic;}
 #rpg-output-options {}
+
   

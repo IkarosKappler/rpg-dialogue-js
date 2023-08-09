@@ -15,6 +15,7 @@ export declare class RPGDOMHelpers {
     editorHelpers: EditorHelper;
     editorElement: HTMLDivElement;
     keyElement: HTMLInputElement;
+    npcElement: HTMLSelectElement;
     qElement: HTMLInputElement;
     optionsElement: HTMLDivElement;
     modal: Modal;
@@ -32,10 +33,15 @@ export declare class RPGDOMHelpers {
     private removeDialogueNode;
     toggleVisibility(isVisible: boolean): void;
     private handleQChanged;
+    private handleNPCIndexChanged;
     private handleKeyChanged;
     private handleATextChanged;
     private handleASuccessorChanged;
     updateAnswerOptions(): void;
+    getSelectedNpcIndex(): number;
+    updateNpcSelector(): void;
+    toggleDragEnterStyles(target: HTMLElement): void;
+    toggleDragLeaveStyles(target: HTMLElement): void;
     showAnswerOptions(nodeName: string, graphNode: IMiniQuestionaireWithPosition | null): void;
     /**
      * Create a new answer element (consisting of labels, input fields and buttons).

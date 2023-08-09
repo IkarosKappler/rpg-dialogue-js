@@ -28,6 +28,7 @@
     </script>
     <script src="../RPGDialogueLogic.js"></script>
     <script src="../domHelpers.js"></script>
+    <script src="../metaHelpers.js"></script>
     <script src="../modal.js"></script>
 
     <script src="../editorHelpers.js"></script>
@@ -57,6 +58,10 @@
             <div class="e-label"><input type="text" id="e-key" /></div>
         </div>
         <div class="e-item">
+            <div class="e-label">NPC (optional)</div>
+            <div class="e-label"><select id="e-npc-index" ></select></div>
+        </div>
+        <div class="e-item">
             <div class="e-label">Q</div>
             <div><input type="text" id="e-q"/></div>
         </div>
@@ -70,6 +75,7 @@
     <button id="b-export-json"></button>
     <button id="b-import-json"></button>
     <input id="input-upload-file" type="file" accept=".json" class="v-hidden"/>
+    <button id="b-configure-meta"></button>
 
 </body> 
 </html>

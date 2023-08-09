@@ -10,7 +10,7 @@
 
 import { TouchEnterLeaveHandler } from "./TouchHandler";
 import { EditorHelper } from "./editorHelpers";
-import { IAnswer, IDialogueConfig, IDialogueGraph, IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
+import { IAnswer, IDialogueConfig, IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
 import { Modal } from "./modal";
 
 export class RPGDOMHelpers {
@@ -18,6 +18,7 @@ export class RPGDOMHelpers {
 
   editorElement: HTMLDivElement;
   keyElement: HTMLInputElement;
+  npcElement: HTMLSelectElement;
   qElement: HTMLInputElement;
 
   optionsElement: HTMLDivElement;
@@ -39,10 +40,12 @@ export class RPGDOMHelpers {
     this.editorElement = document.getElementById("attribute-editor") as HTMLDivElement;
     this.optionsElement = document.getElementById("e-options-container") as HTMLDivElement;
 
-    this.keyElement = this.editorElement.querySelector("input#e-key");
-    this.qElement = this.editorElement.querySelector("input#e-q");
+    this.keyElement = this.editorElement.querySelector("input#e-key") as HTMLInputElement;
+    this.npcElement = this.editorElement.querySelector("select#e-npc-index") as HTMLSelectElement;
+    this.qElement = this.editorElement.querySelector("input#e-q") as HTMLInputElement;
 
     this.qElement.addEventListener("change", this.handleQChanged(this));
+    this.npcElement.addEventListener("change", this.handleNPCIndexChanged(this));
     this.keyElement.addEventListener("change", this.handleKeyChanged(this));
 
     this.modal = new Modal();
@@ -132,6 +135,16 @@ export class RPGDOMHelpers {
     };
   }
 
+  private handleNPCIndexChanged(_self: RPGDOMHelpers): (changeEvent: Event) => void {
+    return (_changeEvent: Event) => {
+      let newIndex: number = parseInt(this.npcElement.value);
+      if (Number.isNaN(newIndex)) {
+        newIndex = -1;
+      }
+      _self.currentGraphNode.npcIndex = newIndex;
+    };
+  }
+
   private handleKeyChanged(_self: RPGDOMHelpers): (changeEvent: Event) => void {
     return (_changeEvent: Event) => {
       let newName: string = this.keyElement.value;
@@ -163,6 +176,53 @@ export class RPGDOMHelpers {
     this.showAnswerOptions(this.currentNodeName, this.currentGraphNode);
   }
 
+  getSelectedNpcIndex() {
+    return typeof this.currentGraphNode.npcIndex === "undefined" || Number.isNaN(this.currentGraphNode.npcIndex)
+      ? 0
+      : this.currentGraphNode.npcIndex;
+  }
+
+  updateNpcSelector() {
+    if (!this.currentGraphNode) {
+      return;
+    }
+    this.npcElement.innerHTML = "";
+    const curNpcIndex: number = this.getSelectedNpcIndex();
+    // console.log("this.currentGraphNode.npcIndex", this.currentGraphNode.npcIndex, "curNpcIndex", curNpcIndex);
+    for (var i = 0; i < this.editorHelpers.dialogConfigWithPositions.meta.npcs.length; i++) {
+      const npcOption = document.createElement("option");
+      npcOption.setAttribute("value", `${i}`);
+      if (i === 0) {
+        npcOption.innerHTML = `${this.editorHelpers.dialogConfigWithPositions.meta.npcs[i].name} (default)`;
+      } else {
+        npcOption.innerHTML = this.editorHelpers.dialogConfigWithPositions.meta.npcs[i].name;
+      }
+      if (i === curNpcIndex) {
+        npcOption.setAttribute("selected", "true");
+        npcOption.selected = true;
+      }
+      this.npcElement.appendChild(npcOption);
+    }
+    this.npcElement.value = `${curNpcIndex}`;
+    this.npcElement.setAttribute("value", `${curNpcIndex}`);
+  }
+
+  toggleDragEnterStyles(target: HTMLElement) {
+    // console.log("toggleDragEnterStyles");
+    const answerIndex = this.currentDraggedAnswerIndex;
+    const dropIndex = parseInt(target.getAttribute("data-dropindex"));
+    if (target.classList.contains("droppable") && answerIndex !== dropIndex && answerIndex + 1 !== dropIndex) {
+      target.classList.add("dragover");
+    }
+  }
+
+  toggleDragLeaveStyles(target: HTMLElement) {
+    console.log("toggleDragLeaveStyles");
+    if (target.classList.contains("droppable")) {
+      target.classList.remove("dragover");
+    }
+  }
+
   showAnswerOptions(nodeName: string, graphNode: IMiniQuestionaireWithPosition | null) {
     const _self = this;
     this.currentNodeName = nodeName;
@@ -170,40 +230,27 @@ export class RPGDOMHelpers {
 
     this.keyElement.setAttribute("value", nodeName ? nodeName : "");
     this.keyElement.value = nodeName ? nodeName : "";
+    // console.log("showAnswerOptions", this.currentGraphNode);
+    this.updateNpcSelector();
+    this.optionsElement.innerHTML = "";
+    this.npcElement.value = !graphNode || Number.isNaN(graphNode.npcIndex) ? "0" : `${graphNode.npcIndex}`;
     this.qElement.setAttribute("value", graphNode ? graphNode.q : "");
     this.qElement.value = graphNode ? graphNode.q : "";
-    this.optionsElement.innerHTML = "";
     if (!graphNode) {
       return;
     }
-
-    const toggleDragEnterStyles = (target: HTMLElement) => {
-      console.log("toggleDragEnterStyles");
-      const answerIndex = _self.currentDraggedAnswerIndex;
-      const dropIndex = parseInt(target.getAttribute("data-dropindex"));
-      if (target.classList.contains("droppable") && answerIndex !== dropIndex && answerIndex + 1 !== dropIndex) {
-        target.classList.add("dragover");
-      }
-    };
-
-    const toggleDragLeaveStyles = (target: HTMLElement) => {
-      console.log("toggleDragLeaveStyles");
-      if (target.classList.contains("droppable")) {
-        target.classList.remove("dragover");
-      }
-    };
 
     const onDragOver = (ev: DragEvent) => {
       console.log("ondragover", ev.target);
       ev.preventDefault();
       const target = ev.target as HTMLDivElement;
-      toggleDragEnterStyles(target);
+      _self.toggleDragEnterStyles(target);
     };
     const onDragLeave = (ev: DragEvent) => {
       console.log("ondragleave", ev.target);
       ev.preventDefault();
       const target = ev.target as HTMLDivElement;
-      toggleDragLeaveStyles(target);
+      _self.toggleDragLeaveStyles(target);
     };
 
     /**
@@ -216,12 +263,12 @@ export class RPGDOMHelpers {
         return;
       }
       _self.currentDropAnswerIndex = parseInt(element.getAttribute("data-dropIndex"));
-      toggleDragEnterStyles(element);
+      _self.toggleDragEnterStyles(element);
     });
     _self.touchEnterLeaveHandler.onTouchLeave(".a-droparea", (element: HTMLElement) => {
       console.log("onTouchLeave", element);
       _self.currentDropAnswerIndex = -1;
-      toggleDragLeaveStyles(element);
+      _self.toggleDragLeaveStyles(element);
     });
 
     const drop = (ev: DragEvent) => {
@@ -240,20 +287,6 @@ export class RPGDOMHelpers {
       }
       _self.performDrop(answerIndex, dropIndex);
     };
-
-    // const performDrop = (answerIndex: number, dropIndex: number) => {
-    //   if (dropIndex > answerIndex) {
-    //     dropIndex--;
-    //   }
-
-    //   const old = this.currentGraphNode.o[answerIndex];
-    //   this.currentGraphNode.o[answerIndex] = this.currentGraphNode.o[dropIndex];
-    //   this.currentGraphNode.o[dropIndex] = old;
-
-    //   // Re-build the list : )
-    //   _self.updateAnswerOptions();
-    //   _self.editorHelpers.pb.redraw();
-    // };
 
     const isTouchDevice: boolean = this.editorHelpers.editor.currentTouchHandler.wasTouchUsed;
     console.log("isTouchDevice", isTouchDevice);
@@ -306,13 +339,6 @@ export class RPGDOMHelpers {
       };
 
       const handleTouchDragEnd = (_ev: TouchEvent) => {
-        // console.log(
-        //   "handleTouchDragEnd",
-        //   "currentDraggedAnswerIndex",
-        //   _self.currentDraggedAnswerIndex,
-        //   "currentDropAnswerIndex",
-        //   _self.currentDropAnswerIndex
-        // );
         _self.performDrop(_self.currentDraggedAnswerIndex, _self.currentDropAnswerIndex);
       };
       answerWrapperElement.classList.add("answer-wrapper-element");
@@ -358,6 +384,7 @@ export class RPGDOMHelpers {
 
     if (isTouchDevice) {
       const upDownElement = document.createElement("div") as HTMLDivElement;
+      upDownElement.classList.add("answer-up-down-element");
       const upBtn = document.createElement("button") as HTMLButtonElement;
       upBtn.innerHTML = "▴";
       if (index === 0) {

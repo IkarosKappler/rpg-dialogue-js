@@ -13,6 +13,7 @@ exports.EditorHelper = void 0;
 var plotboilerplate_1 = require("plotboilerplate");
 var domHelpers_1 = require("./domHelpers");
 var editorRenderer_1 = require("./editorRenderer");
+var metaHelpers_1 = require("./metaHelpers");
 var EditorHelper = /** @class */ (function () {
     function EditorHelper(editor, pb, boxSize) {
         // TODO: convert into node identifyer
@@ -56,6 +57,7 @@ var EditorHelper = /** @class */ (function () {
         this.boxSize = boxSize;
         this.selectedNodeName = null;
         this.domHelper = new domHelpers_1.RPGDOMHelpers(this);
+        this.metaHelpers = new metaHelpers_1.DialogueMetaHelpers(this);
     }
     EditorHelper.prototype.setDialogConfig = function (dialogConfigWithPositions) {
         this.dialogConfigWithPositions = dialogConfigWithPositions;
@@ -97,9 +99,8 @@ var EditorHelper = /** @class */ (function () {
     };
     EditorHelper.prototype.setSelectedNode = function (nodeName, node) {
         this.selectedNodeName = nodeName;
-        if (nodeName) {
-            this.selectedNodeName = nodeName;
-            this.selectedNode = node;
+        this.selectedNode = node;
+        if (nodeName && node) {
             // this.domHelper.editorElement.classList.remove("d-none");
             this.domHelper.toggleVisibility(true);
             this.domHelper.showAnswerOptions(nodeName, this.selectedNode);
@@ -146,6 +147,22 @@ var EditorHelper = /** @class */ (function () {
             }
         }
         return configWithPositions;
+    };
+    /**
+     * Check if the meta data is valid and – if not – add missing default fields.
+     * @param dialogueConfig
+     */
+    EditorHelper.prototype.enrichMetaData = function (dialogueConfig) {
+        var result = dialogueConfig;
+        if (!dialogueConfig.hasOwnProperty("meta")) {
+            result.meta = { name: "noname", npcs: [] };
+        }
+        if (!result.meta.npcs) {
+            result.meta.npcs = [];
+        }
+        if (result.meta.npcs.length === 0) {
+            result.meta.npcs.push({ name: "NPC #0" });
+        }
     };
     EditorHelper.prototype.isPosInGraphNodeBox = function (pos, graphNode) {
         return (graphNode.editor.position.x <= pos.x &&

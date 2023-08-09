@@ -11,6 +11,7 @@ import { MouseHandler, PlotBoilerplate, XYCoords, XYDimension } from "plotboiler
 import { IDialogueConfig, IMiniQuestionaire, IMiniQuestionaireWithPosition, IOptionIdentifyer } from "./interfaces";
 import { RPGDOMHelpers } from "./domHelpers";
 import { Editor } from "./Editor";
+import { DialogueMetaHelpers } from "./metaHelpers";
 export declare class EditorHelper {
     editor: Editor;
     pb: PlotBoilerplate;
@@ -52,6 +53,7 @@ export declare class EditorHelper {
     relativeMousePosition: XYCoords | null;
     domHelper: RPGDOMHelpers;
     dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>;
+    metaHelpers: DialogueMetaHelpers;
     constructor(editor: Editor, pb: PlotBoilerplate, boxSize: XYDimension);
     setDialogConfig(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>): void;
     setSelectedOption(selectedOption: IOptionIdentifyer | null, noRedraw?: boolean): void;
@@ -75,6 +77,11 @@ export declare class EditorHelper {
      * @returns
      */
     enrichPositions(baseConfig: IDialogueConfig<IMiniQuestionaire>): IDialogueConfig<IMiniQuestionaireWithPosition>;
+    /**
+     * Check if the meta data is valid and – if not – add missing default fields.
+     * @param dialogueConfig
+     */
+    enrichMetaData(dialogueConfig: Object): void;
     isPosInGraphNodeBox(pos: XYCoords, graphNode: IMiniQuestionaireWithPosition): boolean;
     isPosInOptionNodeBox(pos: XYCoords, graphNode: IMiniQuestionaireWithPosition, optionIndex: number): boolean;
     locateNodeBoxNameAtPos(pos: XYCoords): string | null;

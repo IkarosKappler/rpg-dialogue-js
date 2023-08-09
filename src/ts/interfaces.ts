@@ -23,6 +23,7 @@ export interface IAnswer {
  * A mini questionaire consists of a question.
  */
 export interface IMiniQuestionaire {
+  npcIndex?: number;
   q: string;
   o: IAnswer[];
 }
@@ -43,10 +44,20 @@ export type IDialogueNodeType = IMiniQuestionaire | IMiniQuestionaireWithPositio
  */
 export interface IDialogueGraph<T extends IDialogueNodeType> extends Record<TDialogueIdentifyer, T> {}
 
+export interface IDialogueNPC {
+  name: string;
+}
+
+export interface IDialogueMeta {
+  name: string;
+  npcs: Array<IDialogueNPC>;
+}
+
 /**
  * A general-use dialog config containing the graph.
  */
 export interface IDialogueConfig<T extends IDialogueNodeType> {
+  meta: IDialogueMeta;
   graph: IDialogueGraph<T>;
 }
 

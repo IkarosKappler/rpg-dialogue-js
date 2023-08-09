@@ -9,7 +9,8 @@ export declare class RPGDialogueLogic<T extends IDialogueNodeType> {
     structure: IDialogueConfig<T>;
     private currentQuestionaire;
     constructor(dialogueStruct: IDialogueConfig<T>, validateStructure: boolean);
-    loadCurrentQuestionaire(setQuestionText: (questionText: string) => void, addOptionNode: (answerText: string, index: number) => void): boolean;
+    private getCurrentNpcName;
+    loadCurrentQuestionaire(setQuestionText: (questionText: string, npcName: string | undefined) => void, addOptionNode: (answerText: string, index: number) => void): boolean;
     /**
      * Get the current mini questionaire or null if no current or next questionaire is available.
      * @returns

@@ -55,6 +55,12 @@ div#attribute-editor {
     flex-direction: row;
 }
 
+.answer-up-down-element {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
 .a-dnd-element {
     width: 32px;
     height: 100%;
@@ -84,6 +90,10 @@ div#attribute-editor {
     
 }
 
+.e-meta-npccontainer {
+    margin-top: 15px;
+}
+
 .v-hidden {
     visibility: hidden;
 }
@@ -110,6 +120,19 @@ div#attribute-editor {
     border: none;
     background-color: transparent;
     background-image: url('img/icon-upload-512x512.png');
+    background-size: cover;
+    cursor: pointer;
+}
+
+#b-configure-meta {
+    position: absolute;
+    left: 75px;
+    bottom: 10px;
+    width: 24px;
+    height: 24px;
+    border: none;
+    background-color: transparent;
+    background-image: url('img/icon-configure-512x512.png');
     background-size: cover;
     cursor: pointer;
 }

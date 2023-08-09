@@ -13,6 +13,7 @@ import { IDialogueConfig, IMiniQuestionaire, IMiniQuestionaireWithPosition, IOpt
 import { RPGDOMHelpers } from "./domHelpers";
 import { EditorRenderer } from "./editorRenderer";
 import { Editor } from "./Editor";
+import { DialogueMetaHelpers } from "./metaHelpers";
 
 export class EditorHelper {
   editor: Editor;
@@ -66,12 +67,15 @@ export class EditorHelper {
 
   dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>;
 
+  metaHelpers: DialogueMetaHelpers;
+
   constructor(editor: Editor, pb: PlotBoilerplate, boxSize: XYDimension) {
     this.editor = editor;
     this.pb = pb;
     this.boxSize = boxSize;
     this.selectedNodeName = null;
     this.domHelper = new RPGDOMHelpers(this);
+    this.metaHelpers = new DialogueMetaHelpers(this);
   }
 
   setDialogConfig(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>) {
@@ -120,10 +124,9 @@ export class EditorHelper {
 
   setSelectedNode(nodeName: string, node: IMiniQuestionaireWithPosition) {
     this.selectedNodeName = nodeName;
+    this.selectedNode = node;
 
-    if (nodeName) {
-      this.selectedNodeName = nodeName;
-      this.selectedNode = node;
+    if (nodeName && node) {
       // this.domHelper.editorElement.classList.remove("d-none");
       this.domHelper.toggleVisibility(true);
       this.domHelper.showAnswerOptions(nodeName, this.selectedNode);
@@ -169,8 +172,24 @@ export class EditorHelper {
         }
       }
     }
-
     return configWithPositions;
+  }
+
+  /**
+   * Check if the meta data is valid and – if not – add missing default fields.
+   * @param dialogueConfig
+   */
+  enrichMetaData(dialogueConfig: Object) {
+    const result = dialogueConfig as IDialogueConfig<IMiniQuestionaireWithPosition>;
+    if (!dialogueConfig.hasOwnProperty("meta")) {
+      result.meta = { name: "noname", npcs: [] };
+    }
+    if (!result.meta.npcs) {
+      result.meta.npcs = [];
+    }
+    if (result.meta.npcs.length === 0) {
+      result.meta.npcs.push({ name: "NPC #0" });
+    }
   }
 
   isPosInGraphNodeBox(pos: XYCoords, graphNode: IMiniQuestionaireWithPosition): boolean {

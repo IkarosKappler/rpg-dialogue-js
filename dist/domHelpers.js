@@ -22,8 +22,10 @@ var RPGDOMHelpers = /** @class */ (function () {
         this.editorElement = document.getElementById("attribute-editor");
         this.optionsElement = document.getElementById("e-options-container");
         this.keyElement = this.editorElement.querySelector("input#e-key");
+        this.npcElement = this.editorElement.querySelector("select#e-npc-index");
         this.qElement = this.editorElement.querySelector("input#e-q");
         this.qElement.addEventListener("change", this.handleQChanged(this));
+        this.npcElement.addEventListener("change", this.handleNPCIndexChanged(this));
         this.keyElement.addEventListener("change", this.handleKeyChanged(this));
         this.modal = new modal_1.Modal();
         document.getElementById("b-export-json").addEventListener("click", this.exportJSON(this));
@@ -103,6 +105,16 @@ var RPGDOMHelpers = /** @class */ (function () {
             _self.editorHelpers.pb.redraw();
         };
     };
+    RPGDOMHelpers.prototype.handleNPCIndexChanged = function (_self) {
+        var _this = this;
+        return function (_changeEvent) {
+            var newIndex = parseInt(_this.npcElement.value);
+            if (Number.isNaN(newIndex)) {
+                newIndex = -1;
+            }
+            _self.currentGraphNode.npcIndex = newIndex;
+        };
+    };
     RPGDOMHelpers.prototype.handleKeyChanged = function (_self) {
         var _this = this;
         return function (_changeEvent) {
@@ -131,43 +143,76 @@ var RPGDOMHelpers = /** @class */ (function () {
     RPGDOMHelpers.prototype.updateAnswerOptions = function () {
         this.showAnswerOptions(this.currentNodeName, this.currentGraphNode);
     };
+    RPGDOMHelpers.prototype.getSelectedNpcIndex = function () {
+        return typeof this.currentGraphNode.npcIndex === "undefined" || Number.isNaN(this.currentGraphNode.npcIndex)
+            ? 0
+            : this.currentGraphNode.npcIndex;
+    };
+    RPGDOMHelpers.prototype.updateNpcSelector = function () {
+        if (!this.currentGraphNode) {
+            return;
+        }
+        this.npcElement.innerHTML = "";
+        var curNpcIndex = this.getSelectedNpcIndex();
+        // console.log("this.currentGraphNode.npcIndex", this.currentGraphNode.npcIndex, "curNpcIndex", curNpcIndex);
+        for (var i = 0; i < this.editorHelpers.dialogConfigWithPositions.meta.npcs.length; i++) {
+            var npcOption = document.createElement("option");
+            npcOption.setAttribute("value", "".concat(i));
+            if (i === 0) {
+                npcOption.innerHTML = "".concat(this.editorHelpers.dialogConfigWithPositions.meta.npcs[i].name, " (default)");
+            }
+            else {
+                npcOption.innerHTML = this.editorHelpers.dialogConfigWithPositions.meta.npcs[i].name;
+            }
+            if (i === curNpcIndex) {
+                npcOption.setAttribute("selected", "true");
+                npcOption.selected = true;
+            }
+            this.npcElement.appendChild(npcOption);
+        }
+        this.npcElement.value = "".concat(curNpcIndex);
+        this.npcElement.setAttribute("value", "".concat(curNpcIndex));
+    };
+    RPGDOMHelpers.prototype.toggleDragEnterStyles = function (target) {
+        // console.log("toggleDragEnterStyles");
+        var answerIndex = this.currentDraggedAnswerIndex;
+        var dropIndex = parseInt(target.getAttribute("data-dropindex"));
+        if (target.classList.contains("droppable") && answerIndex !== dropIndex && answerIndex + 1 !== dropIndex) {
+            target.classList.add("dragover");
+        }
+    };
+    RPGDOMHelpers.prototype.toggleDragLeaveStyles = function (target) {
+        console.log("toggleDragLeaveStyles");
+        if (target.classList.contains("droppable")) {
+            target.classList.remove("dragover");
+        }
+    };
     RPGDOMHelpers.prototype.showAnswerOptions = function (nodeName, graphNode) {
         var _self = this;
         this.currentNodeName = nodeName;
         this.currentGraphNode = graphNode;
         this.keyElement.setAttribute("value", nodeName ? nodeName : "");
         this.keyElement.value = nodeName ? nodeName : "";
+        // console.log("showAnswerOptions", this.currentGraphNode);
+        this.updateNpcSelector();
+        this.optionsElement.innerHTML = "";
+        this.npcElement.value = !graphNode || Number.isNaN(graphNode.npcIndex) ? "0" : "".concat(graphNode.npcIndex);
         this.qElement.setAttribute("value", graphNode ? graphNode.q : "");
         this.qElement.value = graphNode ? graphNode.q : "";
-        this.optionsElement.innerHTML = "";
         if (!graphNode) {
             return;
         }
-        var toggleDragEnterStyles = function (target) {
-            console.log("toggleDragEnterStyles");
-            var answerIndex = _self.currentDraggedAnswerIndex;
-            var dropIndex = parseInt(target.getAttribute("data-dropindex"));
-            if (target.classList.contains("droppable") && answerIndex !== dropIndex && answerIndex + 1 !== dropIndex) {
-                target.classList.add("dragover");
-            }
-        };
-        var toggleDragLeaveStyles = function (target) {
-            console.log("toggleDragLeaveStyles");
-            if (target.classList.contains("droppable")) {
-                target.classList.remove("dragover");
-            }
-        };
         var onDragOver = function (ev) {
             console.log("ondragover", ev.target);
             ev.preventDefault();
             var target = ev.target;
-            toggleDragEnterStyles(target);
+            _self.toggleDragEnterStyles(target);
         };
         var onDragLeave = function (ev) {
             console.log("ondragleave", ev.target);
             ev.preventDefault();
             var target = ev.target;
-            toggleDragLeaveStyles(target);
+            _self.toggleDragLeaveStyles(target);
         };
         /**
          * Native browser DnD does not support touch events.
@@ -179,12 +224,12 @@ var RPGDOMHelpers = /** @class */ (function () {
                 return;
             }
             _self.currentDropAnswerIndex = parseInt(element.getAttribute("data-dropIndex"));
-            toggleDragEnterStyles(element);
+            _self.toggleDragEnterStyles(element);
         });
         _self.touchEnterLeaveHandler.onTouchLeave(".a-droparea", function (element) {
             console.log("onTouchLeave", element);
             _self.currentDropAnswerIndex = -1;
-            toggleDragLeaveStyles(element);
+            _self.toggleDragLeaveStyles(element);
         });
         var drop = function (ev) {
             console.log("Drop", ev);
@@ -201,17 +246,6 @@ var RPGDOMHelpers = /** @class */ (function () {
             }
             _self.performDrop(answerIndex, dropIndex);
         };
-        // const performDrop = (answerIndex: number, dropIndex: number) => {
-        //   if (dropIndex > answerIndex) {
-        //     dropIndex--;
-        //   }
-        //   const old = this.currentGraphNode.o[answerIndex];
-        //   this.currentGraphNode.o[answerIndex] = this.currentGraphNode.o[dropIndex];
-        //   this.currentGraphNode.o[dropIndex] = old;
-        //   // Re-build the list : )
-        //   _self.updateAnswerOptions();
-        //   _self.editorHelpers.pb.redraw();
-        // };
         var isTouchDevice = this.editorHelpers.editor.currentTouchHandler.wasTouchUsed;
         console.log("isTouchDevice", isTouchDevice);
         var dropArea = this.makeADropArea(0, drop, onDragOver, onDragLeave);
@@ -256,13 +290,6 @@ var RPGDOMHelpers = /** @class */ (function () {
                 // console.log("handleTouchDragStart", _self.currentDraggedAnswerIndex);
             };
             var handleTouchDragEnd = function (_ev) {
-                // console.log(
-                //   "handleTouchDragEnd",
-                //   "currentDraggedAnswerIndex",
-                //   _self.currentDraggedAnswerIndex,
-                //   "currentDropAnswerIndex",
-                //   _self.currentDropAnswerIndex
-                // );
                 _self.performDrop(_self.currentDraggedAnswerIndex, _self.currentDropAnswerIndex);
             };
             answerWrapperElement.classList.add("answer-wrapper-element");
@@ -303,6 +330,7 @@ var RPGDOMHelpers = /** @class */ (function () {
         controlElement.classList.add("answer-controls-element");
         if (isTouchDevice) {
             var upDownElement = document.createElement("div");
+            upDownElement.classList.add("answer-up-down-element");
             var upBtn = document.createElement("button");
             upBtn.innerHTML = "▴";
             if (index === 0) {

@@ -78,6 +78,8 @@ var Editor = /** @class */ (function () {
         var handleDialogConfigLoaded = function (config) {
             // Check if all graph nodes have positions to render.
             dialogConfig = editorHelpers.enrichPositions(config);
+            editorHelpers.enrichMetaData(dialogConfig);
+            console.log("Enriched meta data", dialogConfig);
             editorHelpers.setDialogConfig(dialogConfig);
             // Ad DnD support for boxes.
             if (_this.currentMouseHandler) {

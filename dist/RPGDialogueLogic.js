@@ -19,9 +19,16 @@ var RPGDialogueLogic = /** @class */ (function () {
             this.validate();
         }
     }
+    RPGDialogueLogic.prototype.getCurrentNpcName = function () {
+        var _a, _b, _c;
+        var npcIndex = (_a = this.currentQuestionaire.npcIndex) !== null && _a !== void 0 ? _a : 0;
+        var npcName = ((_c = (_b = this.structure.meta) === null || _b === void 0 ? void 0 : _b.npcs) === null || _c === void 0 ? void 0 : _c.length) > 0 ? this.structure.meta.npcs[npcIndex].name : null;
+        return npcName;
+    };
     RPGDialogueLogic.prototype.loadCurrentQuestionaire = function (setQuestionText, addOptionNode) {
         if (this.currentQuestionaire) {
-            setQuestionText(this.currentQuestionaire.q);
+            var npcName = this.getCurrentNpcName();
+            setQuestionText(this.currentQuestionaire.q, npcName);
             for (var i = 0; i < this.currentQuestionaire.o.length; i++) {
                 addOptionNode(this.currentQuestionaire.o[i].a, i);
             }
@@ -103,8 +110,13 @@ var RPGDialogueLogic = /** @class */ (function () {
          * Set the text in the question node.
          * @param {*} questionText
          */
-        var setQuestionText = function (questionText) {
-            questionNode.innerHTML = questionText;
+        var setQuestionText = function (questionText, npcName) {
+            if (npcName) {
+                questionNode.innerHTML = "<span class=\"rpg-npcname\">".concat(npcName, ":</span> ").concat(questionText);
+            }
+            else {
+                questionNode.innerHTML = questionText;
+            }
         };
         /**
          * Clear the options node. Just for upper level use here.
@@ -138,7 +150,7 @@ var RPGDialogueLogic = /** @class */ (function () {
         var sendAnswer = function (index) {
             _self.sendAnswer(index);
             if (_self.isEndReached()) {
-                setQuestionText("---END OF CONVERSATION---");
+                setQuestionText("---END OF CONVERSATION---", undefined);
                 clearOptionsNode();
             }
             clearOptionsNode();

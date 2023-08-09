@@ -1,8 +1,5 @@
 {
-  "meta": {
-    "name": "welcome",
-    "npcs": [{ "name": "Yannick" }]
-  },
+  "meta": { "name": "welcome", "npcs": [{ "name": "Yannick" }] },
   "graph": {
     "intro": {
       "q": "Light, stranger! I haven't seen <i>your</i> face here before. New to Humboldt Haven?",
@@ -64,7 +61,8 @@
     "dia2": {
       "q": "Oohkay, oohkay. Not me trying to help a stranger.",
       "o": [{ "a": "Bye.", "next": "dia4" }],
-      "editor": { "position": { "x": -231.03906591676605, "y": -330.50706655713304 } }
+      "editor": { "position": { "x": -231.03906591676605, "y": -330.50706655713304 } },
+      "npcIndex": 0
     },
     "dia12": {
       "q": "Nah, I can afford 15 additional bottles of synthohol now. _That's_ a life! I give you a hint",

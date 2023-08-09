@@ -22,12 +22,19 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
     }
   }
 
+  private getCurrentNpcName(): string {
+    const npcIndex = this.currentQuestionaire.npcIndex ?? 0;
+    const npcName = this.structure.meta?.npcs?.length > 0 ? this.structure.meta.npcs[npcIndex].name : null;
+    return npcName;
+  }
+
   loadCurrentQuestionaire(
-    setQuestionText: (questionText: string) => void,
+    setQuestionText: (questionText: string, npcName: string | undefined) => void,
     addOptionNode: (answerText: string, index: number) => void
   ): boolean {
     if (this.currentQuestionaire) {
-      setQuestionText(this.currentQuestionaire.q);
+      const npcName = this.getCurrentNpcName();
+      setQuestionText(this.currentQuestionaire.q, npcName);
       for (var i = 0; i < this.currentQuestionaire.o.length; i++) {
         addOptionNode(this.currentQuestionaire.o[i].a, i);
       }
@@ -114,8 +121,12 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
      * Set the text in the question node.
      * @param {*} questionText
      */
-    const setQuestionText = (questionText: string) => {
-      questionNode.innerHTML = questionText;
+    const setQuestionText = (questionText: string, npcName: string | undefined) => {
+      if (npcName) {
+        questionNode.innerHTML = `<span class="rpg-npcname">${npcName}:</span> ${questionText}`;
+      } else {
+        questionNode.innerHTML = questionText;
+      }
     };
 
     /**
@@ -153,7 +164,7 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
     var sendAnswer = function (index) {
       _self.sendAnswer(index);
       if (_self.isEndReached()) {
-        setQuestionText("---END OF CONVERSATION---");
+        setQuestionText("---END OF CONVERSATION---", undefined);
         clearOptionsNode();
       }
       clearOptionsNode();

@@ -27,6 +27,10 @@ body {
 #rpg-output-question {
     color:aqua;
 }
+#rpg-output-question .rpg-npcname { 
+    font-style: italic;
+    color:rgb(0, 150, 150);
+}
 #rpg-output-options, #rpg-output-options a {
     color:blueviolet;
 }

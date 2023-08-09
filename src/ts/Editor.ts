@@ -21,7 +21,7 @@ import { FileDrop } from "plotboilerplate/src/cjs/utils/io/FileDrop";
 export class Editor {
   currentMouseHandler: MouseHandler | null = null;
   currentTouchHandler: TouchHandler | null = null;
-  constructor(dialogueConfigJSONPath) {
+  constructor(dialogueConfigJSONPath: string) {
     console.log("Initialize plotboilerplate");
     // Fetch the GET params
     const GUP = gup();
@@ -88,6 +88,8 @@ export class Editor {
     const handleDialogConfigLoaded = (config: IDialogueConfig<IMiniQuestionaire>) => {
       // Check if all graph nodes have positions to render.
       dialogConfig = editorHelpers.enrichPositions(config);
+      editorHelpers.enrichMetaData(dialogConfig);
+      console.log("Enriched meta data", dialogConfig);
       editorHelpers.setDialogConfig(dialogConfig);
 
       // Ad DnD support for boxes.
