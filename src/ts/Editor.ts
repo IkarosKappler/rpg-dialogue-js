@@ -64,8 +64,6 @@ export class Editor {
       width: 120,
       height: 20
     };
-    // var currentMouseHandler: MouseHandler = null;
-    // var currentTouchHandler: TouchHandler = null;
     const editorHelpers = new EditorHelper(this, pb, boxSize);
     var editorRenderer = new EditorRenderer(pb, boxSize, editorHelpers, isDarkmode);
 

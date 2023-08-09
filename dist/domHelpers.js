@@ -23,7 +23,7 @@ var RPGDOMHelpers = /** @class */ (function () {
         this.optionsElement = document.getElementById("e-options-container");
         this.keyElement = this.editorElement.querySelector("input#e-key");
         this.npcElement = this.editorElement.querySelector("select#e-npc-index");
-        this.qElement = this.editorElement.querySelector("input#e-q");
+        this.qElement = this.editorElement.querySelector("textarea#e-q");
         this.qElement.addEventListener("change", this.handleQChanged(this));
         this.npcElement.addEventListener("change", this.handleNPCIndexChanged(this));
         this.keyElement.addEventListener("change", this.handleKeyChanged(this));

@@ -57,8 +57,6 @@ var Editor = /** @class */ (function () {
             width: 120,
             height: 20
         };
-        // var currentMouseHandler: MouseHandler = null;
-        // var currentTouchHandler: TouchHandler = null;
         var editorHelpers = new editorHelpers_1.EditorHelper(this, pb, boxSize);
         var editorRenderer = new editorRenderer_1.EditorRenderer(pb, boxSize, editorHelpers, isDarkmode);
         // +---------------------------------------------------------------------------------

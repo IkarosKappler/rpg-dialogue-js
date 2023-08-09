@@ -42,7 +42,7 @@ export class RPGDOMHelpers {
 
     this.keyElement = this.editorElement.querySelector("input#e-key") as HTMLInputElement;
     this.npcElement = this.editorElement.querySelector("select#e-npc-index") as HTMLSelectElement;
-    this.qElement = this.editorElement.querySelector("input#e-q") as HTMLInputElement;
+    this.qElement = this.editorElement.querySelector("textarea#e-q") as HTMLInputElement;
 
     this.qElement.addEventListener("change", this.handleQChanged(this));
     this.npcElement.addEventListener("change", this.handleNPCIndexChanged(this));
