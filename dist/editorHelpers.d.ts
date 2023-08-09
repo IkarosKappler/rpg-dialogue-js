@@ -10,7 +10,9 @@
 import { MouseHandler, PlotBoilerplate, XYCoords, XYDimension } from "plotboilerplate";
 import { IDialogueConfig, IMiniQuestionaire, IMiniQuestionaireWithPosition, IOptionIdentifyer } from "./interfaces";
 import { RPGDOMHelpers } from "./domHelpers";
+import { Editor } from "./Editor";
 export declare class EditorHelper {
+    editor: Editor;
     pb: PlotBoilerplate;
     boxSize: XYDimension;
     /**
@@ -50,7 +52,7 @@ export declare class EditorHelper {
     relativeMousePosition: XYCoords | null;
     domHelper: RPGDOMHelpers;
     dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>;
-    constructor(pb: PlotBoilerplate, boxSize: XYDimension);
+    constructor(editor: Editor, pb: PlotBoilerplate, boxSize: XYDimension);
     setDialogConfig(dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>): void;
     setSelectedOption(selectedOption: IOptionIdentifyer | null, noRedraw?: boolean): void;
     setHighlightedOption(hightlightedOption: IOptionIdentifyer | null): void;

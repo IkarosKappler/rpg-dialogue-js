@@ -10,6 +10,7 @@ import { EditorHelper } from "./editorHelpers";
 import { IDialogueConfig, IMiniQuestionaireWithPosition } from "./interfaces";
 export declare class TouchHandler {
     private alloyFinger;
+    wasTouchUsed: boolean;
     constructor(pb: PlotBoilerplate, dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>, editorHelper: EditorHelper);
     destroy(): void;
 }

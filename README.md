@@ -12,6 +12,28 @@ Maybe an editor could look like this?
 
 ## Example
 
+Prepare a simple HTML container for output:
+
+```HTML
+<div id="rpg-output">
+    <div id="rpg-output-question"></div>
+    <ul id="rpg-output-options"></ul>
+</div>
+```
+
+Load the dialogue config from the specific JSON file:
+
+```Javascript
+globalThis.addEventListener("load", function () {
+  const path = "../../resources/export-test/dialog-config-7.json";
+  RPGDialogueLogic.loadFromJSON(path).then(rpgDialogue => {
+    console.log("rpgDialogue", rpgDialogue);
+
+    rpgDialogue.beginConversation("rpg-output-question", "rpg-output-options");
+  });
+});
+```
+
 Live example: https://www.int2byte.de/public/rpg-dialogue/dist/tests/test-dialogue.html
 
 ```JSON
@@ -121,11 +143,11 @@ Live example: https://www.int2byte.de/public/rpg-dialogue/dist/tests/test-dialog
 
 ## Editor Example
 
+You don't need to edit the JSON manually. Just use the included dialogue graph editor.
+
 Live editor example: https://www.int2byte.de/public/rpg-dialogue/dist/tests/editor.html
 
-All this stuff is highly unfinished.
-
-##
+## Add custom stylings
 
 Add some simple stylesheets to create a custom nice game dialogue.
 

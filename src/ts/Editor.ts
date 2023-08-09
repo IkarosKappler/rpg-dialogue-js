@@ -10,7 +10,7 @@
 
 import { gup } from "./gup";
 import { detectDarkMode } from "./detectDarkMode";
-import { MouseHandler, PBParams, PlotBoilerplate, XYCoords, XYDimension } from "plotboilerplate";
+import { MouseHandler, PBParams, PlotBoilerplate, XYDimension } from "plotboilerplate";
 import { RPGDialogueLogic } from "./RPGDialogueLogic";
 import { IDialogueConfig, IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
 import { EditorHelper } from "./editorHelpers";
@@ -19,6 +19,8 @@ import { TouchHandler } from "./TouchHandler";
 import { FileDrop } from "plotboilerplate/src/cjs/utils/io/FileDrop";
 
 export class Editor {
+  currentMouseHandler: MouseHandler | null = null;
+  currentTouchHandler: TouchHandler | null = null;
   constructor(dialogueConfigJSONPath) {
     console.log("Initialize plotboilerplate");
     // Fetch the GET params
@@ -62,9 +64,9 @@ export class Editor {
       width: 120,
       height: 20
     };
-    var currentMouseHandler: MouseHandler = null;
-    var currentTouchHandler: TouchHandler = null;
-    const editorHelpers = new EditorHelper(pb, boxSize);
+    // var currentMouseHandler: MouseHandler = null;
+    // var currentTouchHandler: TouchHandler = null;
+    const editorHelpers = new EditorHelper(this, pb, boxSize);
     var editorRenderer = new EditorRenderer(pb, boxSize, editorHelpers, isDarkmode);
 
     // +---------------------------------------------------------------------------------
@@ -89,18 +91,18 @@ export class Editor {
       editorHelpers.setDialogConfig(dialogConfig);
 
       // Ad DnD support for boxes.
-      if (currentMouseHandler) {
-        currentMouseHandler.destroy();
-        currentMouseHandler = null;
+      if (this.currentMouseHandler) {
+        this.currentMouseHandler.destroy();
+        this.currentMouseHandler = null;
       }
-      currentMouseHandler = editorHelpers.boxMovehandler(); // dialogConfig);
+      this.currentMouseHandler = editorHelpers.boxMovehandler(); // dialogConfig);
 
       // Ad DnD support for boxes.
-      if (currentTouchHandler) {
-        currentTouchHandler.destroy();
-        currentTouchHandler = null;
+      if (this.currentTouchHandler) {
+        this.currentTouchHandler.destroy();
+        this.currentTouchHandler = null;
       }
-      currentTouchHandler = new TouchHandler(pb, dialogConfig, editorHelpers);
+      this.currentTouchHandler = new TouchHandler(pb, dialogConfig, editorHelpers);
 
       pb.redraw();
     };

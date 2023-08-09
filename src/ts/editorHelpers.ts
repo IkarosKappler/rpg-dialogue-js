@@ -12,8 +12,10 @@ import { MouseHandler, PlotBoilerplate, XMouseEvent, XYCoords, XYDimension } fro
 import { IDialogueConfig, IMiniQuestionaire, IMiniQuestionaireWithPosition, IOptionIdentifyer } from "./interfaces";
 import { RPGDOMHelpers } from "./domHelpers";
 import { EditorRenderer } from "./editorRenderer";
+import { Editor } from "./Editor";
 
 export class EditorHelper {
+  editor: Editor;
   pb: PlotBoilerplate;
   boxSize: XYDimension;
 
@@ -64,7 +66,8 @@ export class EditorHelper {
 
   dialogConfigWithPositions: IDialogueConfig<IMiniQuestionaireWithPosition>;
 
-  constructor(pb: PlotBoilerplate, boxSize: XYDimension) {
+  constructor(editor: Editor, pb: PlotBoilerplate, boxSize: XYDimension) {
+    this.editor = editor;
     this.pb = pb;
     this.boxSize = boxSize;
     this.selectedNodeName = null;

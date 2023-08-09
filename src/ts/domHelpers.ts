@@ -11,6 +11,7 @@
 import { TouchEnterLeaveHandler } from "./TouchHandler";
 import { EditorHelper } from "./editorHelpers";
 import { IAnswer, IDialogueConfig, IDialogueGraph, IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
+import { Modal } from "./modal";
 
 export class RPGDOMHelpers {
   editorHelpers: EditorHelper;
@@ -20,6 +21,8 @@ export class RPGDOMHelpers {
   qElement: HTMLInputElement;
 
   optionsElement: HTMLDivElement;
+
+  modal: Modal;
 
   currentNodeName: string | null;
   currentGraphNode: IMiniQuestionaire;
@@ -42,10 +45,12 @@ export class RPGDOMHelpers {
     this.qElement.addEventListener("change", this.handleQChanged(this));
     this.keyElement.addEventListener("change", this.handleKeyChanged(this));
 
+    this.modal = new Modal();
+
     document.getElementById("b-export-json").addEventListener("click", this.exportJSON(this));
     document.getElementById("b-add-answer-option").addEventListener("click", this.addAnswerOption(this));
     document.getElementById("b-add-dialogue-node").addEventListener("click", this.addDialogueNode(this));
-    document.getElementById("b-delete-dialogue-node").addEventListener("click", this.removeDialogueNode(this));
+    document.getElementById("b-delete-dialogue-node").addEventListener("click", this.requestRemoveDialogueNode(this));
   }
 
   isExportWithoutPositions(): boolean {
@@ -88,11 +93,28 @@ export class RPGDOMHelpers {
     };
   }
 
-  private removeDialogueNode(_self: RPGDOMHelpers): () => void {
+  private requestRemoveDialogueNode(_self: RPGDOMHelpers): () => void {
     return () => {
-      _self.editorHelpers.removeNewDialogueNode(_self.currentNodeName);
-      _self.toggleVisibility(false);
+      _self.modal.setTitle("Delete option?");
+      _self.modal.setBody(`Do you really want to delete the current dialoge node '${_self.currentNodeName}'?`);
+      _self.modal.setFooter("");
+      _self.modal.setActions([
+        Modal.ACTION_CANCEL,
+        {
+          label: "Yes",
+          action: () => {
+            _self.modal.close();
+            _self.removeDialogueNode();
+          }
+        }
+      ]);
+      _self.modal.open();
     };
+  }
+
+  private removeDialogueNode() {
+    this.editorHelpers.removeNewDialogueNode(this.currentNodeName);
+    this.toggleVisibility(false);
   }
 
   toggleVisibility(isVisible: boolean) {
@@ -216,31 +238,33 @@ export class RPGDOMHelpers {
         // No real change
         return;
       }
-      performDrop(answerIndex, dropIndex);
+      _self.performDrop(answerIndex, dropIndex);
     };
 
-    const performDrop = (answerIndex: number, dropIndex: number) => {
-      if (dropIndex > answerIndex) {
-        dropIndex--;
-      }
+    // const performDrop = (answerIndex: number, dropIndex: number) => {
+    //   if (dropIndex > answerIndex) {
+    //     dropIndex--;
+    //   }
 
-      const old = this.currentGraphNode.o[answerIndex];
-      this.currentGraphNode.o[answerIndex] = this.currentGraphNode.o[dropIndex];
-      this.currentGraphNode.o[dropIndex] = old;
+    //   const old = this.currentGraphNode.o[answerIndex];
+    //   this.currentGraphNode.o[answerIndex] = this.currentGraphNode.o[dropIndex];
+    //   this.currentGraphNode.o[dropIndex] = old;
 
-      // Re-build the list : )
-      _self.updateAnswerOptions();
-      _self.editorHelpers.pb.redraw();
-    };
+    //   // Re-build the list : )
+    //   _self.updateAnswerOptions();
+    //   _self.editorHelpers.pb.redraw();
+    // };
 
-    const dropArea = this.makeADropArea(0, drop, onDragOver, onDragLeave);
+    const isTouchDevice: boolean = this.editorHelpers.editor.currentTouchHandler.wasTouchUsed;
+    console.log("isTouchDevice", isTouchDevice);
+    const dropArea: HTMLDivElement = this.makeADropArea(0, drop, onDragOver, onDragLeave);
     this.optionsElement.appendChild(dropArea);
 
     for (var i = 0; i < graphNode.o.length; i++) {
       const option: IAnswer = graphNode.o[i];
 
       const answerWrapperElement = document.createElement("div") as HTMLDivElement;
-      const answerControlsElement = this.makeAnswerControlElement(i);
+      const answerControlsElement = this.makeAnswerControlElement(i, isTouchDevice);
 
       const answerElement = document.createElement("div") as HTMLDivElement;
       const labelElement = document.createElement("div") as HTMLDivElement;
@@ -255,19 +279,14 @@ export class RPGDOMHelpers {
       answerElement.appendChild(selectElement);
 
       const handleDragStart = (ev: DragEvent) => {
-        console.log("handleDragStart");
-        // ev.preventDefault(); // Is this required?!
-        // ev.dataTransfer.setData("answerindex", (ev.target as HTMLDivElement).getAttribute("data-answerindex"));
+        // console.log("handleDragStart");
         _self.currentDraggedAnswerIndex = parseInt((ev.target as HTMLDivElement).getAttribute("data-answerindex"));
-        console.log("dragStart", _self.currentDraggedAnswerIndex);
-        // ev.dataTransfer.setData("answerindex", ev.target.getAttribute("data-answerindex"));
+        // console.log("handleDragStart", _self.currentDraggedAnswerIndex);
         ev.dataTransfer.setData("answerindex", `${_self.currentDraggedAnswerIndex}`);
       };
 
       const handleTouchDragStart = (ev: TouchEvent) => {
-        ev.preventDefault(); // Is this required
-        // ev.dataTransfer.setData("answerindex", (ev.target as HTMLDivElement).getAttribute("data-answerindex"));
-        // ev.dataTransfer.setData("answerindex", ev.target.getAttribute("data-answerindex"));
+        ev.preventDefault(); // Is this required?
         var dragStartElement = ev.target as HTMLElement;
         _self.currentDraggedAnswerIndex = parseInt(dragStartElement.getAttribute("data-answerindex"));
         if (Number.isNaN(_self.currentDraggedAnswerIndex)) {
@@ -283,29 +302,33 @@ export class RPGDOMHelpers {
           }
           _self.currentDraggedAnswerIndex = parseInt(dragStartElement.getAttribute("data-answerindex"));
         }
-        console.log("handleTouchDragStart", _self.currentDraggedAnswerIndex);
+        // console.log("handleTouchDragStart", _self.currentDraggedAnswerIndex);
       };
 
-      const handleTouchDragEnd = (ev: TouchEvent) => {
-        // ...
-        console.log(
-          "handleTouchDragEnd",
-          "currentDraggedAnswerIndex",
-          _self.currentDraggedAnswerIndex,
-          "currentDropAnswerIndex",
-          _self.currentDropAnswerIndex
-        );
-
-        performDrop(_self.currentDraggedAnswerIndex, _self.currentDropAnswerIndex);
+      const handleTouchDragEnd = (_ev: TouchEvent) => {
+        // console.log(
+        //   "handleTouchDragEnd",
+        //   "currentDraggedAnswerIndex",
+        //   _self.currentDraggedAnswerIndex,
+        //   "currentDropAnswerIndex",
+        //   _self.currentDropAnswerIndex
+        // );
+        _self.performDrop(_self.currentDraggedAnswerIndex, _self.currentDropAnswerIndex);
       };
-
       answerWrapperElement.classList.add("answer-wrapper-element");
-      answerWrapperElement.setAttribute("draggable", "true");
       answerWrapperElement.setAttribute("data-answerindex", `${i}`);
-      answerWrapperElement.addEventListener("dragstart", handleDragStart);
-      answerWrapperElement.addEventListener("touchstart", handleTouchDragStart);
-      answerWrapperElement.addEventListener("touchend", handleTouchDragEnd);
 
+      if (isTouchDevice) {
+        // Regular 'mouse' or Desktop device.
+        // No additional listeners to install.
+      } else {
+        // The TouchHandler already received an only-touch event, so we are
+        // probably currently running on a touch device
+        answerWrapperElement.setAttribute("draggable", "true");
+        answerWrapperElement.addEventListener("dragstart", handleDragStart);
+        answerWrapperElement.addEventListener("touchstart", handleTouchDragStart);
+        answerWrapperElement.addEventListener("touchend", handleTouchDragEnd);
+      }
       answerWrapperElement.appendChild(answerElement);
       answerWrapperElement.appendChild(answerControlsElement);
 
@@ -317,34 +340,102 @@ export class RPGDOMHelpers {
       textElement.addEventListener("change", this.handleATextChanged(this, option));
       selectElement.addEventListener("change", this.handleASuccessorChanged(this, option));
     }
-
-    // Add 'add' button
   }
 
-  private makeAnswerControlElement(index: number) {
+  /**
+   * Create a new answer element (consisting of labels, input fields and buttons).
+   * If `isTouchDevice` is true, then a drag element will be added.
+   * Otherwise two up/down-buttons will be added.
+   *
+   * @param {number} index - The answer option index inside the config.
+   * @param {boolean} isTouchDevice - Set to `true` if drag-and-drop handles should be added instead of buttons.
+   * @returns {HTMLDivElement}
+   */
+  private makeAnswerControlElement(index: number, isTouchDevice: boolean): HTMLDivElement {
+    const _self = this;
     const controlElement = document.createElement("div") as HTMLDivElement;
-    const dndElement = document.createElement("div") as HTMLDivElement;
-    dndElement.classList.add("a-dnd-element");
-    dndElement.innerHTML = "&vellip;";
-    const deleteButton = document.createElement("button") as HTMLButtonElement;
-    deleteButton.classList.add("a-delete-button");
-    deleteButton.addEventListener("click", this.handleDelete(index));
-    deleteButton.innerHTML = "&#x1F5D1;";
-
     controlElement.classList.add("answer-controls-element");
 
-    controlElement.appendChild(dndElement);
+    if (isTouchDevice) {
+      const upDownElement = document.createElement("div") as HTMLDivElement;
+      const upBtn = document.createElement("button") as HTMLButtonElement;
+      upBtn.innerHTML = "▴";
+      if (index === 0) {
+        upBtn.setAttribute("disabled", "true");
+      } else {
+        upBtn.addEventListener("click", () => {
+          console.log("upBtn", index, index - 1);
+          _self.performDrop(index, index - 1);
+        });
+      }
+      const downBtn = document.createElement("button") as HTMLButtonElement;
+      downBtn.innerHTML = "▾";
+      if (index + 1 === this.currentGraphNode.o.length) {
+        downBtn.setAttribute("disabled", "true");
+      } else {
+        downBtn.addEventListener("click", () => {
+          console.log("downBtn", index, index + 2); // Think of drop zone indices here
+
+          _self.performDrop(index, index + 2); // Think of drop zone indices here
+        });
+      }
+      upDownElement.appendChild(upBtn);
+      upDownElement.appendChild(downBtn);
+      controlElement.appendChild(upDownElement);
+    } else {
+      const dndElement = document.createElement("div") as HTMLDivElement;
+      dndElement.classList.add("a-dnd-element");
+      dndElement.innerHTML = "&vellip;";
+      controlElement.appendChild(dndElement);
+    }
+
+    const deleteButton = document.createElement("button") as HTMLButtonElement;
+    deleteButton.classList.add("a-delete-button");
+    deleteButton.addEventListener("click", this.requestDeleteOption(index));
+    deleteButton.innerHTML = "&#x1F5D1;";
+
     controlElement.appendChild(deleteButton);
     return controlElement;
   }
 
-  private handleDelete(index: number): () => void {
+  private performDrop(answerIndex: number, dropIndex: number) {
+    if (dropIndex > answerIndex) {
+      dropIndex--;
+    }
+
+    const old = this.currentGraphNode.o[answerIndex];
+    this.currentGraphNode.o[answerIndex] = this.currentGraphNode.o[dropIndex];
+    this.currentGraphNode.o[dropIndex] = old;
+
+    // Re-build the list : )
+    this.updateAnswerOptions();
+    this.editorHelpers.pb.redraw();
+  }
+
+  private requestDeleteOption(index: number): () => void {
     const _self = this;
     return () => {
-      _self.currentGraphNode.o.splice(index, 1);
-      _self.updateAnswerOptions();
-      _self.editorHelpers.pb.redraw();
+      _self.modal.setTitle("Delete option?");
+      _self.modal.setBody(`Do you really want to delete option #${index}?`);
+      _self.modal.setFooter("");
+      _self.modal.setActions([
+        Modal.ACTION_CANCEL,
+        {
+          label: "Yes",
+          action: () => {
+            _self.modal.close();
+            _self.handleDeleteOption(index);
+          }
+        }
+      ]);
+      _self.modal.open();
     };
+  }
+
+  private handleDeleteOption(index: number) {
+    this.currentGraphNode.o.splice(index, 1);
+    this.updateAnswerOptions();
+    this.editorHelpers.pb.redraw();
   }
 
   private makeADropArea(

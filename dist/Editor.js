@@ -20,6 +20,9 @@ var TouchHandler_1 = require("./TouchHandler");
 var FileDrop_1 = require("plotboilerplate/src/cjs/utils/io/FileDrop");
 var Editor = /** @class */ (function () {
     function Editor(dialogueConfigJSONPath) {
+        var _this = this;
+        this.currentMouseHandler = null;
+        this.currentTouchHandler = null;
         console.log("Initialize plotboilerplate");
         // Fetch the GET params
         var GUP = (0, gup_1.gup)();
@@ -54,9 +57,9 @@ var Editor = /** @class */ (function () {
             width: 120,
             height: 20
         };
-        var currentMouseHandler = null;
-        var currentTouchHandler = null;
-        var editorHelpers = new editorHelpers_1.EditorHelper(pb, boxSize);
+        // var currentMouseHandler: MouseHandler = null;
+        // var currentTouchHandler: TouchHandler = null;
+        var editorHelpers = new editorHelpers_1.EditorHelper(this, pb, boxSize);
         var editorRenderer = new editorRenderer_1.EditorRenderer(pb, boxSize, editorHelpers, isDarkmode);
         // +---------------------------------------------------------------------------------
         // | The render method.
@@ -77,17 +80,17 @@ var Editor = /** @class */ (function () {
             dialogConfig = editorHelpers.enrichPositions(config);
             editorHelpers.setDialogConfig(dialogConfig);
             // Ad DnD support for boxes.
-            if (currentMouseHandler) {
-                currentMouseHandler.destroy();
-                currentMouseHandler = null;
+            if (_this.currentMouseHandler) {
+                _this.currentMouseHandler.destroy();
+                _this.currentMouseHandler = null;
             }
-            currentMouseHandler = editorHelpers.boxMovehandler(); // dialogConfig);
+            _this.currentMouseHandler = editorHelpers.boxMovehandler(); // dialogConfig);
             // Ad DnD support for boxes.
-            if (currentTouchHandler) {
-                currentTouchHandler.destroy();
-                currentTouchHandler = null;
+            if (_this.currentTouchHandler) {
+                _this.currentTouchHandler.destroy();
+                _this.currentTouchHandler = null;
             }
-            currentTouchHandler = new TouchHandler_1.TouchHandler(pb, dialogConfig, editorHelpers);
+            _this.currentTouchHandler = new TouchHandler_1.TouchHandler(pb, dialogConfig, editorHelpers);
             pb.redraw();
         };
         // Install DnD with FileDrop

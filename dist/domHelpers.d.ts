@@ -10,12 +10,14 @@
 import { TouchEnterLeaveHandler } from "./TouchHandler";
 import { EditorHelper } from "./editorHelpers";
 import { IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
+import { Modal } from "./modal";
 export declare class RPGDOMHelpers {
     editorHelpers: EditorHelper;
     editorElement: HTMLDivElement;
     keyElement: HTMLInputElement;
     qElement: HTMLInputElement;
     optionsElement: HTMLDivElement;
+    modal: Modal;
     currentNodeName: string | null;
     currentGraphNode: IMiniQuestionaire;
     currentDraggedAnswerIndex: number;
@@ -26,6 +28,7 @@ export declare class RPGDOMHelpers {
     exportJSON(_self: RPGDOMHelpers): () => void;
     addAnswerOption(_self: RPGDOMHelpers): () => void;
     private addDialogueNode;
+    private requestRemoveDialogueNode;
     private removeDialogueNode;
     toggleVisibility(isVisible: boolean): void;
     private handleQChanged;
@@ -34,8 +37,19 @@ export declare class RPGDOMHelpers {
     private handleASuccessorChanged;
     updateAnswerOptions(): void;
     showAnswerOptions(nodeName: string, graphNode: IMiniQuestionaireWithPosition | null): void;
+    /**
+     * Create a new answer element (consisting of labels, input fields and buttons).
+     * If `isTouchDevice` is true, then a drag element will be added.
+     * Otherwise two up/down-buttons will be added.
+     *
+     * @param {number} index - The answer option index inside the config.
+     * @param {boolean} isTouchDevice - Set to `true` if drag-and-drop handles should be added instead of buttons.
+     * @returns {HTMLDivElement}
+     */
     private makeAnswerControlElement;
-    private handleDelete;
+    private performDrop;
+    private requestDeleteOption;
+    private handleDeleteOption;
     private makeADropArea;
     private createNodeSelectElement;
     private createNodeSelectOptionElement;

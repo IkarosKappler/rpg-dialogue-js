@@ -7,6 +7,10 @@
  * @date     2023-07-25
  * @version  1.0.0
  **/
+import { MouseHandler } from "plotboilerplate";
+import { TouchHandler } from "./TouchHandler";
 export declare class Editor {
+    currentMouseHandler: MouseHandler | null;
+    currentTouchHandler: TouchHandler | null;
     constructor(dialogueConfigJSONPath: any);
 }

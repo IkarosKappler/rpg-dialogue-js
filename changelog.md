@@ -1,5 +1,7 @@
 # Changelog
 
+- 2023-08-09
+  - Added a Modal class implementation (to receive user confirmation before Delete).
 - 2023-08-08
   - Added touch handling for Drag'n'drop.
 - 2023-08-03

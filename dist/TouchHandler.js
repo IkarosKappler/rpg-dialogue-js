@@ -11,6 +11,7 @@ exports.TouchEnterLeaveHandler = exports.TouchHandler = void 0;
 var plotboilerplate_1 = require("plotboilerplate");
 var TouchHandler = /** @class */ (function () {
     function TouchHandler(pb, dialogConfigWithPositions, editorHelper) {
+        this.wasTouchUsed = false;
         var _self = this;
         // Install a touch handler on the canvas.
         var relPos = function (pos) {
@@ -31,6 +32,7 @@ var TouchHandler = /** @class */ (function () {
         var afProps = {
             touchStart: function (evt) {
                 console.log("Touchstart");
+                _self.wasTouchUsed = true;
                 if (evt.touches.length == 1) {
                     touchMovePos = new plotboilerplate_1.Vertex(relPos({ x: evt.touches[0].clientX, y: evt.touches[0].clientY }));
                     touchDownPos = new plotboilerplate_1.Vertex(relPos({ x: evt.touches[0].clientX, y: evt.touches[0].clientY }));
@@ -45,6 +47,8 @@ var TouchHandler = /** @class */ (function () {
                 }
             },
             touchMove: function (evt) {
+                console.log("touchMove");
+                _self.wasTouchUsed = true;
                 if (evt.touches.length == 1 && draggedNode) {
                     evt.preventDefault();
                     evt.stopPropagation();
@@ -62,6 +66,8 @@ var TouchHandler = /** @class */ (function () {
                 }
             },
             touchEnd: function (evt) {
+                console.log("touchEnd");
+                _self.wasTouchUsed = true;
                 // Note: e.touches.length is 0 here
                 if (draggedNode) {
                     if (!touchDownPos) {
@@ -89,11 +95,12 @@ var TouchHandler = /** @class */ (function () {
                 clearTouch();
             },
             touchCancel: function (evt) {
+                console.log("touchCancel");
+                _self.wasTouchUsed = true;
                 clearTouch();
             }
         }; // END afProps
         /* tslint:disable-next-line */
-        // new AlloyFinger(pb.eventCatcher ? pb.eventCatcher : pb.canvas, afProps);
         _self.alloyFinger = globalThis.createAlloyFinger(pb.eventCatcher ? pb.eventCatcher : pb.canvas, afProps);
     }
     TouchHandler.prototype.destroy = function () {

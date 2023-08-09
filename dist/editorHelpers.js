@@ -14,7 +14,7 @@ var plotboilerplate_1 = require("plotboilerplate");
 var domHelpers_1 = require("./domHelpers");
 var editorRenderer_1 = require("./editorRenderer");
 var EditorHelper = /** @class */ (function () {
-    function EditorHelper(pb, boxSize) {
+    function EditorHelper(editor, pb, boxSize) {
         // TODO: convert into node identifyer
         /**
          * The highlighted node's name or null if none is highlighted.
@@ -51,6 +51,7 @@ var EditorHelper = /** @class */ (function () {
          * In local relative coordinate system.
          */
         this.relativeMousePosition = null;
+        this.editor = editor;
         this.pb = pb;
         this.boxSize = boxSize;
         this.selectedNodeName = null;

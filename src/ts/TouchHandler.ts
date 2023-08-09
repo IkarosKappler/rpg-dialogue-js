@@ -14,6 +14,7 @@ import { IDialogueConfig, IMiniQuestionaireWithPosition, IOptionIdentifyer } fro
 
 export class TouchHandler {
   private alloyFinger: AlloyFinger;
+  wasTouchUsed: boolean = false;
 
   constructor(
     pb: PlotBoilerplate,
@@ -43,6 +44,7 @@ export class TouchHandler {
     const afProps: AlloyFingerOptions = {
       touchStart: (evt: TouchEvent) => {
         console.log("Touchstart");
+        _self.wasTouchUsed = true;
         if (evt.touches.length == 1) {
           touchMovePos = new Vertex(relPos({ x: evt.touches[0].clientX, y: evt.touches[0].clientY }));
           touchDownPos = new Vertex(relPos({ x: evt.touches[0].clientX, y: evt.touches[0].clientY }));
@@ -56,6 +58,8 @@ export class TouchHandler {
         }
       },
       touchMove: (evt: TouchEvent) => {
+        console.log("touchMove");
+        _self.wasTouchUsed = true;
         if (evt.touches.length == 1 && draggedNode) {
           evt.preventDefault();
           evt.stopPropagation();
@@ -73,6 +77,8 @@ export class TouchHandler {
         }
       },
       touchEnd: (evt: TouchEvent) => {
+        console.log("touchEnd");
+        _self.wasTouchUsed = true;
         // Note: e.touches.length is 0 here
         if (draggedNode) {
           if (!touchDownPos) {
@@ -98,12 +104,13 @@ export class TouchHandler {
         clearTouch();
       },
       touchCancel: (evt: TouchEvent) => {
+        console.log("touchCancel");
+        _self.wasTouchUsed = true;
         clearTouch();
       }
     } as unknown as AlloyFingerOptions; // END afProps
 
     /* tslint:disable-next-line */
-    // new AlloyFinger(pb.eventCatcher ? pb.eventCatcher : pb.canvas, afProps);
     _self.alloyFinger = globalThis.createAlloyFinger(pb.eventCatcher ? pb.eventCatcher : pb.canvas, afProps);
   }
 
