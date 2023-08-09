@@ -25,7 +25,7 @@ Load the dialogue config from the specific JSON file:
 
 ```Javascript
 globalThis.addEventListener("load", function () {
-  const path = "../../resources/export-test/dialog-config-7.json";
+  const path = "../../resources/export-test/dialog-config-8-with-npc.json";
   RPGDialogueLogic.loadFromJSON(path).then(rpgDialogue => {
     console.log("rpgDialogue", rpgDialogue);
 
