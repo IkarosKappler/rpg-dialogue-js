@@ -7,10 +7,8 @@
         { "a": "Hello. That's because I just arrived.", "next": "dia0" },
         { "a": "Light! My ... ehm, ship ... has a battery problem", "next": "dia9" },
         { "a": "I have no idea why <i>you</i> should bother.", "next": "dia1" }
-      ],
-      "editor": { "position": { "x": -912.5415330552637, "y": -763.9747349980279 } }
+      ]
     },
-    "FINAL": { "q": "---EOC---", "o": [], "editor": { "position": { "x": 843.6155206105101, "y": 50.03775659413702 } } },
     "dia1": {
       "q": "Why so grumpy? You whale lice always have a lack of surface simulation, huh?",
       "o": [
@@ -20,8 +18,7 @@
           "a": "Oh, how creative, <i>Whale lice</i> – because I came with a freighter. Seems I met the station's joker.",
           "next": "dia2"
         }
-      ],
-      "editor": { "position": { "x": -703.3818507416074, "y": -613.0638258608725 } }
+      ]
     },
     "dia9": {
       "q": "You call that wreckage a ship?",
@@ -29,59 +26,43 @@
         { "a": "Well ...", "next": "dia10" },
         { "a": "It floats in water, has a hull, contains an Heliox atmopshere: A ship.", "next": "dia10" },
         { "a": "You call this 'a life'?", "next": "dia11" }
-      ],
-      "editor": { "position": { "x": -777.9993124997834, "y": -313.4010391969372 } }
+      ]
     },
     "dia10": {
       "q": "A ship has a way to move around, friend. Your's just – well – floats. I'll give you a hint: ask Luka over there, they can even fix a broken tin can. Looks like you need their crafts right now.",
-      "o": [{ "a": "Any ideas?", "next": "dia6" }],
-      "editor": { "position": { "x": -439.4849757980782, "y": -243.429877007686 } }
+      "o": [{ "a": "Any ideas?", "next": "dia6" }]
     },
     "dia11": {
       "q": "Hey, I just got a raise and have a pretty good life. Got it?",
-      "o": [{ "a": "You got your own cabin and privacy?", "next": "dia12" }],
-      "editor": { "position": { "x": -507.3487539324908, "y": -152.9953456668834 } }
+      "o": [{ "a": "You got your own cabin and privacy?", "next": "dia12" }]
     },
     "dia3": {
       "q": "Ok, you seem like your sea has been rough recently. Already thought you might be some selfish mud eel.",
       "o": [
         { "a": "Be careful what you say.", "next": "dia2" },
         { "a": "I just arrived and could need some help with my ... ehm, ship.", "next": "dia5" }
-      ],
-      "editor": { "position": { "x": -362.8704212026838, "y": -535.4380682462262 } }
+      ]
     },
     "dia0": {
       "q": "Friendly arrivals are always welcome. Have a look around.",
       "o": [
         { "a": "Thanks. Do you know some ship repair?", "next": "dia6" },
         { "a": "Is this station safe? I mean, your lock hydraulics seems a bit ... icky.", "next": "dia5" }
-      ],
-      "editor": { "position": { "x": -253.7890360722123, "y": -680.5637367599761 } }
+      ]
     },
-    "dia2": {
-      "q": "Oohkay, oohkay. Not me trying to help a stranger.",
-      "o": [{ "a": "Bye.", "next": "dia4" }],
-      "editor": { "position": { "x": -231.03906591676605, "y": -330.50706655713304 } },
-      "npcIndex": 0
-    },
+    "dia2": { "q": "Oohkay, oohkay. Not me trying to help a stranger.", "o": [{ "a": "Bye.", "next": "dia4" }] },
     "dia12": {
       "q": "Nah, I can afford 15 additional bottles of synthohol now. _That's_ a life! I give you a hint",
-      "o": [{ "a": "Neat. Do you know anyone around who hasn't two left hands?", "next": "dia6" }],
-      "editor": { "position": { "x": -260.73811704032914, "y": -95.99249032191187 } }
+      "o": [{ "a": "Neat. Do you know anyone around who hasn't two left hands?", "next": "dia6" }]
     },
     "dia5": {
       "q": "No worry. Since the sea quake near Bergen we all have some trouble of the one or other sort. Your 'ship' looks horrible. Need something?",
       "o": [
         { "a": "Do you know anyone around who hasn't two left hands?", "next": "dia6" },
         { "a": "Sea quake? Has it been severe?", "next": "dia55" }
-      ],
-      "editor": { "position": { "x": 18.2591019535638, "y": -504.6331752203952 } }
+      ]
     },
-    "dia6": {
-      "q": "Sure! Ask Luka over there. They will fix even a broken tin can.",
-      "o": [{ "a": "Thanks!", "next": "dia7" }],
-      "editor": { "position": { "x": 64.49283983814439, "y": -64.78777250006033 } }
-    },
+    "dia6": { "q": "Sure! Ask Luka over there. They will fix even a broken tin can.", "o": [{ "a": "Thanks!", "next": "dia7" }] },
     "dia55": {
       "q": "Do you spend your life under some rock? The tremors around the coastline got worse and worse over the recent months. Elvstrøm station had many casualties when the ground shook at more than strength 6 last week.",
       "o": [
@@ -93,32 +74,29 @@
           "a": "I'm not into the latest geology news recently. Do you have any technicians who can help me with my battery here?",
           "next": "dia6"
         }
-      ],
-      "editor": { "position": { "x": 242.86843451665686, "y": -353.69355513154676 } }
+      ]
     },
     "dia4": {
       "q": "One hint, but just because I'm nice even to mud eels like you. Your 'ship' definiety needs some fixing. Ask Luka over there. They will fix even a broken tin can.",
       "o": [
         { "a": "A – tin – can – ? Ok.", "next": "FINAL" },
         { "a": "Thanks.", "next": "FINAL" }
-      ],
-      "editor": { "position": { "x": 485.2309767792533, "y": -239.21802159322738 } }
+      ]
     },
     "dia8": {
       "q": "You're really not from here. Well, good luck friend.",
       "o": [
         { "a": "Same to you!", "next": "FINAL" },
         { "a": "Sigh.", "next": "FINAL" }
-      ],
-      "editor": { "position": { "x": 514.3356065548141, "y": -62.85110004875719 } }
+      ]
     },
     "dia7": {
       "q": "Asmussen with you.",
       "o": [
         { "a": "Who?", "next": "dia8" },
         { "a": "Asmussen with you.", "next": "FINAL" }
-      ],
-      "editor": { "position": { "x": 250.70256318647512, "y": 3.9517394622179154 } }
-    }
+      ]
+    },
+    "FINAL": { "q": "---EOC---", "o": [] }
   }
 }

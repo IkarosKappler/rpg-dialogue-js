@@ -38,6 +38,7 @@ Live example: https://www.int2byte.de/public/rpg-dialogue/dist/tests/test-dialog
 
 ```JSON
 {
+  "meta": { "name": "welcome", "npcs": [{ "name": "Yannick" }] },
   "graph": {
     "intro": {
       "q": "Light, stranger! I haven't seen <i>your</i> face here before. New to Humboldt Haven?",
@@ -135,9 +136,10 @@ Live example: https://www.int2byte.de/public/rpg-dialogue/dist/tests/test-dialog
         { "a": "Asmussen with you.", "next": "FINAL" }
       ]
     },
-    "FINAL": { "q": "---EOC---", "o": [] },
+    "FINAL": { "q": "---EOC---", "o": [] }
   }
 }
+
 
 ```
 
