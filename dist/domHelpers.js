@@ -247,7 +247,6 @@ var RPGDOMHelpers = /** @class */ (function () {
             _self.performDrop(answerIndex, dropIndex);
         };
         var isTouchDevice = this.editorHelpers.editor.currentTouchHandler.wasTouchUsed;
-        console.log("isTouchDevice", isTouchDevice);
         var dropArea = this.makeADropArea(0, drop, onDragOver, onDragLeave);
         this.optionsElement.appendChild(dropArea);
         for (var i = 0; i < graphNode.o.length; i++) {
@@ -256,11 +255,11 @@ var RPGDOMHelpers = /** @class */ (function () {
             var answerControlsElement = this.makeAnswerControlElement(i, isTouchDevice);
             var answerElement = document.createElement("div");
             var labelElement = document.createElement("div");
-            var textElement = document.createElement("input");
+            var textElement = document.createElement("textarea");
             var selectElement = this.createNodeSelectElement(nodeName, option.next);
             labelElement.innerHTML = "A#".concat(i);
             labelElement.classList.add("e-label");
-            textElement.setAttribute("value", option.a);
+            textElement.innerHTML = option.a;
             answerElement.appendChild(labelElement);
             answerElement.appendChild(textElement);
             answerElement.appendChild(selectElement);

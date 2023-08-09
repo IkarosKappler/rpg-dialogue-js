@@ -289,7 +289,6 @@ export class RPGDOMHelpers {
     };
 
     const isTouchDevice: boolean = this.editorHelpers.editor.currentTouchHandler.wasTouchUsed;
-    console.log("isTouchDevice", isTouchDevice);
     const dropArea: HTMLDivElement = this.makeADropArea(0, drop, onDragOver, onDragLeave);
     this.optionsElement.appendChild(dropArea);
 
@@ -301,11 +300,11 @@ export class RPGDOMHelpers {
 
       const answerElement = document.createElement("div") as HTMLDivElement;
       const labelElement = document.createElement("div") as HTMLDivElement;
-      const textElement = document.createElement("input") as HTMLInputElement;
+      const textElement = document.createElement("textarea") as HTMLTextAreaElement;
       const selectElement = this.createNodeSelectElement(nodeName, option.next);
       labelElement.innerHTML = `A#${i}`;
       labelElement.classList.add("e-label");
-      textElement.setAttribute("value", option.a);
+      textElement.innerHTML = option.a;
 
       answerElement.appendChild(labelElement);
       answerElement.appendChild(textElement);
