@@ -209,12 +209,20 @@ var EditorHelper = /** @class */ (function () {
         return this.selectedOption && this.selectedOption.nodeName === nodeName && this.selectedOption.optionIndex === optionIndex;
     };
     EditorHelper.prototype.addNewDialogueNode = function () {
+        // Place two box units to the right if currently there is a selected node.
+        // Otherwise random position.
+        var position = this.selectedNode
+            ? {
+                x: this.selectedNode.editor.position.x + 2 * this.boxSize.width,
+                y: this.selectedNode.editor.position.y + this.boxSize.height
+            }
+            : this.getRandomPosition();
         var nodeName = this.randomNodeKey();
         var newNode = {
             q: "",
             o: [{ a: "", next: null }],
             editor: {
-                position: this.getRandomPosition()
+                position: position
             }
         };
         this.dialogConfigWithPositions.graph[nodeName] = newNode;

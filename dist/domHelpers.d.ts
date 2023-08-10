@@ -26,6 +26,7 @@ export declare class RPGDOMHelpers {
     touchEnterLeaveHandler: TouchEnterLeaveHandler;
     constructor(editorHelpers: EditorHelper);
     isExportWithoutPositions(): boolean;
+    isAutoSave(): boolean;
     exportJSON(_self: RPGDOMHelpers): () => void;
     addAnswerOption(_self: RPGDOMHelpers): () => void;
     private addDialogueNode;

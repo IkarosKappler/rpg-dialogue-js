@@ -7,7 +7,7 @@
  * @date     2023-07-25
  * @version  1.0.0
  **/
-import { MouseHandler } from "plotboilerplate";
+import { MouseHandler, PlotBoilerplate } from "plotboilerplate";
 import { IDialogueConfig, IMiniQuestionaireWithPosition } from "./interfaces";
 import { EditorHelper } from "./editorHelpers";
 import { EditorRenderer } from "./editorRenderer";
@@ -18,9 +18,19 @@ export declare class Editor {
     editorHelpers: EditorHelper;
     editorRenderer: EditorRenderer;
     dialogConfig: IDialogueConfig<IMiniQuestionaireWithPosition> | null;
-    constructor(dialogueConfigJSONPath: string);
+    pb: PlotBoilerplate;
+    private autosaveTimer;
+    constructor(dialogueConfigJSONPath: string, isRecoveryFromLocalStorageActive: boolean);
+    private tryStartAutosaveLoop;
+    private tryAutoSave;
+    requestCreateNewGraph(): () => void;
+    private performNewGraph;
     /**
      * Open a modal and test the current dialogue config (runs a RPGDialogueLogic instant).
      */
     testCurrentDialogueConfig(): void;
+    private handleDialogConfigLoaded;
+    private putToLocalStorage;
+    private tryLoadFromJSON;
+    private tryLoadFromLocalStorage;
 }

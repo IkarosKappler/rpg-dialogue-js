@@ -37,7 +37,7 @@ div#attribute-editor {
     font-size: 9pt;
 }
 
-.e-label {
+label, .e-label {
     font-family: monospace;
 }
 
@@ -98,6 +98,7 @@ div#attribute-editor {
     visibility: hidden;
 }
 
+#b-new,
 #b-export-json,
 #b-import-json,
 #b-configure-meta,
@@ -112,24 +113,30 @@ div#attribute-editor {
     cursor: pointer;
 }
 
+#b-new {
+    left: 15px;
+    background-color: #36cd76;
+    border-radius: 12px;
+    /* background-image: url('img/icon-download-512x512.png'); */
+}
 
 #b-export-json {
-    left: 15px;
+    left: 45px;
     background-image: url('img/icon-download-512x512.png');
 }
 
 #b-import-json {
-    left: 45px;
+    left: 75px;
     background-image: url('img/icon-upload-512x512.png');
 }
 
 #b-configure-meta {
-    left: 75px;
+    left: 105px;
     background-image: url('img/icon-configure-512x512.png');
 }
 
 #b-run-test {
-    left: 105px;
+    left: 135px;
     background-color: #36cd76;
     border-radius: 12px;
     background-image: url('img/icon-angle-right-512x512.png');

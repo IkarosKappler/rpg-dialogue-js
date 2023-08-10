@@ -37,6 +37,10 @@ var RPGDOMHelpers = /** @class */ (function () {
         var checkbox = document.getElementById("cb-export-without-positions");
         return checkbox.checked;
     };
+    RPGDOMHelpers.prototype.isAutoSave = function () {
+        var checkbox = document.getElementById("cb-use-localstorage");
+        return checkbox.checked;
+    };
     RPGDOMHelpers.prototype.exportJSON = function (_self) {
         return function () {
             var removePositions = _self.isExportWithoutPositions();

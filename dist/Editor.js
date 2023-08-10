@@ -20,8 +20,7 @@ var TouchHandler_1 = require("./TouchHandler");
 var FileDrop_1 = require("plotboilerplate/src/cjs/utils/io/FileDrop");
 var modal_1 = require("./modal");
 var Editor = /** @class */ (function () {
-    function Editor(dialogueConfigJSONPath) {
-        var _this = this;
+    function Editor(dialogueConfigJSONPath, isRecoveryFromLocalStorageActive) {
         this.currentMouseHandler = null;
         this.currentTouchHandler = null;
         var _self = this;
@@ -30,7 +29,7 @@ var Editor = /** @class */ (function () {
         var GUP = (0, gup_1.gup)();
         var isDarkmode = (0, detectDarkMode_1.detectDarkMode)(GUP);
         // All config params are optional.
-        var pb = new plotboilerplate_1.PlotBoilerplate(plotboilerplate_1.PlotBoilerplate.utils.safeMergeByKeys({
+        this.pb = new plotboilerplate_1.PlotBoilerplate(plotboilerplate_1.PlotBoilerplate.utils.safeMergeByKeys({
             canvas: document.getElementById("my-canvas"),
             fullSize: true,
             fitToParent: true,
@@ -58,48 +57,46 @@ var Editor = /** @class */ (function () {
             width: 120,
             height: 20
         };
-        this.editorHelpers = new editorHelpers_1.EditorHelper(this, pb, boxSize);
-        this.editorRenderer = new editorRenderer_1.EditorRenderer(pb, boxSize, this.editorHelpers, isDarkmode);
+        this.editorHelpers = new editorHelpers_1.EditorHelper(this, this.pb, boxSize);
+        this.editorRenderer = new editorRenderer_1.EditorRenderer(this.pb, boxSize, this.editorHelpers, isDarkmode);
         // +---------------------------------------------------------------------------------
         // | The render method.
         // +-------------------------------
-        pb.config.postDraw = function (draw, fill) {
+        this.pb.config.postDraw = function (draw, fill) {
             if (!_self.dialogConfig) {
                 return;
             }
             _self.editorRenderer.renderBoxes(_self.dialogConfig);
             _self.editorRenderer.renderConnections(_self.dialogConfig);
         };
-        RPGDialogueLogic_1.RPGDialogueLogic.loadConfigFromJSON(dialogueConfigJSONPath).then(function (config) {
-            console.log("structure", config);
-            handleDialogConfigLoaded(config);
-        });
-        var handleDialogConfigLoaded = function (config) {
-            // Check if all graph nodes have positions to render.
-            _self.dialogConfig = _this.editorHelpers.enrichPositions(config);
-            _this.editorHelpers.enrichMetaData(_self.dialogConfig);
-            console.log("Enriched meta data", _self.dialogConfig);
-            _this.editorHelpers.setDialogConfig(_self.dialogConfig);
-            // Ad DnD support for boxes.
-            if (_this.currentMouseHandler) {
-                _this.currentMouseHandler.destroy();
-                _this.currentMouseHandler = null;
-            }
-            _this.currentMouseHandler = _this.editorHelpers.boxMovehandler(); // dialogConfig);
-            // Ad DnD support for boxes.
-            if (_this.currentTouchHandler) {
-                _this.currentTouchHandler.destroy();
-                _this.currentTouchHandler = null;
-            }
-            _this.currentTouchHandler = new TouchHandler_1.TouchHandler(pb, _self.dialogConfig, _this.editorHelpers);
-            pb.redraw();
-        };
+        if (isRecoveryFromLocalStorageActive) {
+            console.log("Trying to recover config from localstorage.");
+            this.tryLoadFromLocalStorage()
+                .then(function (dc) {
+                _self.handleDialogConfigLoaded(dc);
+            })
+                .catch(function () {
+                // RPGDialogueLogic.loadConfigFromJSON(dialogueConfigJSONPath).then((config: IDialogueConfig<IMiniQuestionaire>) => {
+                //   console.log("structure", config);
+                //   _self.handleDialogConfigLoaded(config);
+                // });
+                console.log("Loading from localstorage failed. Falling back loading from specified path.");
+                _self.tryLoadFromJSON(dialogueConfigJSONPath);
+            });
+        }
+        else {
+            // RPGDialogueLogic.loadConfigFromJSON(dialogueConfigJSONPath).then((config: IDialogueConfig<IMiniQuestionaire>) => {
+            //   console.log("structure", config);
+            //   _self.handleDialogConfigLoaded(config);
+            // });
+            _self.tryLoadFromJSON(dialogueConfigJSONPath);
+        }
         // Install DnD with FileDrop
-        var fileDrop = new FileDrop_1.FileDrop(pb.eventCatcher);
+        var fileDrop = new FileDrop_1.FileDrop(this.pb.eventCatcher);
         fileDrop.onFileJSONDropped(function (jsonObject) {
             console.log("[onFileJSONDropped] jsonObject", jsonObject);
             // TODO: properly convert to dialog-config
-            handleDialogConfigLoaded(editorHelpers_1.EditorHelper.fromObject(jsonObject));
+            _self.handleDialogConfigLoaded(editorHelpers_1.EditorHelper.fromObject(jsonObject));
         });
         // Also accept uploads via button
         var importJSON = function () {
@@ -116,14 +113,58 @@ var Editor = /** @class */ (function () {
             reader.onload = function () {
                 var jsonText = reader.result;
                 console.log(reader.result);
-                handleDialogConfigLoaded(editorHelpers_1.EditorHelper.fromObject(JSON.parse(jsonText)));
+                _self.handleDialogConfigLoaded(editorHelpers_1.EditorHelper.fromObject(JSON.parse(jsonText)));
             };
             reader.readAsText(fileInput.files[0]);
         });
         document.getElementById("b-run-test").addEventListener("click", function () {
             _self.testCurrentDialogueConfig();
         });
+        document.getElementById("b-new").addEventListener("click", _self.requestCreateNewGraph());
     }
+    Editor.prototype.tryStartAutosaveLoop = function () {
+        if (this.autosaveTimer) {
+            return;
+        }
+        var _self = this;
+        this.autosaveTimer = globalThis.setInterval(function () {
+            _self.tryAutoSave();
+        }, 10000);
+    };
+    Editor.prototype.tryAutoSave = function () {
+        if (this.editorHelpers.domHelper.isAutoSave()) {
+            // console.log("Putting to localstorage.");
+            this.putToLocalStorage();
+        }
+    };
+    Editor.prototype.requestCreateNewGraph = function () {
+        var _self = this;
+        return function () {
+            _self.editorHelpers.domHelper.modal.setTitle("Drop current graph?");
+            _self.editorHelpers.domHelper.modal.setBody("Do you really want to create a new graph and lose unsaved changes?");
+            _self.editorHelpers.domHelper.modal.setFooter("");
+            _self.editorHelpers.domHelper.modal.setActions([
+                modal_1.Modal.ACTION_CANCEL,
+                {
+                    label: "Yes",
+                    action: function () {
+                        _self.editorHelpers.domHelper.modal.close();
+                        _self.performNewGraph();
+                    }
+                }
+            ]);
+            _self.editorHelpers.domHelper.modal.open();
+        };
+    };
+    Editor.prototype.performNewGraph = function () {
+        var newConfig = {
+            meta: { name: "dialogue_A", npcs: [{ name: "NPC #0" }] },
+            graph: {
+                intro: { q: "Hello world!", o: [{ a: "Hello, NPC!", next: null }], editor: { position: { x: 0, y: 0 } } }
+            }
+        };
+        this.handleDialogConfigLoaded(newConfig);
+    };
     /**
      * Open a modal and test the current dialogue config (runs a RPGDialogueLogic instant).
      */
@@ -157,6 +198,59 @@ var Editor = /** @class */ (function () {
         this.editorHelpers.domHelper.modal.setFooter("");
         this.editorHelpers.domHelper.modal.setActions([modal_1.Modal.ACTION_CLOSE]);
         this.editorHelpers.domHelper.modal.open();
+    };
+    Editor.prototype.handleDialogConfigLoaded = function (config) {
+        // Check if all graph nodes have positions to render.
+        this.dialogConfig = this.editorHelpers.enrichPositions(config);
+        this.editorHelpers.enrichMetaData(this.dialogConfig);
+        console.log("Enriched meta data", this.dialogConfig);
+        this.editorHelpers.setDialogConfig(this.dialogConfig);
+        // Ad DnD support for boxes.
+        if (this.currentMouseHandler) {
+            this.currentMouseHandler.destroy();
+            this.currentMouseHandler = null;
+        }
+        this.currentMouseHandler = this.editorHelpers.boxMovehandler(); // dialogConfig);
+        // Ad DnD support for boxes.
+        if (this.currentTouchHandler) {
+            this.currentTouchHandler.destroy();
+            this.currentTouchHandler = null;
+        }
+        this.currentTouchHandler = new TouchHandler_1.TouchHandler(this.pb, this.dialogConfig, this.editorHelpers);
+        this.pb.redraw();
+        this.tryStartAutosaveLoop();
+    };
+    Editor.prototype.putToLocalStorage = function () {
+        var jsonString = JSON.stringify(this.dialogConfig);
+        globalThis.localStorage.setItem("__rpgeditor.dialogueconfig", jsonString);
+    };
+    Editor.prototype.tryLoadFromJSON = function (dialogueConfigJSONPath) {
+        var _self = this;
+        RPGDialogueLogic_1.RPGDialogueLogic.loadConfigFromJSON(dialogueConfigJSONPath).then(function (config) {
+            console.log("structure", config);
+            _self.handleDialogConfigLoaded(config);
+        });
+    };
+    Editor.prototype.tryLoadFromLocalStorage = function () {
+        return new Promise(function (accept, reject) {
+            var jsonString = globalThis.localStorage.getItem("__rpgeditor.dialogueconfig");
+            if (!jsonString || jsonString === "") {
+                reject();
+            }
+            try {
+                var jsonObject = JSON.parse(jsonString);
+                if (!jsonObject) {
+                    reject();
+                    return;
+                }
+                var dialogueConfig = editorHelpers_1.EditorHelper.fromObject(jsonObject);
+                accept(dialogueConfig);
+            }
+            catch (exception) {
+                console.warn(exception);
+                reject();
+            }
+        });
     };
     return Editor;
 }());

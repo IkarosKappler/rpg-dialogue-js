@@ -14,14 +14,9 @@
   window.initializePB = function () {
     console.log("Initialize graph editor");
 
-    // +---------------------------------------------------------------------------------
-    // | Initialize dat.gui
-    // +-------------------------------
-    // pb.createGUI();
-    // END init dat.gui
-
-    // var editor = new Editor("../../resources/20230721_floatsim_storyline_dialog.json");
-    var editor = new Editor("../../resources/export-test/dialog-config-7.json");
+    var path = "../../resources/export-test/dialog-config-7.json";
+    var tryRecoverFromLocalStorage = true;
+    var editor = new Editor(path, tryRecoverFromLocalStorage);
   };
 
   window.addEventListener("load", window.initializePB);

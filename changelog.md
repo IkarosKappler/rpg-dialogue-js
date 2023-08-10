@@ -2,6 +2,8 @@
 
 - 2023-08-10
   - Adding real-time dialogue testing to the editor.
+  - Addung button to create a new empty dialogue graph.
+  - Adding data recovery from localstorage.
 - 2023-08-09
   - Added a Modal class implementation (to receive user confirmation before Delete).
   - Added a simple npc config and meta data.

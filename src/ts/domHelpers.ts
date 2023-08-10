@@ -61,6 +61,11 @@ export class RPGDOMHelpers {
     return checkbox.checked;
   }
 
+  isAutoSave(): boolean {
+    const checkbox = document.getElementById("cb-use-localstorage") as HTMLInputElement;
+    return checkbox.checked;
+  }
+
   exportJSON(_self: RPGDOMHelpers): () => void {
     return () => {
       const removePositions = _self.isExportWithoutPositions();

@@ -25,7 +25,9 @@ export class Editor {
   editorHelpers: EditorHelper;
   editorRenderer: EditorRenderer;
   dialogConfig: IDialogueConfig<IMiniQuestionaireWithPosition> | null;
-  constructor(dialogueConfigJSONPath: string) {
+  pb: PlotBoilerplate;
+  private autosaveTimer;
+  constructor(dialogueConfigJSONPath: string, isRecoveryFromLocalStorageActive: boolean) {
     const _self = this;
     console.log("Initialize plotboilerplate");
     // Fetch the GET params
@@ -34,7 +36,7 @@ export class Editor {
     const isDarkmode = detectDarkMode(GUP);
 
     // All config params are optional.
-    var pb = new PlotBoilerplate(
+    this.pb = new PlotBoilerplate(
       PlotBoilerplate.utils.safeMergeByKeys(
         {
           canvas: document.getElementById("my-canvas") as HTMLCanvasElement,
@@ -68,13 +70,13 @@ export class Editor {
       width: 120,
       height: 20
     };
-    this.editorHelpers = new EditorHelper(this, pb, boxSize);
-    this.editorRenderer = new EditorRenderer(pb, boxSize, this.editorHelpers, isDarkmode);
+    this.editorHelpers = new EditorHelper(this, this.pb, boxSize);
+    this.editorRenderer = new EditorRenderer(this.pb, boxSize, this.editorHelpers, isDarkmode);
 
     // +---------------------------------------------------------------------------------
     // | The render method.
     // +-------------------------------
-    pb.config.postDraw = function (draw, fill) {
+    this.pb.config.postDraw = function (draw, fill) {
       if (!_self.dialogConfig) {
         return;
       }
@@ -82,41 +84,34 @@ export class Editor {
       _self.editorRenderer.renderConnections(_self.dialogConfig);
     };
 
-    RPGDialogueLogic.loadConfigFromJSON(dialogueConfigJSONPath).then((config: IDialogueConfig<IMiniQuestionaire>) => {
-      console.log("structure", config);
-      handleDialogConfigLoaded(config);
-    });
-
-    const handleDialogConfigLoaded = (config: IDialogueConfig<IMiniQuestionaire>) => {
-      // Check if all graph nodes have positions to render.
-      _self.dialogConfig = this.editorHelpers.enrichPositions(config);
-      this.editorHelpers.enrichMetaData(_self.dialogConfig);
-      console.log("Enriched meta data", _self.dialogConfig);
-      this.editorHelpers.setDialogConfig(_self.dialogConfig);
-
-      // Ad DnD support for boxes.
-      if (this.currentMouseHandler) {
-        this.currentMouseHandler.destroy();
-        this.currentMouseHandler = null;
-      }
-      this.currentMouseHandler = this.editorHelpers.boxMovehandler(); // dialogConfig);
-
-      // Ad DnD support for boxes.
-      if (this.currentTouchHandler) {
-        this.currentTouchHandler.destroy();
-        this.currentTouchHandler = null;
-      }
-      this.currentTouchHandler = new TouchHandler(pb, _self.dialogConfig, this.editorHelpers);
-
-      pb.redraw();
-    };
+    if (isRecoveryFromLocalStorageActive) {
+      console.log("Trying to recover config from localstorage.");
+      this.tryLoadFromLocalStorage()
+        .then(dc => {
+          _self.handleDialogConfigLoaded(dc);
+        })
+        .catch(() => {
+          // RPGDialogueLogic.loadConfigFromJSON(dialogueConfigJSONPath).then((config: IDialogueConfig<IMiniQuestionaire>) => {
+          //   console.log("structure", config);
+          //   _self.handleDialogConfigLoaded(config);
+          // });
+          console.log("Loading from localstorage failed. Falling back loading from specified path.");
+          _self.tryLoadFromJSON(dialogueConfigJSONPath);
+        });
+    } else {
+      // RPGDialogueLogic.loadConfigFromJSON(dialogueConfigJSONPath).then((config: IDialogueConfig<IMiniQuestionaire>) => {
+      //   console.log("structure", config);
+      //   _self.handleDialogConfigLoaded(config);
+      // });
+      _self.tryLoadFromJSON(dialogueConfigJSONPath);
+    }
 
     // Install DnD with FileDrop
-    const fileDrop = new FileDrop(pb.eventCatcher);
+    const fileDrop = new FileDrop(this.pb.eventCatcher);
     fileDrop.onFileJSONDropped((jsonObject: object) => {
       console.log("[onFileJSONDropped] jsonObject", jsonObject);
       // TODO: properly convert to dialog-config
-      handleDialogConfigLoaded(EditorHelper.fromObject(jsonObject));
+      _self.handleDialogConfigLoaded(EditorHelper.fromObject(jsonObject));
     });
 
     // Also accept uploads via button
@@ -134,7 +129,7 @@ export class Editor {
       reader.onload = function () {
         const jsonText = reader.result as string;
         console.log(reader.result);
-        handleDialogConfigLoaded(EditorHelper.fromObject(JSON.parse(jsonText)));
+        _self.handleDialogConfigLoaded(EditorHelper.fromObject(JSON.parse(jsonText)));
       };
       reader.readAsText(fileInput.files[0]);
     });
@@ -142,6 +137,55 @@ export class Editor {
     document.getElementById("b-run-test").addEventListener("click", () => {
       _self.testCurrentDialogueConfig();
     });
+
+    document.getElementById("b-new").addEventListener("click", _self.requestCreateNewGraph());
+  }
+
+  private tryStartAutosaveLoop() {
+    if (this.autosaveTimer) {
+      return;
+    }
+    const _self = this;
+    this.autosaveTimer = globalThis.setInterval(() => {
+      _self.tryAutoSave();
+    }, 10000);
+  }
+
+  private tryAutoSave() {
+    if (this.editorHelpers.domHelper.isAutoSave()) {
+      // console.log("Putting to localstorage.");
+      this.putToLocalStorage();
+    }
+  }
+
+  requestCreateNewGraph(): () => void {
+    const _self = this;
+    return () => {
+      _self.editorHelpers.domHelper.modal.setTitle("Drop current graph?");
+      _self.editorHelpers.domHelper.modal.setBody(`Do you really want to create a new graph and lose unsaved changes?`);
+      _self.editorHelpers.domHelper.modal.setFooter("");
+      _self.editorHelpers.domHelper.modal.setActions([
+        Modal.ACTION_CANCEL,
+        {
+          label: "Yes",
+          action: () => {
+            _self.editorHelpers.domHelper.modal.close();
+            _self.performNewGraph();
+          }
+        }
+      ]);
+      _self.editorHelpers.domHelper.modal.open();
+    };
+  }
+
+  private performNewGraph() {
+    const newConfig: IDialogueConfig<IMiniQuestionaireWithPosition> = {
+      meta: { name: "dialogue_A", npcs: [{ name: "NPC #0" }] },
+      graph: {
+        intro: { q: "Hello world!", o: [{ a: "Hello, NPC!", next: null }], editor: { position: { x: 0, y: 0 } } }
+      }
+    };
+    this.handleDialogConfigLoaded(newConfig);
   }
 
   /**
@@ -187,6 +231,65 @@ export class Editor {
     this.editorHelpers.domHelper.modal.setFooter("");
     this.editorHelpers.domHelper.modal.setActions([Modal.ACTION_CLOSE]);
     this.editorHelpers.domHelper.modal.open();
+  }
+
+  private handleDialogConfigLoaded(config: IDialogueConfig<IMiniQuestionaire>) {
+    // Check if all graph nodes have positions to render.
+    this.dialogConfig = this.editorHelpers.enrichPositions(config);
+    this.editorHelpers.enrichMetaData(this.dialogConfig);
+    console.log("Enriched meta data", this.dialogConfig);
+    this.editorHelpers.setDialogConfig(this.dialogConfig);
+
+    // Ad DnD support for boxes.
+    if (this.currentMouseHandler) {
+      this.currentMouseHandler.destroy();
+      this.currentMouseHandler = null;
+    }
+    this.currentMouseHandler = this.editorHelpers.boxMovehandler(); // dialogConfig);
+
+    // Ad DnD support for boxes.
+    if (this.currentTouchHandler) {
+      this.currentTouchHandler.destroy();
+      this.currentTouchHandler = null;
+    }
+    this.currentTouchHandler = new TouchHandler(this.pb, this.dialogConfig, this.editorHelpers);
+
+    this.pb.redraw();
+    this.tryStartAutosaveLoop();
+  }
+
+  private putToLocalStorage() {
+    const jsonString = JSON.stringify(this.dialogConfig);
+    globalThis.localStorage.setItem("__rpgeditor.dialogueconfig", jsonString);
+  }
+
+  private tryLoadFromJSON(dialogueConfigJSONPath: string) {
+    const _self = this;
+    RPGDialogueLogic.loadConfigFromJSON(dialogueConfigJSONPath).then((config: IDialogueConfig<IMiniQuestionaire>) => {
+      console.log("structure", config);
+      _self.handleDialogConfigLoaded(config);
+    });
+  }
+
+  private tryLoadFromLocalStorage(): Promise<IDialogueConfig<IMiniQuestionaireWithPosition>> {
+    return new Promise<IDialogueConfig<IMiniQuestionaireWithPosition>>((accept, reject) => {
+      const jsonString = globalThis.localStorage.getItem("__rpgeditor.dialogueconfig");
+      if (!jsonString || jsonString === "") {
+        reject();
+      }
+      try {
+        const jsonObject = JSON.parse(jsonString);
+        if (!jsonObject) {
+          reject();
+          return;
+        }
+        const dialogueConfig = EditorHelper.fromObject(jsonObject);
+        accept(dialogueConfig);
+      } catch (exception) {
+        console.warn(exception);
+        reject();
+      }
+    });
   }
 
   // +---------------------------------------------------------------------------------
