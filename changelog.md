@@ -1,5 +1,7 @@
 # Changelog
 
+- 2023-08-10
+  - Adding real-time dialogue testing to the editor.
 - 2023-08-09
   - Added a Modal class implementation (to receive user confirmation before Delete).
   - Added a simple npc config and meta data.

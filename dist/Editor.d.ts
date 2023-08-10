@@ -8,9 +8,19 @@
  * @version  1.0.0
  **/
 import { MouseHandler } from "plotboilerplate";
+import { IDialogueConfig, IMiniQuestionaireWithPosition } from "./interfaces";
+import { EditorHelper } from "./editorHelpers";
+import { EditorRenderer } from "./editorRenderer";
 import { TouchHandler } from "./TouchHandler";
 export declare class Editor {
     currentMouseHandler: MouseHandler | null;
     currentTouchHandler: TouchHandler | null;
+    editorHelpers: EditorHelper;
+    editorRenderer: EditorRenderer;
+    dialogConfig: IDialogueConfig<IMiniQuestionaireWithPosition> | null;
     constructor(dialogueConfigJSONPath: string);
+    /**
+     * Open a modal and test the current dialogue config (runs a RPGDialogueLogic instant).
+     */
+    testCurrentDialogueConfig(): void;
 }

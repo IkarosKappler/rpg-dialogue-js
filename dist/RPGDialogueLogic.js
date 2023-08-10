@@ -12,13 +12,37 @@ exports.RPGDialogueLogic = void 0;
 var axios_1 = __importDefault(require("axios"));
 var RPGDialogueLogic = /** @class */ (function () {
     function RPGDialogueLogic(dialogueStruct, validateStructure) {
-        this.name = "RPGDialogue";
+        // this.name = "RPGDialogue";
         this.structure = dialogueStruct;
+        this.listeners = [];
         this.resetToBeginning();
         if (validateStructure) {
             this.validate();
         }
     }
+    RPGDialogueLogic.prototype.addDialogueChangeListener = function (listener) {
+        for (var i = 0; i < this.listeners.length; i++) {
+            if (this.listeners[i] === listener) {
+                return false;
+            }
+        }
+        this.listeners.push(listener);
+        return true;
+    };
+    RPGDialogueLogic.prototype.removeDialogueChangeListener = function (listener) {
+        for (var i = 0; i < this.listeners.length; i++) {
+            if (this.listeners[i] === listener) {
+                this.listeners.splice(i, 1);
+                return true;
+            }
+        }
+        return false;
+    };
+    RPGDialogueLogic.prototype.fireStateChange = function (nextNodeName, oldNodeName, selectedOptionIndex) {
+        for (var i = 0; i < this.listeners.length; i++) {
+            this.listeners[i](this.structure, nextNodeName, oldNodeName, selectedOptionIndex);
+        }
+    };
     RPGDialogueLogic.prototype.getCurrentNpcName = function () {
         var _a, _b, _c;
         var npcIndex = (_a = this.currentQuestionaire.npcIndex) !== null && _a !== void 0 ? _a : 0;
@@ -59,31 +83,37 @@ var RPGDialogueLogic = /** @class */ (function () {
         if (index < 0 || index >= this.currentQuestionaire.o.length) {
             return false;
         }
+        var oldQuestionaireName = this.currentQuestionaireName;
         var selectedAnswer = this.currentQuestionaire.o[index];
         if (!selectedAnswer) {
             return false;
         }
         if (!selectedAnswer.next) {
+            this.currentQuestionaireName = null;
             this.currentQuestionaire = null;
         }
         else {
-            var nextQuestionaire = this.structure.graph[selectedAnswer.next];
+            this.currentQuestionaireName = selectedAnswer.next;
+            var nextQuestionaire = this.structure.graph[this.currentQuestionaireName];
             // Can be the final one!
             if (!nextQuestionaire.o || nextQuestionaire.o.length === 0) {
+                this.currentQuestionaireName = null;
                 this.currentQuestionaire = null;
             }
             else {
                 this.currentQuestionaire = nextQuestionaire;
             }
         }
+        this.fireStateChange(this.currentQuestionaireName, oldQuestionaireName, index);
         console.log("Next questionaire", this.currentQuestionaire);
         return true;
     };
     /**
      * Find the initial mini questionaire.
      */
-    RPGDialogueLogic.prototype.resetToBeginning = function () {
-        this.currentQuestionaire = this.structure.graph["intro"];
+    RPGDialogueLogic.prototype.resetToBeginning = function (alternateStartNodeName) {
+        this.currentQuestionaireName = alternateStartNodeName !== null && alternateStartNodeName !== void 0 ? alternateStartNodeName : "intro";
+        this.currentQuestionaire = this.structure.graph[this.currentQuestionaireName];
         if (!this.currentQuestionaire) {
             throw "Cannot initialize RPGDialogueLogic: structure does not have an 'intro' entry";
         }
@@ -94,18 +124,22 @@ var RPGDialogueLogic = /** @class */ (function () {
     RPGDialogueLogic.prototype.validate = function () {
         // ...
     };
+    RPGDialogueLogic.prototype.getHTMLElement = function (nodeId) {
+        return typeof nodeId === "string" ? document.getElementById(nodeId) : nodeId;
+    };
     /**
      * This is a convenient function for quickly integrating the dialogue logic into
      * an existing HTML document with prepared two <div> elements for displaying
      * the question and possible answers.
      *
-     * @param {string} questionNodeId
-     * @param {string} optionsNodeId
+     * @param {string|HTMLElement} questionNodeId - The output container (or ID) for questions.
+     * @param {string|HTMLElement} optionsNodeId - The output container (or ID) for answer options.
+     * @param {string} alternateStartNodeName - If you don't want to start at 'intro' specify your start node name here.
      * @returns
      */
-    RPGDialogueLogic.prototype.beginConversation = function (questionNodeId, optionsNodeId) {
-        var questionNode = document.getElementById(questionNodeId);
-        var optionsNode = document.getElementById(optionsNodeId);
+    RPGDialogueLogic.prototype.beginConversation = function (questionNodeId, optionsNodeId, alternateStartNodeName) {
+        var questionNode = this.getHTMLElement(questionNodeId);
+        var optionsNode = this.getHTMLElement(optionsNodeId);
         /**
          * Set the text in the question node.
          * @param {*} questionText
@@ -157,7 +191,9 @@ var RPGDialogueLogic = /** @class */ (function () {
             _self.loadCurrentQuestionaire(setQuestionText, addOptionNode);
         };
         // Initialize the first question.
+        _self.resetToBeginning(alternateStartNodeName);
         _self.loadCurrentQuestionaire(setQuestionText, addOptionNode);
+        _self.fireStateChange(this.currentQuestionaireName, null, -1);
     };
     /**
      * Load the dialogue structure from the JSON document at the given path.

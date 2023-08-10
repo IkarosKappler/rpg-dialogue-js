@@ -15,7 +15,7 @@ body {
 }
 
 
-#rpg-output {
+.rpg-output {
     margin: 35px;
     padding: 20px;
     width: calc( 100% - 70px );
@@ -24,17 +24,17 @@ body {
     border-radius: 6px;
     background-color: rgba(0,0,0,0.5);
 }
-#rpg-output-question {
+.rpg-output-question {
     color:aqua;
 }
-#rpg-output-question .rpg-npcname { 
+.rpg-output-question .rpg-npcname { 
     font-style: italic;
     color:rgb(0, 150, 150);
 }
-#rpg-output-options, #rpg-output-options a {
+.rpg-output-options, .rpg-output-options a {
     color:blueviolet;
 }
-#rpg-output-options a:hover {
+.rpg-output-options a:hover {
     color:darkmagenta;
     background-color: #003776;
 }

@@ -98,41 +98,39 @@ div#attribute-editor {
     visibility: hidden;
 }
 
-#b-export-json {
+#b-export-json,
+#b-import-json,
+#b-configure-meta,
+#b-run-test {
     position: absolute;
-    left: 15px;
     bottom: 10px;
     width: 24px;
     height: 24px;
     border: none;
     background-color: transparent;
-    background-image: url('img/icon-download-512x512.png');
     background-size: cover;
     cursor: pointer;
+}
+
+
+#b-export-json {
+    left: 15px;
+    background-image: url('img/icon-download-512x512.png');
 }
 
 #b-import-json {
-    position: absolute;
     left: 45px;
-    bottom: 10px;
-    width: 24px;
-    height: 24px;
-    border: none;
-    background-color: transparent;
     background-image: url('img/icon-upload-512x512.png');
-    background-size: cover;
-    cursor: pointer;
 }
 
 #b-configure-meta {
-    position: absolute;
     left: 75px;
-    bottom: 10px;
-    width: 24px;
-    height: 24px;
-    border: none;
-    background-color: transparent;
     background-image: url('img/icon-configure-512x512.png');
-    background-size: cover;
-    cursor: pointer;
+}
+
+#b-run-test {
+    left: 105px;
+    background-color: #36cd76;
+    border-radius: 12px;
+    background-image: url('img/icon-angle-right-512x512.png');
 }

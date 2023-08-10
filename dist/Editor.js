@@ -18,11 +18,13 @@ var editorHelpers_1 = require("./editorHelpers");
 var editorRenderer_1 = require("./editorRenderer");
 var TouchHandler_1 = require("./TouchHandler");
 var FileDrop_1 = require("plotboilerplate/src/cjs/utils/io/FileDrop");
+var modal_1 = require("./modal");
 var Editor = /** @class */ (function () {
     function Editor(dialogueConfigJSONPath) {
         var _this = this;
         this.currentMouseHandler = null;
         this.currentTouchHandler = null;
+        var _self = this;
         console.log("Initialize plotboilerplate");
         // Fetch the GET params
         var GUP = (0, gup_1.gup)();
@@ -52,22 +54,21 @@ var Editor = /** @class */ (function () {
             enableMouse: true,
             enableKeys: true
         }, GUP));
-        var dialogConfig = null;
         var boxSize = {
             width: 120,
             height: 20
         };
-        var editorHelpers = new editorHelpers_1.EditorHelper(this, pb, boxSize);
-        var editorRenderer = new editorRenderer_1.EditorRenderer(pb, boxSize, editorHelpers, isDarkmode);
+        this.editorHelpers = new editorHelpers_1.EditorHelper(this, pb, boxSize);
+        this.editorRenderer = new editorRenderer_1.EditorRenderer(pb, boxSize, this.editorHelpers, isDarkmode);
         // +---------------------------------------------------------------------------------
         // | The render method.
         // +-------------------------------
         pb.config.postDraw = function (draw, fill) {
-            if (!dialogConfig) {
+            if (!_self.dialogConfig) {
                 return;
             }
-            editorRenderer.renderBoxes(dialogConfig);
-            editorRenderer.renderConnections(dialogConfig);
+            _self.editorRenderer.renderBoxes(_self.dialogConfig);
+            _self.editorRenderer.renderConnections(_self.dialogConfig);
         };
         RPGDialogueLogic_1.RPGDialogueLogic.loadConfigFromJSON(dialogueConfigJSONPath).then(function (config) {
             console.log("structure", config);
@@ -75,22 +76,22 @@ var Editor = /** @class */ (function () {
         });
         var handleDialogConfigLoaded = function (config) {
             // Check if all graph nodes have positions to render.
-            dialogConfig = editorHelpers.enrichPositions(config);
-            editorHelpers.enrichMetaData(dialogConfig);
-            console.log("Enriched meta data", dialogConfig);
-            editorHelpers.setDialogConfig(dialogConfig);
+            _self.dialogConfig = _this.editorHelpers.enrichPositions(config);
+            _this.editorHelpers.enrichMetaData(_self.dialogConfig);
+            console.log("Enriched meta data", _self.dialogConfig);
+            _this.editorHelpers.setDialogConfig(_self.dialogConfig);
             // Ad DnD support for boxes.
             if (_this.currentMouseHandler) {
                 _this.currentMouseHandler.destroy();
                 _this.currentMouseHandler = null;
             }
-            _this.currentMouseHandler = editorHelpers.boxMovehandler(); // dialogConfig);
+            _this.currentMouseHandler = _this.editorHelpers.boxMovehandler(); // dialogConfig);
             // Ad DnD support for boxes.
             if (_this.currentTouchHandler) {
                 _this.currentTouchHandler.destroy();
                 _this.currentTouchHandler = null;
             }
-            _this.currentTouchHandler = new TouchHandler_1.TouchHandler(pb, dialogConfig, editorHelpers);
+            _this.currentTouchHandler = new TouchHandler_1.TouchHandler(pb, _self.dialogConfig, _this.editorHelpers);
             pb.redraw();
         };
         // Install DnD with FileDrop
@@ -105,12 +106,12 @@ var Editor = /** @class */ (function () {
             document.getElementById("input-upload-file").click();
         };
         document.getElementById("b-import-json").addEventListener("click", importJSON);
-        document.getElementById("input-upload-file").addEventListener("change", function (evt) {
+        document.getElementById("input-upload-file").addEventListener("change", function (_evt) {
             var fileInput = document.getElementById("input-upload-file");
             if (!fileInput.files || fileInput.files.length === 0) {
                 return;
             }
-            console.log("pictureFile", fileInput.files[0]);
+            console.log("inputFile", fileInput.files[0]);
             var reader = new FileReader();
             reader.onload = function () {
                 var jsonText = reader.result;
@@ -119,10 +120,44 @@ var Editor = /** @class */ (function () {
             };
             reader.readAsText(fileInput.files[0]);
         });
-        // +---------------------------------------------------------------------------------
-        // | END Editor
-        // +-------------------------------
+        document.getElementById("b-run-test").addEventListener("click", function () {
+            _self.testCurrentDialogueConfig();
+        });
     }
+    /**
+     * Open a modal and test the current dialogue config (runs a RPGDialogueLogic instant).
+     */
+    Editor.prototype.testCurrentDialogueConfig = function () {
+        var _self = this;
+        // Create this structure:
+        // <div class="rpg-output">
+        //    <div class="rpg-output-question"></div>
+        //    <ul class="rpg-output-options"></ul>
+        // </div>
+        var outputContainer = document.createElement("div");
+        var outputQuestion = document.createElement("div");
+        var outputOptions = document.createElement("ul");
+        outputContainer.classList.add("rpg-output");
+        outputQuestion.classList.add("rpg-output-question");
+        outputOptions.classList.add("rpg-output-options");
+        outputContainer.appendChild(outputQuestion);
+        outputContainer.appendChild(outputOptions);
+        var dialogueListener = function (dialogueConfig, nextNodeName, oldNodeName, selectedOptionIndex) {
+            // Highlight current node in the graph editor :)
+            // console.log("nextNodeName", nextNodeName, "oldNodeName", oldNodeName, "selectedOptionIndex", selectedOptionIndex);
+            _self.editorHelpers.setHighlightedNode(nextNodeName);
+        };
+        var rpgLogic = new RPGDialogueLogic_1.RPGDialogueLogic(this.dialogConfig, false);
+        rpgLogic.addDialogueChangeListener(dialogueListener);
+        var alternateStartNodeName = this.editorHelpers.selectedNodeName;
+        this.editorHelpers.setSelectedNode(null, null);
+        rpgLogic.beginConversation(outputQuestion, outputOptions, alternateStartNodeName);
+        this.editorHelpers.domHelper.modal.setTitle("Test");
+        this.editorHelpers.domHelper.modal.setBody(outputContainer);
+        this.editorHelpers.domHelper.modal.setFooter("");
+        this.editorHelpers.domHelper.modal.setActions([modal_1.Modal.ACTION_CLOSE]);
+        this.editorHelpers.domHelper.modal.open();
+    };
     return Editor;
 }());
 exports.Editor = Editor;

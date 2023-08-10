@@ -59,3 +59,7 @@ export interface IOptionIdentifyer {
     node: IMiniQuestionaireWithPosition;
     optionIndex: number;
 }
+/**
+ * A simple callback function type for receiving state changes is the dialogue logic.
+ */
+export type IDialogueListener<T extends IDialogueNodeType> = (dialogueConfig: IDialogueConfig<T>, nextNodeName: string | null, oldNodeName: string | null, selectedOptionIndex: number) => void;

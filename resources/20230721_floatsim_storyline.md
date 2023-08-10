@@ -115,7 +115,7 @@ Stations:
       > Hey, do we know each other?
         :: Yannick told me you could help me with some technical issues on my ship.
           > Yannick surely told you. He tells everyone, so why don't you just go to Gormsson Habitat and look for the repairs you need? They are usually well eqipped and reasonably cheap.
-            :: I am very sorry to say I can't. I was on my way to Lagertha Base when my battery died. Can you please help me?
+            :: I am very sorry to say I can't. I was on my way to Lagertha Base and then my battery died. Can you please help me?
               > !!!
             :: Gormsson is currently out of reach for me.
               > Well, then. Why don't you ask Lying Pete for help? He didn't not help me in all situations – not.
@@ -124,9 +124,19 @@ Stations:
                     :: What's dutch?
                       > Some old upworld cult. People say the dutch had the power to subdue the ocean.
     :: Good evening, Luka.
-      > Evening? Sneel. I just got up. How comes you think it's evening? Mother's system time is available to everyone. Feel free to synchronize your RIG time on our network anytime you want, it's free.
+      > Evening? Sneel. I just got up. How comes you think it's evening? Mother's system time is available to anyone. Feel free to synchronize your ship time with our network anytime you want, just listen to the .
       >
     :: Hello.
       > Ah, an introvert. You seem to be a new arrival, I saw you talking to Yannick. No one sane talks with Yannick. Welcome to the station.
+
+
+    :: Who is Asmussen?
+      > Haha, you fell in for Yannick. He alway's talks of Asmussen but I think he means Rasmus.
+        :: So you think it's just some confusion of names?
+          > Nooo, do you know any god of the sea called 'Asmussen'? You are goofy.
+            :: Wo who is Rasmus?
+
+
+    :: The former upworld people of Denmark used to worship Rasmus as their God, the ruler of the water, of the seas and lakes, and of storms.
 
 ```

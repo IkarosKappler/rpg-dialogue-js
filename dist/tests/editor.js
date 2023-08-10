@@ -12,7 +12,7 @@
   "use strict";
 
   window.initializePB = function () {
-    console.log("Initialize plotboilerplate");
+    console.log("Initialize graph editor");
 
     // +---------------------------------------------------------------------------------
     // | Initialize dat.gui

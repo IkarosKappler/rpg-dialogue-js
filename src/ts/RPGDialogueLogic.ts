@@ -5,20 +5,49 @@
  */
 
 import axios from "axios";
-import { IAnswer, IDialogueConfig, IDialogueGraph, IDialogueNodeType, IMiniQuestionaire } from "./interfaces";
+import { IAnswer, IDialogueConfig, IDialogueGraph, IDialogueListener, IDialogueNodeType, IMiniQuestionaire } from "./interfaces";
 
 export class RPGDialogueLogic<T extends IDialogueNodeType> {
   name: string;
   structure: IDialogueConfig<T>;
+  private currentQuestionaireName: string | undefined;
   private currentQuestionaire: IMiniQuestionaire | undefined;
+  private listeners: Array<IDialogueListener<T>>;
 
   constructor(dialogueStruct: IDialogueConfig<T>, validateStructure: boolean) {
-    this.name = "RPGDialogue";
+    // this.name = "RPGDialogue";
     this.structure = dialogueStruct;
+    this.listeners = [];
 
     this.resetToBeginning();
     if (validateStructure) {
       this.validate();
+    }
+  }
+
+  addDialogueChangeListener(listener: IDialogueListener<T>) {
+    for (var i = 0; i < this.listeners.length; i++) {
+      if (this.listeners[i] === listener) {
+        return false;
+      }
+    }
+    this.listeners.push(listener);
+    return true;
+  }
+
+  removeDialogueChangeListener(listener: IDialogueListener<T>) {
+    for (var i = 0; i < this.listeners.length; i++) {
+      if (this.listeners[i] === listener) {
+        this.listeners.splice(i, 1);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private fireStateChange(nextNodeName: string, oldNodeName: string, selectedOptionIndex: number) {
+    for (var i = 0; i < this.listeners.length; i++) {
+      this.listeners[i](this.structure, nextNodeName, oldNodeName, selectedOptionIndex);
     }
   }
 
@@ -68,21 +97,26 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
     if (index < 0 || index >= this.currentQuestionaire.o.length) {
       return false;
     }
+    const oldQuestionaireName = this.currentQuestionaireName;
     const selectedAnswer: IAnswer = this.currentQuestionaire.o[index];
     if (!selectedAnswer) {
       return false;
     }
     if (!selectedAnswer.next) {
+      this.currentQuestionaireName = null;
       this.currentQuestionaire = null;
     } else {
-      const nextQuestionaire: T = this.structure.graph[selectedAnswer.next];
+      this.currentQuestionaireName = selectedAnswer.next;
+      const nextQuestionaire: T = this.structure.graph[this.currentQuestionaireName];
       // Can be the final one!
       if (!nextQuestionaire.o || nextQuestionaire.o.length === 0) {
+        this.currentQuestionaireName = null;
         this.currentQuestionaire = null;
       } else {
         this.currentQuestionaire = nextQuestionaire;
       }
     }
+    this.fireStateChange(this.currentQuestionaireName, oldQuestionaireName, index);
     console.log("Next questionaire", this.currentQuestionaire);
     return true;
   }
@@ -90,8 +124,9 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
   /**
    * Find the initial mini questionaire.
    */
-  resetToBeginning() {
-    this.currentQuestionaire = this.structure.graph["intro"];
+  resetToBeginning(alternateStartNodeName?: string) {
+    this.currentQuestionaireName = alternateStartNodeName ?? "intro";
+    this.currentQuestionaire = this.structure.graph[this.currentQuestionaireName];
     if (!this.currentQuestionaire) {
       throw "Cannot initialize RPGDialogueLogic: structure does not have an 'intro' entry";
     }
@@ -104,18 +139,27 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
     // ...
   }
 
+  private getHTMLElement(nodeId: string | HTMLElement): HTMLElement {
+    return typeof nodeId === "string" ? document.getElementById(nodeId) : nodeId;
+  }
+
   /**
    * This is a convenient function for quickly integrating the dialogue logic into
    * an existing HTML document with prepared two <div> elements for displaying
    * the question and possible answers.
    *
-   * @param {string} questionNodeId
-   * @param {string} optionsNodeId
+   * @param {string|HTMLElement} questionNodeId - The output container (or ID) for questions.
+   * @param {string|HTMLElement} optionsNodeId - The output container (or ID) for answer options.
+   * @param {string} alternateStartNodeName - If you don't want to start at 'intro' specify your start node name here.
    * @returns
    */
-  beginConversation(questionNodeId: string, optionsNodeId: string): void {
-    const questionNode = document.getElementById(questionNodeId);
-    const optionsNode = document.getElementById(optionsNodeId);
+  beginConversation(
+    questionNodeId: string | HTMLElement,
+    optionsNodeId: string | HTMLElement,
+    alternateStartNodeName?: string
+  ): void {
+    const questionNode: HTMLElement = this.getHTMLElement(questionNodeId);
+    const optionsNode: HTMLElement = this.getHTMLElement(optionsNodeId);
 
     /**
      * Set the text in the question node.
@@ -143,7 +187,7 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
      * @param {*} answerText
      * @param {*} optionIndex
      */
-    var addOptionNode = function (answerText, optionIndex) {
+    var addOptionNode = (answerText: string, optionIndex: number) => {
       var answerNode = document.createElement("li");
       var answerLinkNode = document.createElement("a");
       answerLinkNode.innerHTML = answerText;
@@ -161,7 +205,7 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
      * Send the selected answer (by index).
      * @param {number} index
      */
-    var sendAnswer = function (index) {
+    var sendAnswer = (index: number) => {
       _self.sendAnswer(index);
       if (_self.isEndReached()) {
         setQuestionText("---END OF CONVERSATION---", undefined);
@@ -172,7 +216,9 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
     };
 
     // Initialize the first question.
+    _self.resetToBeginning(alternateStartNodeName);
     _self.loadCurrentQuestionaire(setQuestionText, addOptionNode);
+    _self.fireStateChange(this.currentQuestionaireName, null, -1);
   }
 
   /**
