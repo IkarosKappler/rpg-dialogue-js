@@ -102,7 +102,8 @@ label, .e-label {
 #b-export-json,
 #b-import-json,
 #b-configure-meta,
-#b-run-test {
+#b-run-test,
+#b-goto-github {
     position: absolute;
     bottom: 10px;
     width: 24px;
@@ -140,4 +141,11 @@ label, .e-label {
     background-color: #36cd76;
     border-radius: 12px;
     background-image: url('img/icon-angle-right-512x512.png');
+}
+
+#b-goto-github {
+    left: 165px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    background-image: url('img/icon-github-512x512.png');
 }

@@ -91,18 +91,10 @@ export class Editor {
           _self.handleDialogConfigLoaded(dc);
         })
         .catch(() => {
-          // RPGDialogueLogic.loadConfigFromJSON(dialogueConfigJSONPath).then((config: IDialogueConfig<IMiniQuestionaire>) => {
-          //   console.log("structure", config);
-          //   _self.handleDialogConfigLoaded(config);
-          // });
           console.log("Loading from localstorage failed. Falling back loading from specified path.");
           _self.tryLoadFromJSON(dialogueConfigJSONPath);
         });
     } else {
-      // RPGDialogueLogic.loadConfigFromJSON(dialogueConfigJSONPath).then((config: IDialogueConfig<IMiniQuestionaire>) => {
-      //   console.log("structure", config);
-      //   _self.handleDialogConfigLoaded(config);
-      // });
       _self.tryLoadFromJSON(dialogueConfigJSONPath);
     }
 
@@ -139,6 +131,9 @@ export class Editor {
     });
 
     document.getElementById("b-new").addEventListener("click", _self.requestCreateNewGraph());
+    document.getElementById("b-goto-github").addEventListener("click", () => {
+      window.open("https://github.com/IkarosKappler/rpg-dialogue", "_blank");
+    });
   }
 
   private tryStartAutosaveLoop() {

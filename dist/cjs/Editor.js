@@ -76,19 +76,11 @@ var Editor = /** @class */ (function () {
                 _self.handleDialogConfigLoaded(dc);
             })
                 .catch(function () {
-                // RPGDialogueLogic.loadConfigFromJSON(dialogueConfigJSONPath).then((config: IDialogueConfig<IMiniQuestionaire>) => {
-                //   console.log("structure", config);
-                //   _self.handleDialogConfigLoaded(config);
-                // });
                 console.log("Loading from localstorage failed. Falling back loading from specified path.");
                 _self.tryLoadFromJSON(dialogueConfigJSONPath);
             });
         }
         else {
-            // RPGDialogueLogic.loadConfigFromJSON(dialogueConfigJSONPath).then((config: IDialogueConfig<IMiniQuestionaire>) => {
-            //   console.log("structure", config);
-            //   _self.handleDialogConfigLoaded(config);
-            // });
             _self.tryLoadFromJSON(dialogueConfigJSONPath);
         }
         // Install DnD with FileDrop
@@ -121,6 +113,9 @@ var Editor = /** @class */ (function () {
             _self.testCurrentDialogueConfig();
         });
         document.getElementById("b-new").addEventListener("click", _self.requestCreateNewGraph());
+        document.getElementById("b-goto-github").addEventListener("click", function () {
+            window.open("https://github.com/IkarosKappler/rpg-dialogue", "_blank");
+        });
     }
     Editor.prototype.tryStartAutosaveLoop = function () {
         if (this.autosaveTimer) {
