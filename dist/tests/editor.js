@@ -14,7 +14,7 @@
   window.initializePB = function () {
     console.log("Initialize graph editor");
 
-    var path = "../../resources/export-test/dialog-config-7.json";
+    var path = "export-test/dialog-config-7.json";
     var tryRecoverFromLocalStorage = true;
     var editor = new Editor(path, tryRecoverFromLocalStorage);
   };

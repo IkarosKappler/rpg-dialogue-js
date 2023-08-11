@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "outDir": "./dist/",
+        "outDir": "./dist/cjs/",
 		"lib": [ "es2015", "dom", "es2021" ],
 		
         "module": "CommonJS",
