@@ -50,6 +50,18 @@ label, .e-label {
     flex-direction: row;
 }
 
+.answer-wrapper-element textarea {
+    width: 100%;
+    /* height: 100%; */
+    box-sizing: border-box;
+}
+
+.answer-wrapper-element select {
+    width: 100%;
+    /* height: 100%; */
+    box-sizing: border-box;
+}
+
 .answer-controls-element {
     display: flex;
     flex-direction: row;
