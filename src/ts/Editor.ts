@@ -131,6 +131,7 @@ export class Editor {
     });
 
     document.getElementById("b-new").addEventListener("click", _self.requestCreateNewGraph());
+    document.getElementById("b-show-json").addEventListener("click", _self.showJSON());
     document.getElementById("b-goto-github").addEventListener("click", () => {
       window.open("https://github.com/IkarosKappler/rpg-dialogue", "_blank");
     });
@@ -181,6 +182,26 @@ export class Editor {
       }
     };
     this.handleDialogConfigLoaded(newConfig);
+  }
+
+  private showJSON() {
+    const _self = this;
+    return () => {
+      const removePositions = _self.editorHelpers.domHelper.isExportWithoutPositions();
+      const dConfig: IDialogueConfig<IMiniQuestionaire> | IDialogueConfig<IMiniQuestionaireWithPosition> = removePositions
+        ? EditorHelper.removePositions(_self.editorHelpers.dialogConfigWithPositions)
+        : _self.editorHelpers.dialogConfigWithPositions;
+      const jsonString = JSON.stringify(dConfig, null, 4);
+      const jsonArea = document.createElement("textarea");
+      jsonArea.setAttribute("readonly", "true");
+      jsonArea.innerHTML = jsonString;
+      jsonArea.classList.add("json-preview");
+      _self.editorHelpers.domHelper.modal.setTitle("Current Graph as JSON");
+      _self.editorHelpers.domHelper.modal.setBody(jsonArea);
+      _self.editorHelpers.domHelper.modal.setFooter("");
+      _self.editorHelpers.domHelper.modal.setActions([Modal.ACTION_CLOSE]);
+      _self.editorHelpers.domHelper.modal.open();
+    };
   }
 
   /**

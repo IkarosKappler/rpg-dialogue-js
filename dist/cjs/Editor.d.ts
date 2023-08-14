@@ -25,6 +25,7 @@ export declare class Editor {
     private tryAutoSave;
     requestCreateNewGraph(): () => void;
     private performNewGraph;
+    private showJSON;
     /**
      * Open a modal and test the current dialogue config (runs a RPGDialogueLogic instant).
      */

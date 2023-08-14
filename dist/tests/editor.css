@@ -94,6 +94,12 @@ label, .e-label {
     margin-top: 15px;
 }
 
+textarea.json-preview {
+    width: 100%;
+    height: 100%;
+    min-height: 50vh;
+}
+
 .v-hidden {
     visibility: hidden;
 }
@@ -103,6 +109,7 @@ label, .e-label {
 #b-import-json,
 #b-configure-meta,
 #b-run-test,
+#b-show-json,
 #b-goto-github {
     position: absolute;
     bottom: 10px;
@@ -141,6 +148,13 @@ label, .e-label {
     background-color: #36cd76;
     border-radius: 12px;
     background-image: url('img/icon-angle-right-512x512.png');
+}
+
+#b-show-json {
+    left: 135px;
+    background-color: #36cd76;
+    border-radius: 12px;
+    background-image: url('img/icon-json-512x512.png');
 }
 
 #b-goto-github {

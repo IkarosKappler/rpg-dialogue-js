@@ -113,6 +113,7 @@ var Editor = /** @class */ (function () {
             _self.testCurrentDialogueConfig();
         });
         document.getElementById("b-new").addEventListener("click", _self.requestCreateNewGraph());
+        document.getElementById("b-show-json").addEventListener("click", _self.showJSON());
         document.getElementById("b-goto-github").addEventListener("click", function () {
             window.open("https://github.com/IkarosKappler/rpg-dialogue", "_blank");
         });
@@ -159,6 +160,25 @@ var Editor = /** @class */ (function () {
             }
         };
         this.handleDialogConfigLoaded(newConfig);
+    };
+    Editor.prototype.showJSON = function () {
+        var _self = this;
+        return function () {
+            var removePositions = _self.editorHelpers.domHelper.isExportWithoutPositions();
+            var dConfig = removePositions
+                ? editorHelpers_1.EditorHelper.removePositions(_self.editorHelpers.dialogConfigWithPositions)
+                : _self.editorHelpers.dialogConfigWithPositions;
+            var jsonString = JSON.stringify(dConfig, null, 4);
+            var jsonArea = document.createElement("textarea");
+            jsonArea.setAttribute("readonly", "true");
+            jsonArea.innerHTML = jsonString;
+            jsonArea.classList.add("json-preview");
+            _self.editorHelpers.domHelper.modal.setTitle("Current Graph as JSON");
+            _self.editorHelpers.domHelper.modal.setBody(jsonArea);
+            _self.editorHelpers.domHelper.modal.setFooter("");
+            _self.editorHelpers.domHelper.modal.setActions([modal_1.Modal.ACTION_CLOSE]);
+            _self.editorHelpers.domHelper.modal.open();
+        };
     };
     /**
      * Open a modal and test the current dialogue config (runs a RPGDialogueLogic instant).

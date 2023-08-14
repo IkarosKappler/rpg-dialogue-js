@@ -2,6 +2,7 @@
 
 - 2023-08-14
   - Fixing a bug in the meta data editor (name changes were not saved).
+  - Added feature to preview generated JSON code.
 - 2023-08-10
   - Adding real-time dialogue testing to the editor.
   - Addung button to create a new empty dialogue graph.

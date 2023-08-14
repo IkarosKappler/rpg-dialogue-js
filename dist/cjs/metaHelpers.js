@@ -69,14 +69,12 @@ var DialogueMetaHelpers = /** @class */ (function () {
         var _self = this;
         return function (event) {
             _self.metaCopy.name = event.target.value;
-            // _self.updateModalBody();
         };
     };
     DialogueMetaHelpers.prototype.handleNpcNameChange = function (index) {
         var _self = this;
         return function (event) {
             _self.metaCopy.npcs[index].name = event.target.value;
-            // _self.updateModalBody();
         };
     };
     DialogueMetaHelpers.prototype.handleDeleteNpc = function (index) {
