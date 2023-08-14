@@ -40,11 +40,11 @@ export class DialogueMetaHelpers {
   }
 
   private buildMetaBody(): HTMLDivElement {
-    // const meta: IDialogueMeta = this.editorHelpers.dialogConfigWithPositions.meta;
     const metaBody = document.createElement("div");
 
     this.inputName = document.createElement("input");
     this.inputName.value = this.metaCopy.name;
+    this.inputName.addEventListener("change", this.handleUpdateMetaName());
     const nameLabel = document.createElement("div");
     nameLabel.innerHTML = "Dialogue name";
 
@@ -57,6 +57,7 @@ export class DialogueMetaHelpers {
       label.innerHTML = `NPC #${i}`;
       const npcNameInput = document.createElement("input");
       npcNameInput.value = this.metaCopy.npcs[i].name;
+      npcNameInput.addEventListener("change", this.handleNpcNameChange(i));
 
       const btnRemove = document.createElement("button");
       btnRemove.innerHTML = "&#x1F5D1;";
@@ -79,6 +80,20 @@ export class DialogueMetaHelpers {
     metaBody.appendChild(npcContainer);
     metaBody.appendChild(btnAddNpc);
     return metaBody;
+  }
+
+  private handleUpdateMetaName(): (event: InputEvent) => void {
+    const _self = this;
+    return (event: InputEvent) => {
+      _self.metaCopy.name = (event.target as HTMLInputElement).value;
+    };
+  }
+
+  private handleNpcNameChange(index: number): (event: InputEvent) => void {
+    const _self = this;
+    return (event: InputEvent) => {
+      _self.metaCopy.npcs[index].name = (event.target as HTMLInputElement).value;
+    };
   }
 
   private handleDeleteNpc(index: number): () => void {

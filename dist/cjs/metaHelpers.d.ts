@@ -16,6 +16,8 @@ export declare class DialogueMetaHelpers {
     private handleModalOpen;
     private updateModalBody;
     private buildMetaBody;
+    private handleUpdateMetaName;
+    private handleNpcNameChange;
     private handleDeleteNpc;
     private handleAddNpc;
     private handleSave;

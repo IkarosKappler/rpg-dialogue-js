@@ -31,10 +31,10 @@ var DialogueMetaHelpers = /** @class */ (function () {
         this.editorHelpers.domHelper.modal.setBody(newBody);
     };
     DialogueMetaHelpers.prototype.buildMetaBody = function () {
-        // const meta: IDialogueMeta = this.editorHelpers.dialogConfigWithPositions.meta;
         var metaBody = document.createElement("div");
         this.inputName = document.createElement("input");
         this.inputName.value = this.metaCopy.name;
+        this.inputName.addEventListener("change", this.handleUpdateMetaName());
         var nameLabel = document.createElement("div");
         nameLabel.innerHTML = "Dialogue name";
         var npcContainer = document.createElement("div");
@@ -46,6 +46,7 @@ var DialogueMetaHelpers = /** @class */ (function () {
             label.innerHTML = "NPC #".concat(i);
             var npcNameInput = document.createElement("input");
             npcNameInput.value = this.metaCopy.npcs[i].name;
+            npcNameInput.addEventListener("change", this.handleNpcNameChange(i));
             var btnRemove = document.createElement("button");
             btnRemove.innerHTML = "&#x1F5D1;";
             btnRemove.addEventListener("click", this.handleDeleteNpc(i));
@@ -63,6 +64,20 @@ var DialogueMetaHelpers = /** @class */ (function () {
         metaBody.appendChild(npcContainer);
         metaBody.appendChild(btnAddNpc);
         return metaBody;
+    };
+    DialogueMetaHelpers.prototype.handleUpdateMetaName = function () {
+        var _self = this;
+        return function (event) {
+            _self.metaCopy.name = event.target.value;
+            // _self.updateModalBody();
+        };
+    };
+    DialogueMetaHelpers.prototype.handleNpcNameChange = function (index) {
+        var _self = this;
+        return function (event) {
+            _self.metaCopy.npcs[index].name = event.target.value;
+            // _self.updateModalBody();
+        };
     };
     DialogueMetaHelpers.prototype.handleDeleteNpc = function (index) {
         var _self = this;
