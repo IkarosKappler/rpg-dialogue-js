@@ -296,7 +296,7 @@ var RPGDOMHelpers = /** @class */ (function () {
                 _self.performDrop(_self.currentDraggedAnswerIndex, _self.currentDropAnswerIndex);
             };
             answerWrapperElement.classList.add("answer-wrapper-element");
-            answerWrapperElement.setAttribute("data-answerindex", "".concat(i));
+            // answerWrapperElement.setAttribute("data-answerindex", `${i}`);
             if (isTouchDevice) {
                 // Regular 'mouse' or Desktop device.
                 // No additional listeners to install.
@@ -304,13 +304,16 @@ var RPGDOMHelpers = /** @class */ (function () {
             else {
                 // The TouchHandler already received an only-touch event, so we are
                 // probably currently running on a touch device
-                answerWrapperElement.setAttribute("draggable", "true");
-                answerWrapperElement.addEventListener("dragstart", handleDragStart);
-                answerWrapperElement.addEventListener("touchstart", handleTouchDragStart);
-                answerWrapperElement.addEventListener("touchend", handleTouchDragEnd);
+                if (answerControlsElement.dndHandleElement) {
+                    answerControlsElement.dndHandleElement.setAttribute("draggable", "true");
+                    answerControlsElement.dndHandleElement.addEventListener("dragstart", handleDragStart);
+                    answerControlsElement.dndHandleElement.addEventListener("touchstart", handleTouchDragStart);
+                    answerControlsElement.dndHandleElement.addEventListener("touchend", handleTouchDragEnd);
+                    answerControlsElement.dndHandleElement.setAttribute("data-answerindex", "".concat(i));
+                }
             }
             answerWrapperElement.appendChild(answerElement);
-            answerWrapperElement.appendChild(answerControlsElement);
+            answerWrapperElement.appendChild(answerControlsElement.container);
             var dropArea_1 = this.makeADropArea(i + 1, drop, onDragOver, onDragLeave);
             this.optionsElement.appendChild(answerWrapperElement);
             this.optionsElement.appendChild(dropArea_1);
@@ -331,6 +334,7 @@ var RPGDOMHelpers = /** @class */ (function () {
         var _self = this;
         var controlElement = document.createElement("div");
         controlElement.classList.add("answer-controls-element");
+        var dndElement = null;
         if (isTouchDevice) {
             var upDownElement = document.createElement("div");
             upDownElement.classList.add("answer-up-down-element");
@@ -361,7 +365,7 @@ var RPGDOMHelpers = /** @class */ (function () {
             controlElement.appendChild(upDownElement);
         }
         else {
-            var dndElement = document.createElement("div");
+            dndElement = document.createElement("div");
             dndElement.classList.add("a-dnd-element");
             dndElement.innerHTML = "&vellip;";
             controlElement.appendChild(dndElement);
@@ -371,7 +375,7 @@ var RPGDOMHelpers = /** @class */ (function () {
         deleteButton.addEventListener("click", this.requestDeleteOption(index));
         deleteButton.innerHTML = "&#x1F5D1;";
         controlElement.appendChild(deleteButton);
-        return controlElement;
+        return { container: controlElement, dndHandleElement: dndElement };
     };
     RPGDOMHelpers.prototype.performDrop = function (answerIndex, dropIndex) {
         if (dropIndex > answerIndex) {

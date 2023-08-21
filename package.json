@@ -8,7 +8,7 @@
     "build": "npm run compile-typescript && npm run webpack",
     "build-dev": "npm run compile-typescript && npm run webpack-dev",
     "webpack": "webpack --config webpack.config.js",
-    "webpack-dev": "webpack --config webpack-dev.config.js",
+    "webpack-dev": "npx webpack --env=development --config webpack.config.js",
     "start-ts": "webpack-dev-server --hot --port 3000 --open",
     "start-wp": "webpack --config webpack.config.js --watch",
     "serve": "python3 -m http.server 8000",
@@ -19,10 +19,11 @@
   "license": "MIT",
   "devDependencies": {
     "source-map-loader": "^4.0.0",
+    "terser-webpack-plugin": "^5.3.9",
     "ts-loader": "^9.4.1",
     "tsc": "^2.0.4",
     "typescript": "^4.8.4",
-    "webpack": "^5.74.0",
+    "webpack": "^5.88.2",
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {

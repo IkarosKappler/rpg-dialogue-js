@@ -346,7 +346,7 @@ export class RPGDOMHelpers {
         _self.performDrop(_self.currentDraggedAnswerIndex, _self.currentDropAnswerIndex);
       };
       answerWrapperElement.classList.add("answer-wrapper-element");
-      answerWrapperElement.setAttribute("data-answerindex", `${i}`);
+      // answerWrapperElement.setAttribute("data-answerindex", `${i}`);
 
       if (isTouchDevice) {
         // Regular 'mouse' or Desktop device.
@@ -354,13 +354,16 @@ export class RPGDOMHelpers {
       } else {
         // The TouchHandler already received an only-touch event, so we are
         // probably currently running on a touch device
-        answerWrapperElement.setAttribute("draggable", "true");
-        answerWrapperElement.addEventListener("dragstart", handleDragStart);
-        answerWrapperElement.addEventListener("touchstart", handleTouchDragStart);
-        answerWrapperElement.addEventListener("touchend", handleTouchDragEnd);
+        if (answerControlsElement.dndHandleElement) {
+          answerControlsElement.dndHandleElement.setAttribute("draggable", "true");
+          answerControlsElement.dndHandleElement.addEventListener("dragstart", handleDragStart);
+          answerControlsElement.dndHandleElement.addEventListener("touchstart", handleTouchDragStart);
+          answerControlsElement.dndHandleElement.addEventListener("touchend", handleTouchDragEnd);
+          answerControlsElement.dndHandleElement.setAttribute("data-answerindex", `${i}`);
+        }
       }
       answerWrapperElement.appendChild(answerElement);
-      answerWrapperElement.appendChild(answerControlsElement);
+      answerWrapperElement.appendChild(answerControlsElement.container);
 
       const dropArea = this.makeADropArea(i + 1, drop, onDragOver, onDragLeave);
 
@@ -381,11 +384,15 @@ export class RPGDOMHelpers {
    * @param {boolean} isTouchDevice - Set to `true` if drag-and-drop handles should be added instead of buttons.
    * @returns {HTMLDivElement}
    */
-  private makeAnswerControlElement(index: number, isTouchDevice: boolean): HTMLDivElement {
+  private makeAnswerControlElement(
+    index: number,
+    isTouchDevice: boolean
+  ): { container: HTMLDivElement; dndHandleElement: HTMLDivElement | null } {
     const _self = this;
     const controlElement = document.createElement("div") as HTMLDivElement;
     controlElement.classList.add("answer-controls-element");
 
+    var dndElement = null;
     if (isTouchDevice) {
       const upDownElement = document.createElement("div") as HTMLDivElement;
       upDownElement.classList.add("answer-up-down-element");
@@ -414,7 +421,7 @@ export class RPGDOMHelpers {
       upDownElement.appendChild(downBtn);
       controlElement.appendChild(upDownElement);
     } else {
-      const dndElement = document.createElement("div") as HTMLDivElement;
+      dndElement = document.createElement("div") as HTMLDivElement;
       dndElement.classList.add("a-dnd-element");
       dndElement.innerHTML = "&vellip;";
       controlElement.appendChild(dndElement);
@@ -426,7 +433,7 @@ export class RPGDOMHelpers {
     deleteButton.innerHTML = "&#x1F5D1;";
 
     controlElement.appendChild(deleteButton);
-    return controlElement;
+    return { container: controlElement, dndHandleElement: dndElement };
   }
 
   private performDrop(answerIndex: number, dropIndex: number) {
