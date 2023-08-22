@@ -187,14 +187,14 @@ textarea.json-preview {
 }
 
 #b-show-json {
-    left: 135px;
+    left: 165px;
     background-color: #36cd76;
     border-radius: 12px;
     background-image: url('img/icon-json-512x512.png');
 }
 
 #b-goto-github {
-    left: 165px;
+    left: 195px;
     background-color: #ffffff;
     border-radius: 12px;
     background-image: url('img/icon-github-512x512.png');
