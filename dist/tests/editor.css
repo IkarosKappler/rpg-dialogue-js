@@ -88,16 +88,42 @@ label, .e-label {
 
 }
 
-#b-add-answer-option{
-
-}
-
 #b-add-dialogue-node {
 
 }
 
 #b-delete-dialogue-node {
     
+}
+
+#b-add-dialogue-node,
+#b-delete-dialogue-node,
+#b-add-answer-option {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background-color: transparent;
+    background-size: cover;
+    cursor: pointer;
+}
+
+#b-add-dialogue-node {
+    background-color: #36cd76;
+    border-radius: 12px;
+    background-image: url('img/icon-plus-512x512.png');
+}
+
+#b-delete-dialogue-node {
+    background-color: #cd3657;
+    border-radius: 12px;
+    background-image: url('img/icon-minus-512x512.png');
+}
+
+#b-add-answer-option {
+    float: right;
+    background-color: #36cd76;
+    border-radius: 12px;
+    background-image: url('img/icon-plus-512x512.png');
 }
 
 .e-meta-npccontainer {
