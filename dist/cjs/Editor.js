@@ -19,15 +19,18 @@ var editorRenderer_1 = require("./editorRenderer");
 var TouchHandler_1 = require("./TouchHandler");
 var FileDrop_1 = require("plotboilerplate/src/cjs/utils/io/FileDrop");
 var modal_1 = require("./modal");
+var detectMobileDevice_1 = require("./detectMobileDevice");
 var Editor = /** @class */ (function () {
     function Editor(dialogueConfigJSONPath, isRecoveryFromLocalStorageActive) {
+        var _this = this;
         this.currentMouseHandler = null;
         this.currentTouchHandler = null;
         var _self = this;
-        console.log("Initialize plotboilerplate");
+        console.log("Initializing plotboilerplate");
         // Fetch the GET params
         var GUP = (0, gup_1.gup)();
         var isDarkmode = (0, detectDarkMode_1.detectDarkMode)(GUP);
+        var isMobileDevice = (0, detectMobileDevice_1.detectMobileDevice)(GUP);
         // All config params are optional.
         this.pb = new plotboilerplate_1.PlotBoilerplate(plotboilerplate_1.PlotBoilerplate.utils.safeMergeByKeys({
             canvas: document.getElementById("my-canvas"),
@@ -59,6 +62,27 @@ var Editor = /** @class */ (function () {
         };
         this.editorHelpers = new editorHelpers_1.EditorHelper(this, this.pb, boxSize);
         this.editorRenderer = new editorRenderer_1.EditorRenderer(this.pb, boxSize, this.editorHelpers, isDarkmode);
+        // +---------------------------------------------------------------------------------
+        // | On 'escape' key press un-select selected items.
+        // +-------------------------------
+        var keyHandler = new plotboilerplate_1.KeyHandler({ element: document.getElementsByTagName("body")[0], trackAll: false }).down("escape", function () {
+            // Esc?
+            console.log("Escape down");
+            if (_this.editorHelpers.selectedOption) {
+                _this.editorHelpers.setSelectedOption(null);
+            }
+            else if (_this.editorHelpers.selectedNode) {
+                _this.editorHelpers.setSelectedNode(null, null);
+                _this.editorHelpers.setSelectedOption(null);
+            }
+        });
+        // +---------------------------------------------------------------------------------
+        // | Make HTML buttons a bit larger on mobile devices.
+        // +-------------------------------
+        console.log("isMobileDevice", isMobileDevice);
+        if (isMobileDevice) {
+            document.getElementsByTagName("body")[0].classList.add("is-mobile-device");
+        }
         // +---------------------------------------------------------------------------------
         // | The render method.
         // +-------------------------------
@@ -118,6 +142,7 @@ var Editor = /** @class */ (function () {
             window.open("https://github.com/IkarosKappler/rpg-dialogue", "_blank");
         });
     }
+    // END constructor
     Editor.prototype.tryStartAutosaveLoop = function () {
         if (this.autosaveTimer) {
             return;
@@ -198,7 +223,7 @@ var Editor = /** @class */ (function () {
         outputOptions.classList.add("rpg-output-options");
         outputContainer.appendChild(outputQuestion);
         outputContainer.appendChild(outputOptions);
-        var dialogueListener = function (dialogueConfig, nextNodeName, oldNodeName, selectedOptionIndex) {
+        var dialogueListener = function (_dialogueConfig, nextNodeName, _oldNodeName, _selectedOptionIndex) {
             // Highlight current node in the graph editor :)
             // console.log("nextNodeName", nextNodeName, "oldNodeName", oldNodeName, "selectedOptionIndex", selectedOptionIndex);
             _self.editorHelpers.setHighlightedNode(nextNodeName);
@@ -208,7 +233,7 @@ var Editor = /** @class */ (function () {
         var alternateStartNodeName = this.editorHelpers.selectedNodeName;
         this.editorHelpers.setSelectedNode(null, null);
         rpgLogic.beginConversation(outputQuestion, outputOptions, alternateStartNodeName);
-        this.editorHelpers.domHelper.modal.setTitle("Test");
+        this.editorHelpers.domHelper.modal.setTitle("Test"); // Will be changed later when invoked.
         this.editorHelpers.domHelper.modal.setBody(outputContainer);
         this.editorHelpers.domHelper.modal.setFooter("");
         this.editorHelpers.domHelper.modal.setActions([modal_1.Modal.ACTION_CLOSE]);
@@ -225,7 +250,7 @@ var Editor = /** @class */ (function () {
             this.currentMouseHandler.destroy();
             this.currentMouseHandler = null;
         }
-        this.currentMouseHandler = this.editorHelpers.boxMovehandler(); // dialogConfig);
+        this.currentMouseHandler = this.editorHelpers.boxMovehandler();
         // Ad DnD support for boxes.
         if (this.currentTouchHandler) {
             this.currentTouchHandler.destroy();

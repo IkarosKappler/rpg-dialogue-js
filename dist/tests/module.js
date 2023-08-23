@@ -11,9 +11,12 @@
  *
  * @date 2020-04-01
  **/
-globalThis.exports = globalThis.export = globalThis;
+// globalThis.exports = globalThis.export = globalThis;
+// var exports = (globalThis.export = globalThis);
+globalThis.exports = globalThis.exports || {};
 var require = (globalThis.require = function (...args) {
   var itemName = args[0];
+  console.log("require", itemName);
   var itemNameStart = itemName.lastIndexOf("/");
   var itemNameEnd = itemName.lastIndexOf(".");
   if (itemNameStart !== -1) {
@@ -28,5 +31,6 @@ var require = (globalThis.require = function (...args) {
     return globalThis[itemName];
   } else {
     return globalThis;
+    // return globalThis[itemName];
   }
 });

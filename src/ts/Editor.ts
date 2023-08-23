@@ -10,7 +10,7 @@
 
 import { gup } from "./gup";
 import { detectDarkMode } from "./detectDarkMode";
-import { MouseHandler, PBParams, PlotBoilerplate, XYDimension } from "plotboilerplate";
+import { KeyHandler, MouseHandler, PBParams, PlotBoilerplate, XYDimension } from "plotboilerplate";
 import { RPGDialogueLogic } from "./RPGDialogueLogic";
 import { IDialogueConfig, IDialogueListener, IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
 import { EditorHelper } from "./editorHelpers";
@@ -18,6 +18,7 @@ import { EditorRenderer } from "./editorRenderer";
 import { TouchHandler } from "./TouchHandler";
 import { FileDrop } from "plotboilerplate/src/cjs/utils/io/FileDrop";
 import { Modal } from "./modal";
+import { detectMobileDevice } from "./detectMobileDevice";
 
 export class Editor {
   currentMouseHandler: MouseHandler | null = null;
@@ -29,11 +30,11 @@ export class Editor {
   private autosaveTimer;
   constructor(dialogueConfigJSONPath: string, isRecoveryFromLocalStorageActive: boolean) {
     const _self = this;
-    console.log("Initialize plotboilerplate");
+    console.log("Initializing plotboilerplate");
     // Fetch the GET params
     const GUP = gup();
-
-    const isDarkmode = detectDarkMode(GUP);
+    const isDarkmode: boolean = detectDarkMode(GUP);
+    const isMobileDevice: boolean = detectMobileDevice(GUP);
 
     // All config params are optional.
     this.pb = new PlotBoilerplate(
@@ -72,6 +73,31 @@ export class Editor {
     };
     this.editorHelpers = new EditorHelper(this, this.pb, boxSize);
     this.editorRenderer = new EditorRenderer(this.pb, boxSize, this.editorHelpers, isDarkmode);
+
+    // +---------------------------------------------------------------------------------
+    // | On 'escape' key press un-select selected items.
+    // +-------------------------------
+    const keyHandler = new KeyHandler({ element: document.getElementsByTagName("body")[0], trackAll: false }).down(
+      "escape",
+      () => {
+        // Esc?
+        console.log("Escape down");
+        if (this.editorHelpers.selectedOption) {
+          this.editorHelpers.setSelectedOption(null);
+        } else if (this.editorHelpers.selectedNode) {
+          this.editorHelpers.setSelectedNode(null, null);
+          this.editorHelpers.setSelectedOption(null);
+        }
+      }
+    );
+
+    // +---------------------------------------------------------------------------------
+    // | Make HTML buttons a bit larger on mobile devices.
+    // +-------------------------------
+    console.log("isMobileDevice", isMobileDevice);
+    if (isMobileDevice) {
+      document.getElementsByTagName("body")[0].classList.add("is-mobile-device");
+    }
 
     // +---------------------------------------------------------------------------------
     // | The render method.
@@ -136,6 +162,7 @@ export class Editor {
       window.open("https://github.com/IkarosKappler/rpg-dialogue", "_blank");
     });
   }
+  // END constructor
 
   private tryStartAutosaveLoop() {
     if (this.autosaveTimer) {
@@ -225,14 +252,13 @@ export class Editor {
     outputContainer.appendChild(outputOptions);
 
     const dialogueListener: IDialogueListener<IMiniQuestionaireWithPosition> = (
-      dialogueConfig: IDialogueConfig<IMiniQuestionaireWithPosition>,
+      _dialogueConfig: IDialogueConfig<IMiniQuestionaireWithPosition>,
       nextNodeName: string,
-      oldNodeName: string,
-      selectedOptionIndex: number
+      _oldNodeName: string,
+      _selectedOptionIndex: number
     ) => {
       // Highlight current node in the graph editor :)
       // console.log("nextNodeName", nextNodeName, "oldNodeName", oldNodeName, "selectedOptionIndex", selectedOptionIndex);
-
       _self.editorHelpers.setHighlightedNode(nextNodeName);
     };
 
@@ -242,7 +268,7 @@ export class Editor {
     this.editorHelpers.setSelectedNode(null, null);
     rpgLogic.beginConversation(outputQuestion, outputOptions, alternateStartNodeName);
 
-    this.editorHelpers.domHelper.modal.setTitle("Test");
+    this.editorHelpers.domHelper.modal.setTitle("Test"); // Will be changed later when invoked.
     this.editorHelpers.domHelper.modal.setBody(outputContainer);
     this.editorHelpers.domHelper.modal.setFooter("");
     this.editorHelpers.domHelper.modal.setActions([Modal.ACTION_CLOSE]);
@@ -261,7 +287,7 @@ export class Editor {
       this.currentMouseHandler.destroy();
       this.currentMouseHandler = null;
     }
-    this.currentMouseHandler = this.editorHelpers.boxMovehandler(); // dialogConfig);
+    this.currentMouseHandler = this.editorHelpers.boxMovehandler();
 
     // Ad DnD support for boxes.
     if (this.currentTouchHandler) {

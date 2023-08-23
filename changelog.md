@@ -1,5 +1,12 @@
 # Changelog
 
+- 2023-08-23
+  - Adding mobile device detection.
+  - Making buttons larger on mobile devices.
+- 2023-08-22
+  - Installed a key listener to listen for 'escape' key events (unselect current item).
+- 2023-08-20
+  - Changing the draggable element to avoid event collisions with the text area.
 - 2023-08-14
   - Fixing a bug in the meta data editor (name changes were not saved).
   - Added feature to preview generated JSON code.

@@ -140,6 +140,11 @@ textarea.json-preview {
     visibility: hidden;
 }
 
+#main-buttons {
+    position: absolute;
+    bottom: 10px;
+}
+
 #b-new,
 #b-export-json,
 #b-import-json,
@@ -198,4 +203,19 @@ textarea.json-preview {
     background-color: #ffffff;
     border-radius: 12px;
     background-image: url('img/icon-github-512x512.png');
+}
+
+
+/*--- Mobile ---*/
+body.is-mobile-device #main-buttons {
+    transform-origin: 0% 100%;
+    transform: scale(2);
+}
+
+body.is-mobile-device #b-add-dialogue-node,
+body.is-mobile-device #b-delete-dialogue-node,
+body.is-mobile-device #b-add-answer-option {
+    width: 48px;
+    height: 48px;
+    border-radius: 24px;
 }
