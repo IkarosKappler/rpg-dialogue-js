@@ -19,6 +19,7 @@ import { TouchHandler } from "./TouchHandler";
 import { FileDrop } from "plotboilerplate/src/cjs/utils/io/FileDrop";
 import { Modal } from "./modal";
 import { detectMobileDevice } from "./detectMobileDevice";
+import { DefaultDialogueRenderer } from "./DefaultDialogueRenderer";
 
 export class Editor {
   currentMouseHandler: MouseHandler | null = null;
@@ -266,7 +267,7 @@ export class Editor {
     rpgLogic.addDialogueChangeListener(dialogueListener);
     const alternateStartNodeName: string | null = this.editorHelpers.selectedNodeName;
     this.editorHelpers.setSelectedNode(null, null);
-    rpgLogic.beginConversation(outputQuestion, outputOptions, alternateStartNodeName);
+    rpgLogic.beginConversation(new DefaultDialogueRenderer(outputQuestion, outputOptions), alternateStartNodeName);
 
     this.editorHelpers.domHelper.modal.setTitle("Test"); // Will be changed later when invoked.
     this.editorHelpers.domHelper.modal.setBody(outputContainer);

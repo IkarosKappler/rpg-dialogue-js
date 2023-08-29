@@ -20,6 +20,7 @@ var TouchHandler_1 = require("./TouchHandler");
 var FileDrop_1 = require("plotboilerplate/src/cjs/utils/io/FileDrop");
 var modal_1 = require("./modal");
 var detectMobileDevice_1 = require("./detectMobileDevice");
+var DefaultDialogueRenderer_1 = require("./DefaultDialogueRenderer");
 var Editor = /** @class */ (function () {
     function Editor(dialogueConfigJSONPath, isRecoveryFromLocalStorageActive) {
         var _this = this;
@@ -232,7 +233,7 @@ var Editor = /** @class */ (function () {
         rpgLogic.addDialogueChangeListener(dialogueListener);
         var alternateStartNodeName = this.editorHelpers.selectedNodeName;
         this.editorHelpers.setSelectedNode(null, null);
-        rpgLogic.beginConversation(outputQuestion, outputOptions, alternateStartNodeName);
+        rpgLogic.beginConversation(new DefaultDialogueRenderer_1.DefaultDialogueRenderer(outputQuestion, outputOptions), alternateStartNodeName);
         this.editorHelpers.domHelper.modal.setTitle("Test"); // Will be changed later when invoked.
         this.editorHelpers.domHelper.modal.setBody(outputContainer);
         this.editorHelpers.domHelper.modal.setFooter("");

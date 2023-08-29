@@ -12,7 +12,22 @@ exports.RPGDialogueLogic = void 0;
 var axios_1 = __importDefault(require("axios"));
 var RPGDialogueLogic = /** @class */ (function () {
     function RPGDialogueLogic(dialogueStruct, validateStructure) {
-        // this.name = "RPGDialogue";
+        var _this = this;
+        this.createSendAnswerCallback = function (dialogueRenderer, optionIndex) {
+            var _self = _this;
+            var sendAnswer = function () {
+                // optionIndex: number) => {
+                _self.sendAnswer(optionIndex);
+                if (_self.isEndReached()) {
+                    dialogueRenderer.renderConversationTerminated();
+                    // setQuestionText("---END OF CONVERSATION---", undefined);
+                    // dialogueRenderer.clearAllOptions();
+                }
+                dialogueRenderer.clearAllOptions();
+                _self.loadCurrentQuestionaire(dialogueRenderer); //setQuestionText, addOptionNode);
+            };
+            return sendAnswer;
+        };
         this.structure = dialogueStruct;
         this.listeners = [];
         this.resetToBeginning();
@@ -49,12 +64,16 @@ var RPGDialogueLogic = /** @class */ (function () {
         var npcName = ((_c = (_b = this.structure.meta) === null || _b === void 0 ? void 0 : _b.npcs) === null || _c === void 0 ? void 0 : _c.length) > 0 ? this.structure.meta.npcs[npcIndex].name : null;
         return npcName;
     };
-    RPGDialogueLogic.prototype.loadCurrentQuestionaire = function (setQuestionText, addOptionNode) {
+    RPGDialogueLogic.prototype.loadCurrentQuestionaire = function (
+    // setQuestionText: (questionText: string, npcName: string | undefined) => void,
+    // addOptionNode: (answerText: string, index: number) => void
+    dialogueRenderer) {
         if (this.currentQuestionaire) {
             var npcName = this.getCurrentNpcName();
-            setQuestionText(this.currentQuestionaire.q, npcName);
+            dialogueRenderer.setQuestionText(this.currentQuestionaire.q, npcName);
             for (var i = 0; i < this.currentQuestionaire.o.length; i++) {
-                addOptionNode(this.currentQuestionaire.o[i].a, i);
+                var answerCallback = this.createSendAnswerCallback(dialogueRenderer, i);
+                dialogueRenderer.addAnswerOption(this.currentQuestionaire.o[i].a, i, answerCallback);
             }
             return true;
         }
@@ -115,7 +134,7 @@ var RPGDialogueLogic = /** @class */ (function () {
         this.currentQuestionaireName = alternateStartNodeName !== null && alternateStartNodeName !== void 0 ? alternateStartNodeName : "intro";
         this.currentQuestionaire = this.structure.graph[this.currentQuestionaireName];
         if (!this.currentQuestionaire) {
-            throw "Cannot initialize RPGDialogueLogic: structure does not have an 'intro' entry";
+            throw "Cannot initialize RPGDialogueLogic: structure does not have an initial ('intro') entry";
         }
     };
     /**
@@ -124,76 +143,21 @@ var RPGDialogueLogic = /** @class */ (function () {
     RPGDialogueLogic.prototype.validate = function () {
         // ...
     };
-    RPGDialogueLogic.prototype.getHTMLElement = function (nodeId) {
-        return typeof nodeId === "string" ? document.getElementById(nodeId) : nodeId;
-    };
     /**
      * This is a convenient function for quickly integrating the dialogue logic into
      * an existing HTML document with prepared two <div> elements for displaying
      * the question and possible answers.
      *
-     * @param {string|HTMLElement} questionNodeId - The output container (or ID) for questions.
-     * @param {string|HTMLElement} optionsNodeId - The output container (or ID) for answer options.
-     * @param {string} alternateStartNodeName - If you don't want to start at 'intro' specify your start node name here.
+     * @param {IDialogueRenderer} dialogueRenderer - The dialogue renderer to use.
+     * @param {string?} alternateStartNodeName - If you don't want to start at 'intro' specify your start node name here.
      * @returns
      */
-    RPGDialogueLogic.prototype.beginConversation = function (questionNodeId, optionsNodeId, alternateStartNodeName) {
-        var questionNode = this.getHTMLElement(questionNodeId);
-        var optionsNode = this.getHTMLElement(optionsNodeId);
-        /**
-         * Set the text in the question node.
-         * @param {*} questionText
-         */
-        var setQuestionText = function (questionText, npcName) {
-            if (npcName) {
-                questionNode.innerHTML = "<span class=\"rpg-npcname\">".concat(npcName, ":</span> ").concat(questionText);
-            }
-            else {
-                questionNode.innerHTML = questionText;
-            }
-        };
-        /**
-         * Clear the options node. Just for upper level use here.
-         */
-        var clearOptionsNode = function () {
-            optionsNode.innerHTML = "";
-        };
-        /**
-         * Add a new option node with the given answer text and option index. Use
-         * the option index to send the answer.
-         *
-         * @param {*} answerText
-         * @param {*} optionIndex
-         */
-        var addOptionNode = function (answerText, optionIndex) {
-            var answerNode = document.createElement("li");
-            var answerLinkNode = document.createElement("a");
-            answerLinkNode.innerHTML = answerText;
-            answerLinkNode.setAttribute("href", "#");
-            answerLinkNode.addEventListener("click", function () {
-                sendAnswer(optionIndex);
-            });
-            answerNode.appendChild(answerLinkNode);
-            optionsNode.appendChild(answerNode);
-        };
+    RPGDialogueLogic.prototype.beginConversation = function (dialogueRenderer, alternateStartNodeName) {
         var _self = this;
-        /**
-         * Send the selected answer (by index).
-         * @param {number} index
-         */
-        var sendAnswer = function (index) {
-            _self.sendAnswer(index);
-            if (_self.isEndReached()) {
-                setQuestionText("---END OF CONVERSATION---", undefined);
-                clearOptionsNode();
-            }
-            clearOptionsNode();
-            _self.loadCurrentQuestionaire(setQuestionText, addOptionNode);
-        };
         // Initialize the first question.
-        _self.resetToBeginning(alternateStartNodeName);
-        _self.loadCurrentQuestionaire(setQuestionText, addOptionNode);
-        _self.fireStateChange(this.currentQuestionaireName, null, -1);
+        this.resetToBeginning(alternateStartNodeName);
+        this.loadCurrentQuestionaire(dialogueRenderer);
+        this.fireStateChange(this.currentQuestionaireName, null, -1);
     };
     /**
      * Load the dialogue structure from the JSON document at the given path.

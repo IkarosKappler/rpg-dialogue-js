@@ -3,7 +3,7 @@
  * @date    2023-07-25
  * @version 1.0.0
  */
-import { IDialogueConfig, IDialogueListener, IDialogueNodeType, IMiniQuestionaire } from "./interfaces";
+import { IDialogueConfig, IDialogueListener, IDialogueNodeType, IDialogueRenderer, IMiniQuestionaire } from "./interfaces";
 export declare class RPGDialogueLogic<T extends IDialogueNodeType> {
     name: string;
     structure: IDialogueConfig<T>;
@@ -15,7 +15,8 @@ export declare class RPGDialogueLogic<T extends IDialogueNodeType> {
     removeDialogueChangeListener(listener: IDialogueListener<T>): boolean;
     private fireStateChange;
     private getCurrentNpcName;
-    loadCurrentQuestionaire(setQuestionText: (questionText: string, npcName: string | undefined) => void, addOptionNode: (answerText: string, index: number) => void): boolean;
+    private createSendAnswerCallback;
+    loadCurrentQuestionaire(dialogueRenderer: IDialogueRenderer): boolean;
     /**
      * Get the current mini questionaire or null if no current or next questionaire is available.
      * @returns
@@ -40,18 +41,16 @@ export declare class RPGDialogueLogic<T extends IDialogueNodeType> {
      * Check if the current dialogue is still valid or reached its end.
      */
     private validate;
-    private getHTMLElement;
     /**
      * This is a convenient function for quickly integrating the dialogue logic into
      * an existing HTML document with prepared two <div> elements for displaying
      * the question and possible answers.
      *
-     * @param {string|HTMLElement} questionNodeId - The output container (or ID) for questions.
-     * @param {string|HTMLElement} optionsNodeId - The output container (or ID) for answer options.
-     * @param {string} alternateStartNodeName - If you don't want to start at 'intro' specify your start node name here.
+     * @param {IDialogueRenderer} dialogueRenderer - The dialogue renderer to use.
+     * @param {string?} alternateStartNodeName - If you don't want to start at 'intro' specify your start node name here.
      * @returns
      */
-    beginConversation(questionNodeId: string | HTMLElement, optionsNodeId: string | HTMLElement, alternateStartNodeName?: string): void;
+    beginConversation(dialogueRenderer: IDialogueRenderer, alternateStartNodeName?: string): void;
     /**
      * Load the dialogue structure from the JSON document at the given path.
      *
