@@ -29,7 +29,7 @@ globalThis.addEventListener("load", function () {
   RPGDialogueLogic.loadFromJSON(path).then(rpgDialogue => {
     console.log("rpgDialogue", rpgDialogue);
 
-    rpgDialogue.beginConversation("rpg-output-question", "rpg-output-options");
+    rpgDialogue.beginConversation(new DefaultDialogueRenderer("rpg-output-question", "rpg-output-options"));
   });
 });
 ```
