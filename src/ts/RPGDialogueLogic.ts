@@ -65,25 +65,21 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
 
   private createSendAnswerCallback = (dialogueRenderer: IDialogueRenderer, optionIndex: number) => {
     const _self = this;
-    var sendAnswer = () => {
+    var sendAnswerCallback = () => {
       // optionIndex: number) => {
       _self.sendAnswer(optionIndex);
       if (_self.isEndReached()) {
         dialogueRenderer.renderConversationTerminated();
-        // setQuestionText("---END OF CONVERSATION---", undefined);
-        // dialogueRenderer.clearAllOptions();
       }
       dialogueRenderer.clearAllOptions();
-      _self.loadCurrentQuestionaire(dialogueRenderer); //setQuestionText, addOptionNode);
+      if (!_self.isEndReached()) {
+        _self.loadCurrentQuestionaire(dialogueRenderer);
+      }
     };
-    return sendAnswer;
+    return sendAnswerCallback;
   };
 
-  loadCurrentQuestionaire(
-    // setQuestionText: (questionText: string, npcName: string | undefined) => void,
-    // addOptionNode: (answerText: string, index: number) => void
-    dialogueRenderer: IDialogueRenderer
-  ): boolean {
+  loadCurrentQuestionaire(dialogueRenderer: IDialogueRenderer): boolean {
     if (this.currentQuestionaire) {
       const npcName = this.getCurrentNpcName();
       dialogueRenderer.setQuestionText(this.currentQuestionaire.q, npcName);
@@ -141,7 +137,7 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
       }
     }
     this.fireStateChange(this.currentQuestionaireName, oldQuestionaireName, index);
-    console.log("Next questionaire", this.currentQuestionaire);
+    // console.log("Next questionaire", this.currentQuestionaire);
     return true;
   }
 

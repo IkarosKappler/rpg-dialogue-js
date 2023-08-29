@@ -15,18 +15,18 @@ var RPGDialogueLogic = /** @class */ (function () {
         var _this = this;
         this.createSendAnswerCallback = function (dialogueRenderer, optionIndex) {
             var _self = _this;
-            var sendAnswer = function () {
+            var sendAnswerCallback = function () {
                 // optionIndex: number) => {
                 _self.sendAnswer(optionIndex);
                 if (_self.isEndReached()) {
                     dialogueRenderer.renderConversationTerminated();
-                    // setQuestionText("---END OF CONVERSATION---", undefined);
-                    // dialogueRenderer.clearAllOptions();
                 }
                 dialogueRenderer.clearAllOptions();
-                _self.loadCurrentQuestionaire(dialogueRenderer); //setQuestionText, addOptionNode);
+                if (!_self.isEndReached()) {
+                    _self.loadCurrentQuestionaire(dialogueRenderer);
+                }
             };
-            return sendAnswer;
+            return sendAnswerCallback;
         };
         this.structure = dialogueStruct;
         this.listeners = [];
@@ -64,10 +64,7 @@ var RPGDialogueLogic = /** @class */ (function () {
         var npcName = ((_c = (_b = this.structure.meta) === null || _b === void 0 ? void 0 : _b.npcs) === null || _c === void 0 ? void 0 : _c.length) > 0 ? this.structure.meta.npcs[npcIndex].name : null;
         return npcName;
     };
-    RPGDialogueLogic.prototype.loadCurrentQuestionaire = function (
-    // setQuestionText: (questionText: string, npcName: string | undefined) => void,
-    // addOptionNode: (answerText: string, index: number) => void
-    dialogueRenderer) {
+    RPGDialogueLogic.prototype.loadCurrentQuestionaire = function (dialogueRenderer) {
         if (this.currentQuestionaire) {
             var npcName = this.getCurrentNpcName();
             dialogueRenderer.setQuestionText(this.currentQuestionaire.q, npcName);
@@ -124,7 +121,7 @@ var RPGDialogueLogic = /** @class */ (function () {
             }
         }
         this.fireStateChange(this.currentQuestionaireName, oldQuestionaireName, index);
-        console.log("Next questionaire", this.currentQuestionaire);
+        // console.log("Next questionaire", this.currentQuestionaire);
         return true;
     };
     /**

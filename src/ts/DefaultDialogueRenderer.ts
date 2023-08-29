@@ -3,7 +3,9 @@ import { IDialogueRenderer } from "./interfaces";
 export class DefaultDialogueRenderer implements IDialogueRenderer {
   private questionNode: HTMLElement;
   private optionsNode: HTMLElement;
-  private endOfConversationText: string = "---END OF CONVERSATION---";
+  // onConversationTerminated: (() => void) | null = null;
+
+  endOfConversationText: string = "---END OF CONVERSATION---";
 
   /**
    * Creates a new default dialogue renderer for quickly integrating the dialogue logic into
@@ -15,8 +17,10 @@ export class DefaultDialogueRenderer implements IDialogueRenderer {
    * @constructor
    */
   constructor(questionNodeId: string | HTMLElement, optionsNodeId: string | HTMLElement) {
+    // }, onConversationTerminated?: () => void) {
     this.questionNode = this.getHTMLElement(questionNodeId);
     this.optionsNode = this.getHTMLElement(optionsNodeId);
+    // this.onConversationTerminated = onConversationTerminated;
     if (!this.questionNode) {
       console.warn("[DefaultDialogueRenderer] Warning: the passed questionNode od element id does not exist.");
     }
@@ -36,6 +40,9 @@ export class DefaultDialogueRenderer implements IDialogueRenderer {
    */
   renderConversationTerminated(): void {
     this.setQuestionText(this.endOfConversationText, undefined);
+    // if (this.onConversationTerminated) {
+    //   this.onConversationTerminated();
+    // }
   }
 
   /**

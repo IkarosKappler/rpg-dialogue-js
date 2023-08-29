@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html> 
+<head> 
+    <meta charset="UTF-8">
+    <title>RPG Dialogue Graph Editor</title> 
+    <link rel="stylesheet base" href="editor.css" />
+    <link rel="stylesheet" href="plotboilerplate.css" />
+    <link rel="stylesheet" href="modal.css" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <script src="module.js"></script>
+    
+    <script src="./libs/globalthis-polyfill.min.js"></script> 
+    <script src="./libs/path2d-polyfill.min.js"></script>
+    
+    <script src="libs/alloy_finger.js"></script>
+    
+    <script src="libs/plotboilerplate/dist/plotboilerplate.min.js"></script>
+    <script src="libs/plotboilerplate/src/cjs/utils/io/FileDrop.js"></script>
+    <script src="libs/plotboilerplate/src/cjs/utils/datastructures/Color.js"></script>
+    <script src="libs/plotboilerplate/src/cjs/utils/algorithms/getContrastColor.js"></script>
+    
+    <script src="libs/axios/dist/axios.js"></script>
+    <script>
+        exports["Axios"] = axios;
+    </script>
+    
+    <!-- <script src="../cjs/gup.js"></script>
+        <script src="../cjs/detectDarkMode.js"></script>
+        <script src="../cjs/detectMobileDevice.js"></script>
+        <script src="../cjs/RPGDialogueLogic.js"></script>
+        <script src="../cjs/domHelpers.js"></script>
+        <script src="../cjs/metaHelpers.js"></script>
+        <script src="../cjs/modal.js"></script>
+        
+        <script src="../cjs/editorHelpers.js"></script>
+        <script src="../cjs/TouchHandler.js"></script>
+        <script src="../cjs/editorRenderer.js"></script>
+        <script src="../cjs/DefaultDialogueRenderer.js"></script>
+        
+        <script src="../cjs/Editor.js"></script>
+        <script src="../cjs/index.js"></script> -->
+        <!-- <script>globalThis.exports = globalThis;</script> -->
+        <script src="../rpg-dialogue-main.js"></script>
+        <script src="../cjs/index.js"></script>
+        <script>
+            // var exports = (globalThis.export = globalThis);
+            // Object.assign(globalThis, globalThis.exports);
+        </script>
+        <script src="editor.js"></script> 
+</head>
+
+<body> 
+    <canvas id="my-canvas" width="1024" height="768">Your browser does not support the canvas tag.</canvas>
+    <div id="attribute-editor" class="d-none">
+        <!-- <button type="button" id="b-export-json">Export JSON</button> -->
+        <div class="e-hint">Drop JSON files onto the canvas to load them.</div>
+        <input type="checkbox" name="cb-export-without-positions" id="cb-export-without-positions" />
+        <label for="cb-export-without-positions">Export w/o positions</label>
+        <br>
+        <input type="checkbox" name="cb-use-localstorage" id="cb-use-localstorage" checked/>
+        <label for="cb-use-localstorage">Autosave (each 10 seconds)</label>
+        <br>
+        <div>
+            <button id="b-add-dialogue-node" title="Add a Node"></button>
+            <button id="b-delete-dialogue-node" title="Remove this Node"></button>
+        </div>
+        <br>
+        <div class="e-item">
+            <div class="e-label">Key</div>
+            <div class="e-label"><input type="text" id="e-key" /></div>
+        </div>
+        <div class="e-item">
+            <div class="e-label">NPC (optional)</div>
+            <div class="e-label"><select id="e-npc-index" ></select></div>
+        </div>
+        <div class="e-item">
+            <div class="e-label">Q</div>
+            <div><textarea type="text" id="e-q"></textarea></div>
+        </div>
+        <div id="e-options-container">
+            <!-- This will be filled by the script -->
+        </div>
+        <button id="b-add-answer-option" title="Add answer option"></button>
+
+    </div>
+
+    <div id="main-buttons">
+        <button id="b-new" title="Create a new empty graph."></button>
+        <button id="b-export-json" title="Export the current graph as a JSON file."></button>
+        <button id="b-import-json" title="Load a graph from JSON file."></button>
+        <input id="input-upload-file" type="file" accept=".json" class="v-hidden"/>
+        <button id="b-configure-meta" title="Edit the dialogue config meta data."></button>
+        <button id="b-run-test" title="Test run your current config (select a node to start there)."></button>
+        <button id="b-show-json" title="Show the JSON code of the current graph."></button>
+        <button id="b-goto-github" title="Find this project on github."></button>
+    </div>
+
+</body> 
+</html>

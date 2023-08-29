@@ -51,8 +51,12 @@ body {
     align-items: center;
 }
 
-.npc div.active {
+.npc.active div.npc-name {
     color: green
+}
+
+.npc.active {
+    cursor: pointer;
 }
 
 .pixelate {
