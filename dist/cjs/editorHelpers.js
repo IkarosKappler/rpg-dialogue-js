@@ -433,9 +433,9 @@ var EditorHelper = /** @class */ (function () {
     EditorHelper.prototype.randomNodeKey = function () {
         var keys = Object.keys(this.dialogConfigWithPositions.graph);
         var count = keys.length;
-        var key = "New " + count;
+        var key = "dia_" + count;
         while (this.dialogConfigWithPositions.graph.hasOwnProperty(key)) {
-            key = "New " + count;
+            key = "dia_" + count;
             count++;
         }
         return key;

@@ -491,9 +491,9 @@ export class EditorHelper {
   private randomNodeKey(): string {
     const keys = Object.keys(this.dialogConfigWithPositions.graph);
     var count = keys.length;
-    let key = "New " + count;
+    let key = "dia_" + count;
     while (this.dialogConfigWithPositions.graph.hasOwnProperty(key)) {
-      key = "New " + count;
+      key = "dia_" + count;
       count++;
     }
     return key;

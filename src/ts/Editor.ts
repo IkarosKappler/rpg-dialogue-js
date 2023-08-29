@@ -28,7 +28,7 @@ export class Editor {
   editorRenderer: EditorRenderer;
   dialogConfig: IDialogueConfig<IMiniQuestionaireWithPosition> | null;
   pb: PlotBoilerplate;
-  private autosaveTimer;
+  private autosaveTimer: NodeJS.Timer;
   constructor(dialogueConfigJSONPath: string, isRecoveryFromLocalStorageActive: boolean) {
     const _self = this;
     console.log("Initializing plotboilerplate");
@@ -95,7 +95,7 @@ export class Editor {
     // +---------------------------------------------------------------------------------
     // | Make HTML buttons a bit larger on mobile devices.
     // +-------------------------------
-    console.log("isMobileDevice", isMobileDevice);
+    console.debug("isMobileDevice", isMobileDevice);
     if (isMobileDevice) {
       document.getElementsByTagName("body")[0].classList.add("is-mobile-device");
     }
@@ -103,7 +103,7 @@ export class Editor {
     // +---------------------------------------------------------------------------------
     // | The render method.
     // +-------------------------------
-    this.pb.config.postDraw = function (draw, fill) {
+    this.pb.config.postDraw = (_draw, _fill) => {
       if (!_self.dialogConfig) {
         return;
       }
@@ -112,13 +112,13 @@ export class Editor {
     };
 
     if (isRecoveryFromLocalStorageActive) {
-      console.log("Trying to recover config from localstorage.");
+      console.debug("Trying to recover config from localstorage.");
       this.tryLoadFromLocalStorage()
         .then(dc => {
           _self.handleDialogConfigLoaded(dc);
         })
         .catch(() => {
-          console.log("Loading from localstorage failed. Falling back loading from specified path.");
+          console.debug("Loading from localstorage failed. Falling back loading from specified path.");
           _self.tryLoadFromJSON(dialogueConfigJSONPath);
         });
     } else {
@@ -128,7 +128,7 @@ export class Editor {
     // Install DnD with FileDrop
     const fileDrop = new FileDrop(this.pb.eventCatcher);
     fileDrop.onFileJSONDropped((jsonObject: object) => {
-      console.log("[onFileJSONDropped] jsonObject", jsonObject);
+      console.debug("[onFileJSONDropped] jsonObject", jsonObject);
       // TODO: properly convert to dialog-config
       _self.handleDialogConfigLoaded(EditorHelper.fromObject(jsonObject));
     });
@@ -259,7 +259,6 @@ export class Editor {
       _selectedOptionIndex: number
     ) => {
       // Highlight current node in the graph editor :)
-      // console.log("nextNodeName", nextNodeName, "oldNodeName", oldNodeName, "selectedOptionIndex", selectedOptionIndex);
       _self.editorHelpers.setHighlightedNode(nextNodeName);
     };
 
