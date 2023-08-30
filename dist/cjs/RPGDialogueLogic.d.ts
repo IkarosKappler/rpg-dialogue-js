@@ -3,7 +3,7 @@
  * @date    2023-07-25
  * @version 1.0.0
  */
-import { IDialogueConfig, IDialogueListener, IDialogueNodeType, IDialogueRenderer, IMiniQuestionaire } from "./interfaces";
+import { IDialogueConfig, IDialogueListener, IDialogueNodeType, IDialogueRenderer, IMiniQuestionaire, INpcDialogueMapping, INpcPathMapping } from "./interfaces";
 export declare class RPGDialogueLogic<T extends IDialogueNodeType> {
     name: string;
     structure: IDialogueConfig<T>;
@@ -65,4 +65,12 @@ export declare class RPGDialogueLogic<T extends IDialogueNodeType> {
      * @returns {Promise<RPGDialogueLogic>}
      */
     static loadFromJSON<T extends IDialogueNodeType>(path: string): Promise<RPGDialogueLogic<T>>;
+    /**
+     * Pass an array of { npcName: string; path: string } objects and get an
+     * array of { npcName: string; dialogue: RPGDialogueLogic<T> }.
+     *
+     * @param paths
+     * @returns
+     */
+    static loadAllFromJSON<T extends IDialogueNodeType>(paths: INpcPathMapping): Promise<INpcDialogueMapping<T>>;
 }

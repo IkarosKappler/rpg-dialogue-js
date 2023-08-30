@@ -158,3 +158,4 @@ Add some simple stylesheets to create a custom nice game dialogue.
 ## Credits
 
 - Freeiconsshop for the download icon.
+- https://map.openseamap.org for the sea map images.

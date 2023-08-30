@@ -129,6 +129,7 @@ var RPGDialogueLogic = /** @class */ (function () {
      */
     RPGDialogueLogic.prototype.resetToBeginning = function (alternateStartNodeName) {
         this.currentQuestionaireName = alternateStartNodeName !== null && alternateStartNodeName !== void 0 ? alternateStartNodeName : "intro";
+        console.log("Using node node: ", this.currentQuestionaireName, "param", alternateStartNodeName);
         this.currentQuestionaire = this.structure.graph[this.currentQuestionaireName];
         if (!this.currentQuestionaire) {
             throw "Cannot initialize RPGDialogueLogic: structure does not have an initial ('intro') entry";
@@ -150,6 +151,7 @@ var RPGDialogueLogic = /** @class */ (function () {
      * @returns
      */
     RPGDialogueLogic.prototype.beginConversation = function (dialogueRenderer, alternateStartNodeName) {
+        console.log("beginConversation", alternateStartNodeName);
         var _self = this;
         // Initialize the first question.
         this.resetToBeginning(alternateStartNodeName);
@@ -163,7 +165,7 @@ var RPGDialogueLogic = /** @class */ (function () {
      * @returns {Promise<RPGDialogueLogic>}
      */
     RPGDialogueLogic.loadConfigFromJSON = function (path) {
-        console.log("axios", axios_1.default);
+        // console.log("axios", axios);
         return new Promise(function (accept, reject) {
             axios_1.default
                 .get(path)
@@ -194,6 +196,37 @@ var RPGDialogueLogic = /** @class */ (function () {
             RPGDialogueLogic.loadConfigFromJSON(path).then(function (struct) {
                 accept(new RPGDialogueLogic(struct, true));
             });
+        });
+    };
+    /**
+     * Pass an array of { npcName: string; path: string } objects and get an
+     * array of { npcName: string; dialogue: RPGDialogueLogic<T> }.
+     *
+     * @param paths
+     * @returns
+     */
+    RPGDialogueLogic.loadAllFromJSON = function (paths) {
+        var promises = [];
+        var npcNames = Object.keys(paths);
+        console.log("npcNames", npcNames);
+        for (var i = 0; i < npcNames.length; i++) {
+            var npcName = npcNames[i];
+            var npcPath = paths[npcName];
+            promises.push(RPGDialogueLogic.loadFromJSON(npcPath));
+        }
+        return new Promise(function (accept, reject) {
+            Promise.all(promises)
+                .then(function (dialogues) {
+                // tre-map received dialogues back to their npc names
+                // const mapping = dialogues.map((dialogue, index) => ({ npcName: paths[index], dialogue: dialogue }));
+                var mapping = {};
+                for (var i = 0; i < npcNames.length; i++) {
+                    var name_1 = npcNames[i];
+                    mapping[name_1] = dialogues[i];
+                }
+                accept(mapping);
+            })
+                .catch(reject);
         });
     };
     return RPGDialogueLogic;

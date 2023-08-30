@@ -11,7 +11,9 @@ import {
   IDialogueListener,
   IDialogueNodeType,
   IDialogueRenderer,
-  IMiniQuestionaire
+  IMiniQuestionaire,
+  INpcDialogueMapping,
+  INpcPathMapping
 } from "./interfaces";
 
 export class RPGDialogueLogic<T extends IDialogueNodeType> {
@@ -146,6 +148,7 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
    */
   resetToBeginning(alternateStartNodeName?: string) {
     this.currentQuestionaireName = alternateStartNodeName ?? "intro";
+    console.log("Using node node: ", this.currentQuestionaireName, "param", alternateStartNodeName);
     this.currentQuestionaire = this.structure.graph[this.currentQuestionaireName];
     if (!this.currentQuestionaire) {
       throw "Cannot initialize RPGDialogueLogic: structure does not have an initial ('intro') entry";
@@ -169,6 +172,7 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
    * @returns
    */
   beginConversation(dialogueRenderer: IDialogueRenderer, alternateStartNodeName?: string): void {
+    console.log("beginConversation", alternateStartNodeName);
     const _self = this;
     // Initialize the first question.
     this.resetToBeginning(alternateStartNodeName);
@@ -183,7 +187,7 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
    * @returns {Promise<RPGDialogueLogic>}
    */
   static loadConfigFromJSON<T extends IDialogueNodeType>(path: string): Promise<IDialogueConfig<T>> {
-    console.log("axios", axios);
+    // console.log("axios", axios);
     return new Promise<IDialogueConfig<T>>((accept: (dialogueStruct: IDialogueConfig<T>) => void, reject: () => void) => {
       axios
         .get(path)
@@ -215,6 +219,38 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
       RPGDialogueLogic.loadConfigFromJSON(path).then((struct: IDialogueConfig<T>) => {
         accept(new RPGDialogueLogic(struct, true));
       });
+    });
+  }
+
+  /**
+   * Pass an array of { npcName: string; path: string } objects and get an
+   * array of { npcName: string; dialogue: RPGDialogueLogic<T> }.
+   *
+   * @param paths
+   * @returns
+   */
+  static loadAllFromJSON<T extends IDialogueNodeType>(paths: INpcPathMapping): Promise<INpcDialogueMapping<T>> {
+    const promises: Array<Promise<RPGDialogueLogic<T>>> = [];
+    const npcNames = Object.keys(paths);
+    console.log("npcNames", npcNames);
+    for (var i = 0; i < npcNames.length; i++) {
+      const npcName = npcNames[i];
+      const npcPath = paths[npcName];
+      promises.push(RPGDialogueLogic.loadFromJSON(npcPath));
+    }
+    return new Promise((accept, reject) => {
+      Promise.all(promises)
+        .then((dialogues: RPGDialogueLogic<T>[]) => {
+          // tre-map received dialogues back to their npc names
+          // const mapping = dialogues.map((dialogue, index) => ({ npcName: paths[index], dialogue: dialogue }));
+          const mapping: INpcDialogueMapping<T> = {};
+          for (var i = 0; i < npcNames.length; i++) {
+            const name: string = npcNames[i];
+            mapping[name] = dialogues[i];
+          }
+          accept(mapping);
+        })
+        .catch(reject);
     });
   }
 }

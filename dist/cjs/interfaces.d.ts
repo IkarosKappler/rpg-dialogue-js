@@ -4,6 +4,7 @@
  * @version 1.0.0
  */
 import { XYCoords } from "plotboilerplate";
+import { RPGDialogueLogic } from "./RPGDialogueLogic";
 /**
  * Identifiyer for any type of question + answers in a named set.
  */
@@ -91,4 +92,12 @@ export interface IDialogueRenderer {
      * @param {function} onOptionSelected - A callback you must trigger when the option is clicked.
      */
     addAnswerOption: (answerText: string, optionIndex: number, onOptionSelected: () => void) => void;
+}
+export type NPCName = string;
+export type INpcPathMapping = Record<NPCName, string>;
+export type INpcDialogueMapping<T extends IDialogueNodeType> = Record<NPCName, RPGDialogueLogic<T>>;
+export interface SequenceMatchingRule {
+    npcName: string;
+    nodeName: string;
+    callback: Function;
 }
