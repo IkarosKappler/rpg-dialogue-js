@@ -1,5 +1,7 @@
 # Changelog
 
+- 2023-08-30
+  - Adding a dialogue sequence logic to switch between several dialogues.
 - 2023-08-29
   - Adding a DefaultDialogueRenderer and a respective interface to make dialogue rendering customizable.
 - 2023-08-23
