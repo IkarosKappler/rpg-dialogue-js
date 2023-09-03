@@ -1,1 +1,126 @@
-{"meta":{"name":"dialogue_A","npcs":[{"name":"Luka"}]},"graph":{"intro":{"q":"Light, stranger.","o":[{"a":"Light, Luka.","next":"New 1"},{"a":"Hello.","next":"New 5"},{"a":"Good evening, Luka.","next":"New 4"}],"editor":{"position":{"x":-530.5625,"y":-210.671875}}},"New 1":{"q":"Hey, how do you know my name? Have we met before?","o":[{"a":"No, I am new here. Yannick told me you could help me with some technical issues on my ship.","next":"New 2"}],"editor":{"position":{"x":-76.21875,"y":-148.6875}}},"New 2":{"q":"Yannick surely told you. Everyone is coming to my place for repairs but my todo list is pretty full, so why don't you just go to Gormsson Habitat and look for the repairs you need? They are usually well equipped and reasonably cheap.","o":[{"a":"I am very sorry to say I can't. I was on my way to Lagertha Base and then my battery died. Looks like I am stranded here for a while.","next":"New 3"},{"a":"Gormsson is currently out of reach for me.","next":"New 9"}],"editor":{"position":{"x":156.85000000000008,"y":-51.000000000000014}}},"New 3":{"q":"So what's your battery class?","o":[{"a":"Uhm. 9000?","next":"New 14"},{"a":"Yellow?","next":"New 14"},{"a":"Ceti-Alpha-Six?","next":"New 14"}],"editor":{"position":{"x":695.6875,"y":0.4375000000000002}}},"New 4":{"q":"Evening? Sneel, it's a quite early morning. Feel free to synchronize your ship's clock with our network anytime you want.","o":[{"a":"Interesting, the water is so dark even up here, not even the slightest bit of surface glow seems to reach station.","next":"New 12"}],"editor":{"position":{"x":-291.90625,"y":26.437499999999986}}},"New 5":{"q":"Ah, an introvert. You seem to be a new arrival, I saw you talking to Yannick, so you two already made friends. Nice to meet you and welcome to Humboldt Haven.","o":[{"a":"Thanks. It's nice to meet you too, Luka. Yannick told me you can help me with my ship.","next":"New 2"}],"editor":{"position":{"x":-287.203125,"y":-112.60937499999999}}},"New 6":{"q":"Haha, you fell in for Yannick. That constant talk of Asmussen, but most people in the area would say 'Rasmus'.","o":[{"a":"So you think it's just some confusion of names?","next":"New 7"}],"editor":{"position":{"x":1293.875,"y":379.3125}}},"New 7":{"q":"Stop bugging me. No one – except Yannick – speaks of 'Asmussen'.","o":[{"a":"And who is Rasmus?","next":"New 8"}],"editor":{"position":{"x":1455.25,"y":493}}},"New 8":{"q":"The former upworld people of what once was Denmark used to worship some creature called Rasmus as their God, the ruler of the water, of the seas and lakes, and of storms. I have read about it in our databases.","o":[{"a":"The wonders of history ...","next":"New 11"}],"editor":{"position":{"x":1686.3125,"y":544.75}}},"New 9":{"q":"But they have the best bio-electrolytes there since EnTrOx stopped its GALAL farming intentions near Bergen and all their engineers started looking for new employers.","o":[{"a":"Haha, you are making fun of me. Why would EnTrOx give up their engineers? And what is GALAL?","next":"New 10"}],"editor":{"position":{"x":193.734375,"y":91.390625}}},"New 10":{"q":"Things have changed in the lower fjords recently. It would be too complicated to explain now. And GALAL are genetically altered algae, which are farmed and harvested for their polysaccharid polymers. The whole energy storage sector puts a lot of expectations in those.","o":[{"a":"Interesting. See, I have problems with my battery and need some repairs with it.","next":"New 3"}],"editor":{"position":{"x":401.875,"y":180.875}}},"New 11":{"q":"So you are in for that salvage job or not?\n","o":[{"a":"Sounds good to me. I'll do it.","next":"final"},{"a":"What's dutch?","next":"New 15"},{"a":"Who is Asmussen?","next":"New 6"}],"editor":{"position":{"x":1127.625,"y":188.375}}},"New 12":{"q":"Welcome to the North Sea. Eternal darkness thanks to tons of plankton, must and mud. The plankton definitely is the better one of them.","o":[{"a":"For food?","next":"New 13"},{"a":"For energy?","next":"New 13"},{"a":"For fertilizer?","next":"New 13"},{"a":"For oxygen?","next":"New 13"}],"editor":{"position":{"x":-85.18749999999999,"y":113.78125}}},"New 13":{"q":"By the holy whale lice, no. Never heard about the algae farmers and the GALAL industry?","o":[{"a":"Wouldn't be better in times of malnutrition and deep station tantrum to grow proper food?","next":"New 10"}],"editor":{"position":{"x":163.484375,"y":224.5625}}},"New 14":{"q":"Good one.\n\nI have an idea: you could do something that profits both of us. There has been a recent docking accident wich a capsized dutch carrier that eventually sank directly in sight of this station before anyone could send a recovery crew. If you can salvage both of their batteries there should be enough material for your repairs and enough for me to stock up my workshop.\n\nI can borrow you a spare low-capacity battery, but don't go too far, you don't want to end like that carrier.","o":[{"a":"Hmmmm ...","next":"New 11"}],"editor":{"position":{"x":914.875,"y":120.75}}},"New 15":{"q":"Some old upworld cult. People say the dutch had the power to subdue the ocean, they that huge, super fast, flying ships and built the first habitats below the sea.","o":[{"a":"Super fast flying ships? Your think it might have been some sort of early dipole propulsion drive?","next":"New 16"}],"editor":{"position":{"x":1440.25,"y":314.875}}},"New 16":{"q":"Some database entries tell about windmills, so I assume those were sorts of hovercrafts. But that's too long ago to tell with certainty.","o":[{"a":"Fascinating ...","next":"New 11"}],"editor":{"position":{"x":1708.375,"y":322.375}}},"final":{"q":"Great. I will equip your ship with some good old school lead ion battery. But don't worry, your excursion should not take long.\n\nThe carrier coordinates will be uploaded to you navigation system.\n\nGood luck!","o":[{"a":"Thank you, Luka.","next":null}],"editor":{"position":{"x":1617.3125,"y":105.5625}}},"intro_2":{"q":"Did you get the batteries?","o":[{"a":"Not yet.","next":"term_2"}],"editor":{"position":{"x":634.65625,"y":768.140625}}},"term_2":{"q":"I am busy. Come back when you got the batteries.","o":[{"a":"See you.","next":null}],"editor":{"position":{"x":950.90625,"y":834.390625}}}}}
+{
+  "meta": {
+    "name": "welcome",
+    "npcs": [{ "name": "Yannick" }]
+  },
+  "graph": {
+    "intro": {
+      "q": "Light, stranger! I haven't seen <i>your</i> face here before. New to Humboldt Haven?",
+      "o": [
+        { "a": "Hello. That's because I just arrived.", "next": "dia0" },
+        { "a": "Light! My ... ehm, ship ... has a battery problem", "next": "dia9" },
+        { "a": "I have no idea why <i>you</i> should bother.", "next": "dia1" }
+      ],
+      "editor": { "position": { "x": -912.5415330552637, "y": -763.9747349980279 } }
+    },
+    "FINAL": { "q": "---EOC---", "o": [], "editor": { "position": { "x": 843.6155206105101, "y": 50.03775659413702 } } },
+    "dia1": {
+      "q": "Why so grumpy? You whale lice always have a lack of surface simulation, huh?",
+      "o": [
+        { "a": "Why would you care?", "next": "dia2" },
+        { "a": "Yeah, it's been some rough weeks.", "next": "dia3" },
+        {
+          "a": "Oh, how creative, <i>Whale lice</i> – because I came with a freighter. Seems I met the station's joker.",
+          "next": "dia2"
+        }
+      ],
+      "editor": { "position": { "x": -703.3818507416074, "y": -613.0638258608725 } }
+    },
+    "dia9": {
+      "q": "You call that wreckage a ship?",
+      "o": [
+        { "a": "Well ...", "next": "dia10" },
+        { "a": "It floats in water, has a hull, contains an Heliox atmopshere: A ship.", "next": "dia10" },
+        { "a": "You call this 'a life'?", "next": "dia11" }
+      ],
+      "editor": { "position": { "x": -777.9993124997834, "y": -313.4010391969372 } }
+    },
+    "dia10": {
+      "q": "A ship has a way to move around, friend. Your's just – well – floats. I'll give you a hint: ask Luka over there, they can even fix a broken tin can. Looks like you need their crafts right now.",
+      "o": [{ "a": "Any ideas?", "next": "dia6" }],
+      "editor": { "position": { "x": -439.4849757980782, "y": -243.429877007686 } }
+    },
+    "dia11": {
+      "q": "Hey, I just got a raise and have a pretty good life. Got it?",
+      "o": [{ "a": "You got your own cabin and privacy?", "next": "dia12" }],
+      "editor": { "position": { "x": -507.3487539324908, "y": -152.9953456668834 } }
+    },
+    "dia3": {
+      "q": "Ok, you seem like your sea has been rough recently. Already thought you might be some selfish mud eel.",
+      "o": [
+        { "a": "Be careful what you say.", "next": "dia2" },
+        { "a": "I just arrived and could need some help with my ... ehm, ship.", "next": "dia5" }
+      ],
+      "editor": { "position": { "x": -362.8704212026838, "y": -535.4380682462262 } }
+    },
+    "dia0": {
+      "q": "Friendly arrivals are always welcome. Have a look around.",
+      "o": [
+        { "a": "Thanks. Do you know some ship repair?", "next": "dia6" },
+        { "a": "Is this station safe? I mean, your lock hydraulics seems a bit ... icky.", "next": "dia5" }
+      ],
+      "editor": { "position": { "x": -253.7890360722123, "y": -680.5637367599761 } }
+    },
+    "dia2": {
+      "q": "Oohkay, oohkay. Not me trying to help a stranger.",
+      "o": [{ "a": "Bye.", "next": "dia4" }],
+      "editor": { "position": { "x": -231.03906591676605, "y": -330.50706655713304 } }
+    },
+    "dia12": {
+      "q": "Nah, I can afford 15 additional bottles of synthohol now. _That's_ a life! I give you a hint",
+      "o": [{ "a": "Neat. Do you know anyone around who hasn't two left hands?", "next": "dia6" }],
+      "editor": { "position": { "x": -260.73811704032914, "y": -95.99249032191187 } }
+    },
+    "dia5": {
+      "q": "No worry. Since the sea quake near Bergen we all have some trouble of the one or other sort. Your 'ship' looks horrible. Need something?",
+      "o": [
+        { "a": "Do you know anyone around who hasn't two left hands?", "next": "dia6" },
+        { "a": "Sea quake? Has it been severe?", "next": "dia55" }
+      ],
+      "editor": { "position": { "x": 18.2591019535638, "y": -504.6331752203952 } }
+    },
+    "dia6": {
+      "q": "Sure! Ask Luka over there. They will fix even a broken tin can.",
+      "o": [{ "a": "Thanks!", "next": "dia7" }],
+      "editor": { "position": { "x": 64.49283983814439, "y": -64.78777250006033 } }
+    },
+    "dia55": {
+      "q": "Do you spend your life under some rock? The tremors around the coastline got worse and worse over the recent months. Elvstrøm station had many casualties when the ground shook at more than strength 6 last week.",
+      "o": [
+        {
+          "a": "Thanks for the news, I didn't know about any seismic activity in the north sea. Is there someone around who's experienced with battery tech?",
+          "next": "dia6"
+        },
+        {
+          "a": "I'm not into the latest geology news recently. Do you have any technicians who can help me with my battery here?",
+          "next": "dia6"
+        }
+      ],
+      "editor": { "position": { "x": 242.86843451665686, "y": -353.69355513154676 } }
+    },
+    "dia4": {
+      "q": "One hint, but just because I'm nice even to mud eels like you. Your 'ship' definiety needs some fixing. Ask Luka over there. They will fix even a broken tin can.",
+      "o": [
+        { "a": "A – tin – can – ? Ok.", "next": "FINAL" },
+        { "a": "Thanks.", "next": "FINAL" }
+      ],
+      "editor": { "position": { "x": 485.2309767792533, "y": -239.21802159322738 } }
+    },
+    "dia8": {
+      "q": "You're really not from here. Well, good luck friend.",
+      "o": [
+        { "a": "Same to you!", "next": "FINAL" },
+        { "a": "Sigh.", "next": "FINAL" }
+      ],
+      "editor": { "position": { "x": 514.3356065548141, "y": -62.85110004875719 } }
+    },
+    "dia7": {
+      "q": "Asmussen with you.",
+      "o": [
+        { "a": "Who?", "next": "dia8" },
+        { "a": "Asmussen with you.", "next": "FINAL" }
+      ],
+      "editor": { "position": { "x": 250.70256318647512, "y": 3.9517394622179154 } }
+    }
+  }
+}
