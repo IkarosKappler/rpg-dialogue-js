@@ -24,5 +24,6 @@ __exportStar(require("./editorHelpers"), exports);
 __exportStar(require("./TouchHandler"), exports);
 __exportStar(require("./editorRenderer"), exports);
 __exportStar(require("./Editor"), exports);
-__exportStar(require("./index"), exports);
+__exportStar(require("./RPGDialogueSequence"), exports);
+__exportStar(require("./RPGDialogue"), exports);
 //# sourceMappingURL=index.js.map

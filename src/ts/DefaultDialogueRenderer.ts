@@ -22,10 +22,10 @@ export class DefaultDialogueRenderer implements IDialogueRenderer {
     this.optionsNode = this.getHTMLElement(optionsNodeId);
     // this.onConversationTerminated = onConversationTerminated;
     if (!this.questionNode) {
-      console.warn("[DefaultDialogueRenderer] Warning: the passed questionNode od element id does not exist.");
+      console.warn("[DefaultDialogueRenderer] Warning: the passed questionNode or element id does not exist.");
     }
     if (!this.optionsNode) {
-      console.warn("[DefaultDialogueRenderer] Warning: the passed optionsNode od element id does not exist.");
+      console.warn("[DefaultDialogueRenderer] Warning: the passed optionsNode or element id does not exist.");
     }
   }
 

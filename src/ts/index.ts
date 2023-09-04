@@ -8,4 +8,5 @@ export * from "./editorHelpers";
 export * from "./TouchHandler";
 export * from "./editorRenderer";
 export * from "./Editor";
-export * from "./index";
+export * from "./RPGDialogueSequence";
+export * from "./RPGDialogue";
