@@ -92,14 +92,14 @@ export class Modal {
     if (Array.isArray(actions)) {
       for (var i in actions) {
         const a: IModalAction = actions[i];
-        var cmd = null;
+        var cmd: string | null = null;
         const btn = document.createElement("button");
         btn.innerHTML = a.label;
         if (typeof a.action === "function") {
           btn.addEventListener("click", a.action);
         } else if ((typeof a === "string" && (cmd = a) != null) || (typeof a.action === "string" && (cmd = a.action) != null)) {
           if (cmd === "cancel" || cmd === "ok" || cmd === "close")
-            btn.addEventListener("click", function () {
+            btn.addEventListener("click", () => {
               _self.close();
             });
         }
@@ -165,7 +165,7 @@ export class Modal {
     modal.appendChild(content);
 
     // When the user clicks on <span> (x), close the modal
-    closeBtn.onclick = function () {
+    closeBtn.onclick = () => {
       _self.close();
     };
 
@@ -204,7 +204,7 @@ export class Modal {
     }
   }
 
-  static removeChildNodes = function (node) {
+  static removeChildNodes = node => {
     // Remove all current actions
     while (node.firstChild) {
       node.removeChild(node.lastChild);

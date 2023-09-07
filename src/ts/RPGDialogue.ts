@@ -11,6 +11,12 @@ import { Editor } from "./Editor";
 import { RPGDialogueSequence } from "./RPGDialogueSequence";
 import { DefaultDialogueRenderer } from "./DefaultDialogueRenderer";
 
+// export class RPGDialogue {
+//   constructor() {
+//     console.log("RPGDialogue constructor");
+//   }
+// }
+
 export const RPGDialogue = () => ({
   gup: gup,
   detectDarkMode: detectDarkMode,

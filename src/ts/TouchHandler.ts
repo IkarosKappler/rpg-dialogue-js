@@ -29,9 +29,9 @@ export class TouchHandler {
       return { x: pos.x - bounds.left, y: pos.y - bounds.top };
     };
 
-    var draggedNodeName: string = null;
-    var draggedNode: IMiniQuestionaireWithPosition = null;
-    var draggedOption: IOptionIdentifyer;
+    var draggedNodeName: string | null = null;
+    var draggedNode: IMiniQuestionaireWithPosition | null = null;
+    var draggedOption: IOptionIdentifyer | null;
     var wasDragged: boolean = false;
 
     var touchMovePos: Vertex | undefined | null = null;
@@ -69,8 +69,10 @@ export class TouchHandler {
           var rel: XYCoords = relPos({ x: evt.touches[0].clientX, y: evt.touches[0].clientY });
           var trans: XYCoords = pb.transformMousePosition(rel.x, rel.y);
           var diff: Vertex = new Vertex(pb.transformMousePosition(touchMovePos.x, touchMovePos.y)).difference(trans);
-          draggedNode.editor.position.x += diff.x;
-          draggedNode.editor.position.y += diff.y;
+          if (draggedNode.editor?.position) {
+            draggedNode.editor.position.x += diff.x;
+            draggedNode.editor.position.y += diff.y;
+          }
           touchMovePos = new Vertex(relPos({ x: evt.touches[0].clientX, y: evt.touches[0].clientY }));
           wasDragged = true;
           pb.redraw();
@@ -88,8 +90,10 @@ export class TouchHandler {
             wasDragged = false;
             if (draggedNode) {
               if (editorHelper.selectedOption) {
-                // reconnect
-                editorHelper.handleOptionReconnect(draggedNodeName);
+                // reconnect?
+                if (draggedNodeName) {
+                  editorHelper.handleOptionReconnect(draggedNodeName);
+                }
               } else {
                 editorHelper.setSelectedOption(null, false);
                 editorHelper.setSelectedNode(draggedNodeName, draggedNode);
@@ -136,7 +140,7 @@ export class TouchEnterLeaveHandler {
   onTouchEnter(selector: string, fn: TouchEnterLeaveListener) {
     this.onTouchEnterEvents.push([selector, fn]);
     return () => {
-      this.onTouchEnterEvents.slice().map(function (e, i) {
+      this.onTouchEnterEvents.slice().map((e, i) => {
         if (e[0] === selector && e[1] === fn) {
           this.onTouchEnterEvents.splice(1, i);
         }
@@ -147,7 +151,7 @@ export class TouchEnterLeaveHandler {
   onTouchLeave(selector: string, fn: TouchEnterLeaveListener) {
     this.onTouchLeaveEvents.push([selector, fn]);
     return function () {
-      this.onTouchLeaveEvents.slice().map(function (e, i) {
+      this.onTouchLeaveEvents.slice().map((e, i) => {
         if (e[0] === selector && e[1] === fn) {
           this.onTouchLeaveEvents.splice(1, i);
         }
@@ -160,7 +164,7 @@ export class TouchEnterLeaveHandler {
     let lastTouchEnter: Element | null;
     const _self = this;
     document.addEventListener("touchmove", e => {
-      const el: Element = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
+      const el: Element | null = document.elementFromPoint(e.touches[0].clientX, e.touches[0].clientY);
       if (!el) {
         return;
       }

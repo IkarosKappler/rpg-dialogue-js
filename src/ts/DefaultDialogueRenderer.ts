@@ -30,7 +30,7 @@ export class DefaultDialogueRenderer implements IDialogueRenderer {
   }
 
   private getHTMLElement(nodeId: string | HTMLElement): HTMLElement {
-    return typeof nodeId === "string" ? document.getElementById(nodeId) : nodeId;
+    return typeof nodeId === "string" ? (document.getElementById(nodeId) as HTMLElement) : nodeId;
   }
 
   //---BEGIN---IDialogueRenderer------------------------------
@@ -50,7 +50,7 @@ export class DefaultDialogueRenderer implements IDialogueRenderer {
    * @param {string} questionText - The question text to use.
    * @param {string|null} npcName - The NPC name to use; if no name was defined this is `null`.
    */
-  setQuestionText(questionText: string, npcName: string | undefined): void {
+  setQuestionText(questionText: string, npcName: string | null | undefined): void {
     if (npcName) {
       this.questionNode.innerHTML = `<span class="rpg-npcname">${npcName}:</span> ${questionText}`;
     } else {

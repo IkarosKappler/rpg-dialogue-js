@@ -135,17 +135,17 @@ export class Editor {
 
     // Also accept uploads via button
     const importJSON = () => {
-      document.getElementById("input-upload-file").click();
+      document.getElementById("input-upload-file")?.click();
     };
-    document.getElementById("b-import-json").addEventListener("click", importJSON);
-    document.getElementById("input-upload-file").addEventListener("change", (_evt: Event) => {
+    document.getElementById("b-import-json")?.addEventListener("click", importJSON);
+    document.getElementById("input-upload-file")?.addEventListener("change", (_evt: Event) => {
       var fileInput = document.getElementById("input-upload-file") as HTMLInputElement;
       if (!fileInput.files || fileInput.files.length === 0) {
         return;
       }
       console.log("inputFile", fileInput.files[0]);
       var reader = new FileReader();
-      reader.onload = function () {
+      reader.onload = () => {
         const jsonText = reader.result as string;
         console.log(reader.result);
         _self.handleDialogConfigLoaded(EditorHelper.fromObject(JSON.parse(jsonText)));
@@ -153,13 +153,13 @@ export class Editor {
       reader.readAsText(fileInput.files[0]);
     });
 
-    document.getElementById("b-run-test").addEventListener("click", () => {
+    document.getElementById("b-run-test")?.addEventListener("click", () => {
       _self.testCurrentDialogueConfig();
     });
 
-    document.getElementById("b-new").addEventListener("click", _self.requestCreateNewGraph());
-    document.getElementById("b-show-json").addEventListener("click", _self.showJSON());
-    document.getElementById("b-goto-github").addEventListener("click", () => {
+    document.getElementById("b-new")?.addEventListener("click", _self.requestCreateNewGraph());
+    document.getElementById("b-show-json")?.addEventListener("click", _self.showJSON());
+    document.getElementById("b-goto-github")?.addEventListener("click", () => {
       window.open("https://github.com/IkarosKappler/rpg-dialogue", "_blank");
     });
   }
@@ -236,6 +236,10 @@ export class Editor {
    * Open a modal and test the current dialogue config (runs a RPGDialogueLogic instant).
    */
   testCurrentDialogueConfig() {
+    if (!this.dialogConfig) {
+      console.warn("Warning: cannot test null dialogue.");
+      return;
+    }
     const _self = this;
     // Create this structure:
     // <div class="rpg-output">
@@ -254,8 +258,8 @@ export class Editor {
 
     const dialogueListener: IDialogueListener<IMiniQuestionaireWithPosition> = (
       _dialogueConfig: IDialogueConfig<IMiniQuestionaireWithPosition>,
-      nextNodeName: string,
-      _oldNodeName: string,
+      nextNodeName: string | null,
+      _oldNodeName: string | null,
       _selectedOptionIndex: number
     ) => {
       // Highlight current node in the graph editor :)
@@ -318,18 +322,19 @@ export class Editor {
       const jsonString = globalThis.localStorage.getItem("__rpgeditor.dialogueconfig");
       if (!jsonString || jsonString === "") {
         reject();
-      }
-      try {
-        const jsonObject = JSON.parse(jsonString);
-        if (!jsonObject) {
+      } else {
+        try {
+          const jsonObject = JSON.parse(jsonString);
+          if (!jsonObject) {
+            reject();
+            return;
+          }
+          const dialogueConfig = EditorHelper.fromObject(jsonObject);
+          accept(dialogueConfig);
+        } catch (exception) {
+          console.warn(exception);
           reject();
-          return;
         }
-        const dialogueConfig = EditorHelper.fromObject(jsonObject);
-        accept(dialogueConfig);
-      } catch (exception) {
-        console.warn(exception);
-        reject();
       }
     });
   }

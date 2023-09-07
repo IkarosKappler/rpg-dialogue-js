@@ -26,7 +26,7 @@ export class RPGDOMHelpers {
   modal: Modal;
 
   currentNodeName: string | null;
-  currentGraphNode: IMiniQuestionaire;
+  currentGraphNode: IMiniQuestionaire | null;
 
   currentDraggedAnswerIndex: number = -1;
   currentDropAnswerIndex: number = -1;
@@ -50,10 +50,10 @@ export class RPGDOMHelpers {
 
     this.modal = new Modal();
 
-    document.getElementById("b-export-json").addEventListener("click", this.exportJSON(this));
-    document.getElementById("b-add-answer-option").addEventListener("click", this.addAnswerOption(this));
-    document.getElementById("b-add-dialogue-node").addEventListener("click", this.addDialogueNode(this));
-    document.getElementById("b-delete-dialogue-node").addEventListener("click", this.requestRemoveDialogueNode(this));
+    document.getElementById("b-export-json")?.addEventListener("click", this.exportJSON(this));
+    document.getElementById("b-add-answer-option")?.addEventListener("click", this.addAnswerOption(this));
+    document.getElementById("b-add-dialogue-node")?.addEventListener("click", this.addDialogueNode(this));
+    document.getElementById("b-delete-dialogue-node")?.addEventListener("click", this.requestRemoveDialogueNode(this));
   }
 
   isExportWithoutPositions(): boolean {
@@ -85,6 +85,10 @@ export class RPGDOMHelpers {
 
   addAnswerOption(_self: RPGDOMHelpers): () => void {
     return () => {
+      if (!_self.currentGraphNode) {
+        console.warn("Warnign: cannot add answer options to null.");
+        return;
+      }
       const newOption: IAnswer = {
         a: "",
         next: null
@@ -121,6 +125,9 @@ export class RPGDOMHelpers {
   }
 
   private removeDialogueNode() {
+    if (!this.currentNodeName) {
+      return;
+    }
     this.editorHelpers.removeNewDialogueNode(this.currentNodeName);
     this.toggleVisibility(false);
   }
@@ -135,6 +142,9 @@ export class RPGDOMHelpers {
 
   private handleQChanged(_self: RPGDOMHelpers): (changeEvent: Event) => void {
     return (changeEvent: Event) => {
+      if (!_self.currentGraphNode) {
+        return;
+      }
       _self.currentGraphNode.q = (changeEvent.target as HTMLInputElement).value;
       _self.editorHelpers.pb.redraw();
     };
@@ -142,6 +152,9 @@ export class RPGDOMHelpers {
 
   private handleNPCIndexChanged(_self: RPGDOMHelpers): (changeEvent: Event) => void {
     return (_changeEvent: Event) => {
+      if (!_self.currentGraphNode) {
+        return;
+      }
       let newIndex: number = parseInt(this.npcElement.value);
       if (Number.isNaN(newIndex)) {
         newIndex = -1;
@@ -152,6 +165,9 @@ export class RPGDOMHelpers {
 
   private handleKeyChanged(_self: RPGDOMHelpers): (changeEvent: Event) => void {
     return (_changeEvent: Event) => {
+      if (!_self.currentNodeName) {
+        return;
+      }
       let newName: string = this.keyElement.value;
       if (!newName || (newName = newName.trim()).length === 0) {
         return;
@@ -182,7 +198,7 @@ export class RPGDOMHelpers {
   }
 
   getSelectedNpcIndex() {
-    return typeof this.currentGraphNode.npcIndex === "undefined" || Number.isNaN(this.currentGraphNode.npcIndex)
+    return typeof this.currentGraphNode?.npcIndex === "undefined" || Number.isNaN(this.currentGraphNode.npcIndex)
       ? 0
       : this.currentGraphNode.npcIndex;
   }
@@ -215,7 +231,7 @@ export class RPGDOMHelpers {
   toggleDragEnterStyles(target: HTMLElement) {
     // console.log("toggleDragEnterStyles");
     const answerIndex = this.currentDraggedAnswerIndex;
-    const dropIndex = parseInt(target.getAttribute("data-dropindex"));
+    const dropIndex = parseInt(target.getAttribute("data-dropindex") || "");
     if (target.classList.contains("droppable") && answerIndex !== dropIndex && answerIndex + 1 !== dropIndex) {
       target.classList.add("dragover");
     }
@@ -228,8 +244,12 @@ export class RPGDOMHelpers {
     }
   }
 
-  showAnswerOptions(nodeName: string, graphNode: IMiniQuestionaireWithPosition | null) {
+  showAnswerOptions(nodeName: string | null, graphNode: IMiniQuestionaireWithPosition | null) {
     const _self = this;
+    if (!nodeName) {
+      console.warn("Warning: cannot show answer options for null node.");
+      return;
+    }
     this.currentNodeName = nodeName;
     this.currentGraphNode = graphNode;
 
@@ -267,7 +287,7 @@ export class RPGDOMHelpers {
       if (!element.classList.contains("a-droparea")) {
         return;
       }
-      _self.currentDropAnswerIndex = parseInt(element.getAttribute("data-dropIndex"));
+      _self.currentDropAnswerIndex = parseInt(element.getAttribute("data-dropIndex") ?? "");
       _self.toggleDragEnterStyles(element);
     });
     _self.touchEnterLeaveHandler.onTouchLeave(".a-droparea", (element: HTMLElement) => {
@@ -282,7 +302,7 @@ export class RPGDOMHelpers {
       const target = ev.target as HTMLDivElement;
       // const answerIndex = parseInt(ev.dataTransfer.getData("answerindex"));
       const answerIndex = _self.currentDraggedAnswerIndex;
-      var dropIndex = parseInt(target.getAttribute("data-dropindex"));
+      var dropIndex = parseInt(target.getAttribute("data-dropindex") ?? "");
       console.log("Move", answerIndex, "to", dropIndex);
       // target.appendChild(document.getElementById(data));
 
@@ -293,7 +313,7 @@ export class RPGDOMHelpers {
       _self.performDrop(answerIndex, dropIndex);
     };
 
-    const isTouchDevice: boolean = this.editorHelpers.editor.currentTouchHandler.wasTouchUsed;
+    const isTouchDevice: boolean = Boolean(this.editorHelpers.editor.currentTouchHandler?.wasTouchUsed);
     const dropArea: HTMLDivElement = this.makeADropArea(0, drop, onDragOver, onDragLeave);
     this.optionsElement.appendChild(dropArea);
 
@@ -317,27 +337,27 @@ export class RPGDOMHelpers {
 
       const handleDragStart = (ev: DragEvent) => {
         // console.log("handleDragStart");
-        _self.currentDraggedAnswerIndex = parseInt((ev.target as HTMLDivElement).getAttribute("data-answerindex"));
+        _self.currentDraggedAnswerIndex = parseInt((ev.target as HTMLDivElement).getAttribute("data-answerindex") ?? "");
         // console.log("handleDragStart", _self.currentDraggedAnswerIndex);
-        ev.dataTransfer.setData("answerindex", `${_self.currentDraggedAnswerIndex}`);
+        ev.dataTransfer && ev.dataTransfer.setData("answerindex", `${_self.currentDraggedAnswerIndex}`);
       };
 
       const handleTouchDragStart = (ev: TouchEvent) => {
         ev.preventDefault(); // Is this required?
         var dragStartElement = ev.target as HTMLElement;
-        _self.currentDraggedAnswerIndex = parseInt(dragStartElement.getAttribute("data-answerindex"));
+        _self.currentDraggedAnswerIndex = parseInt(dragStartElement.getAttribute("data-answerindex") ?? "");
         if (Number.isNaN(_self.currentDraggedAnswerIndex)) {
           // touchStart on touch devices is a bit different than dragStart on Desktop devives.
           // Try to find enclosing draggable element
           if (dragStartElement.classList.contains("a-dnd-element")) {
-            dragStartElement = dragStartElement.parentElement.parentElement;
+            dragStartElement = (dragStartElement.parentElement as HTMLElement).parentElement as HTMLElement;
           }
           // This should not be a node of class 'answer-wrapper-element' and draggable=true
           if (!dragStartElement.classList.contains("answer-wrapper-element") || !dragStartElement.getAttribute("draggable")) {
             console.log("Cannot find draggable element.");
             return;
           }
-          _self.currentDraggedAnswerIndex = parseInt(dragStartElement.getAttribute("data-answerindex"));
+          _self.currentDraggedAnswerIndex = parseInt(dragStartElement.getAttribute("data-answerindex") ?? "");
         }
         // console.log("handleTouchDragStart", _self.currentDraggedAnswerIndex);
       };
@@ -392,7 +412,7 @@ export class RPGDOMHelpers {
     const controlElement = document.createElement("div") as HTMLDivElement;
     controlElement.classList.add("answer-controls-element");
 
-    var dndElement = null;
+    var dndElement: HTMLDivElement | null = null;
     if (isTouchDevice) {
       const upDownElement = document.createElement("div") as HTMLDivElement;
       upDownElement.classList.add("answer-up-down-element");
@@ -408,7 +428,7 @@ export class RPGDOMHelpers {
       }
       const downBtn = document.createElement("button") as HTMLButtonElement;
       downBtn.innerHTML = "▾";
-      if (index + 1 === this.currentGraphNode.o.length) {
+      if (index + 1 === this.currentGraphNode?.o.length) {
         downBtn.setAttribute("disabled", "true");
       } else {
         downBtn.addEventListener("click", () => {
@@ -441,9 +461,11 @@ export class RPGDOMHelpers {
       dropIndex--;
     }
 
-    const old = this.currentGraphNode.o[answerIndex];
-    this.currentGraphNode.o[answerIndex] = this.currentGraphNode.o[dropIndex];
-    this.currentGraphNode.o[dropIndex] = old;
+    if (this.currentGraphNode) {
+      const old = this.currentGraphNode.o[answerIndex];
+      this.currentGraphNode.o[answerIndex] = this.currentGraphNode.o[dropIndex];
+      this.currentGraphNode.o[dropIndex] = old;
+    }
 
     // Re-build the list : )
     this.updateAnswerOptions();
@@ -471,7 +493,7 @@ export class RPGDOMHelpers {
   }
 
   private handleDeleteOption(index: number) {
-    this.currentGraphNode.o.splice(index, 1);
+    this.currentGraphNode?.o.splice(index, 1);
     this.updateAnswerOptions();
     this.editorHelpers.pb.redraw();
   }
@@ -501,7 +523,8 @@ export class RPGDOMHelpers {
 
       for (var key in this.editorHelpers.dialogConfigWithPositions.graph) {
         if (!this.editorHelpers.dialogConfigWithPositions.graph.hasOwnProperty(key)) {
-          return;
+          // return;
+          continue; // !!! is this correct?
         }
         const questionaire: IMiniQuestionaire = this.editorHelpers.dialogConfigWithPositions.graph[key];
         const optionElement = this.createNodeSelectOptionElement(questionaire.q, key === currentKey, key, key === selectedKey);
@@ -514,7 +537,7 @@ export class RPGDOMHelpers {
 
   private createNodeSelectOptionElement(questionaireText: string, isCurrent: boolean, key: string | null, isSelected: boolean) {
     const optionElement = document.createElement("option") as HTMLOptionElement;
-    optionElement.setAttribute("value", key);
+    optionElement.setAttribute("value", key as string);
     optionElement.innerHTML = `${key ?? ""}: ${EditorHelper.ellipsify(questionaireText, 20)}`;
     if (isCurrent) {
       optionElement.setAttribute("disabled", "true");

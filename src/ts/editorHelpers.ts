@@ -100,7 +100,7 @@ export class EditorHelper {
     }
   }
 
-  setHighlightedNode(nodeName: string, noRedraw?: boolean) {
+  setHighlightedNode(nodeName: string | null, noRedraw?: boolean) {
     this.highlightedNodeName = nodeName;
     this.highlightedNode = nodeName ? this.dialogConfigWithPositions.graph[nodeName] : null;
     if (!noRedraw) {
@@ -122,7 +122,7 @@ export class EditorHelper {
     };
   }
 
-  setSelectedNode(nodeName: string, node: IMiniQuestionaireWithPosition) {
+  setSelectedNode(nodeName: string | null, node: IMiniQuestionaireWithPosition | null) {
     this.selectedNodeName = nodeName;
     this.selectedNode = node;
 
@@ -161,14 +161,18 @@ export class EditorHelper {
       // Anonymous member check
       if (!graphNode.hasOwnProperty("editor")) {
         graphNode.editor = { position: this.getRandomPosition() };
-      } else if (!graphNode.editor.hasOwnProperty("position")) {
-        graphNode.editor.position = this.getRandomPosition();
+      } else if (!(graphNode.editor as IMiniQuestionaireWithPosition).hasOwnProperty("position")) {
+        (graphNode.editor as any).position = this.getRandomPosition();
       } else {
-        if (!graphNode.editor.position.hasOwnProperty("x") || isNaN(graphNode.editor.position.x)) {
-          graphNode.editor.position.x = this.getRandomPosition().x;
+        if (!(graphNode.editor as any).position.hasOwnProperty("x") || isNaN(graphNode.editor?.position?.x ?? NaN)) {
+          if (graphNode.editor?.position) {
+            graphNode.editor.position.x = this.getRandomPosition().x;
+          }
         }
-        if (!graphNode.editor.position.hasOwnProperty("y") || isNaN(graphNode.editor.position.y)) {
-          graphNode.editor.position.y = this.getRandomPosition().y;
+        if (!(graphNode.editor as any).position.hasOwnProperty("y") || isNaN(graphNode.editor?.position?.y ?? NaN)) {
+          if (graphNode.editor?.position) {
+            graphNode.editor.position.y = this.getRandomPosition().y;
+          }
         }
       }
     }
@@ -193,21 +197,25 @@ export class EditorHelper {
   }
 
   isPosInGraphNodeBox(pos: XYCoords, graphNode: IMiniQuestionaireWithPosition): boolean {
-    return (
-      graphNode.editor.position.x <= pos.x &&
-      graphNode.editor.position.y <= pos.y &&
-      graphNode.editor.position.x + this.boxSize.width > pos.x &&
-      graphNode.editor.position.y + this.boxSize.height > pos.y
+    return Boolean(
+      graphNode.editor &&
+        graphNode.editor.position &&
+        graphNode.editor.position.x <= pos.x &&
+        graphNode.editor.position.y <= pos.y &&
+        graphNode.editor.position.x + this.boxSize.width > pos.x &&
+        graphNode.editor.position.y + this.boxSize.height > pos.y
     );
   }
 
   isPosInOptionNodeBox(pos: XYCoords, graphNode: IMiniQuestionaireWithPosition, optionIndex: number): boolean {
-    EditorRenderer.OPTION_OFFSET_X;
-    return (
-      graphNode.editor.position.x + EditorRenderer.OPTION_OFFSET_X <= pos.x &&
-      graphNode.editor.position.y + (optionIndex + 1) * this.boxSize.height <= pos.y &&
-      graphNode.editor.position.x + EditorRenderer.OPTION_OFFSET_X + this.boxSize.width > pos.x &&
-      graphNode.editor.position.y + (optionIndex + 1) * this.boxSize.height + this.boxSize.height > pos.y
+    // EditorRenderer.OPTION_OFFSET_X;
+    return Boolean(
+      graphNode.editor &&
+        graphNode.editor.position &&
+        graphNode.editor.position.x + EditorRenderer.OPTION_OFFSET_X <= pos.x &&
+        graphNode.editor.position.y + (optionIndex + 1) * this.boxSize.height <= pos.y &&
+        graphNode.editor.position.x + EditorRenderer.OPTION_OFFSET_X + this.boxSize.width > pos.x &&
+        graphNode.editor.position.y + (optionIndex + 1) * this.boxSize.height + this.boxSize.height > pos.y
     );
   }
 
@@ -221,7 +229,7 @@ export class EditorHelper {
     return null;
   }
 
-  locateOptionBoxNameAtPos(pos: XYCoords): IOptionIdentifyer {
+  locateOptionBoxNameAtPos(pos: XYCoords): IOptionIdentifyer | null {
     for (var nodeName in this.dialogConfigWithPositions.graph) {
       const graphNode: IMiniQuestionaireWithPosition = this.dialogConfigWithPositions.graph[nodeName];
       for (var i = 0; i < graphNode.o.length; i++) {
@@ -238,26 +246,29 @@ export class EditorHelper {
   }
 
   isOptionHighlighted(nodeName: string, optionIndex: number): boolean {
-    return (
+    return Boolean(
       this.hightlightedOption &&
-      this.hightlightedOption.nodeName === nodeName &&
-      this.hightlightedOption.optionIndex === optionIndex
+        this.hightlightedOption.nodeName === nodeName &&
+        this.hightlightedOption.optionIndex === optionIndex
     );
   }
 
   isOptionSelected(nodeName: string, optionIndex: number): boolean {
-    return this.selectedOption && this.selectedOption.nodeName === nodeName && this.selectedOption.optionIndex === optionIndex;
+    return Boolean(
+      this.selectedOption && this.selectedOption.nodeName === nodeName && this.selectedOption.optionIndex === optionIndex
+    );
   }
 
   addNewDialogueNode() {
     // Place two box units to the right if currently there is a selected node.
     // Otherwise random position.
-    const position: XYCoords = this.selectedNode
-      ? {
-          x: this.selectedNode.editor.position.x + 2 * this.boxSize.width,
-          y: this.selectedNode.editor.position.y + this.boxSize.height
-        }
-      : this.getRandomPosition();
+    const position: XYCoords =
+      this.selectedNode && this.selectedNode.editor && this.selectedNode.editor.position
+        ? {
+            x: this.selectedNode.editor.position.x + 2 * this.boxSize.width,
+            y: this.selectedNode.editor.position.y + this.boxSize.height
+          }
+        : this.getRandomPosition();
     const nodeName = this.randomNodeKey();
     const newNode: IMiniQuestionaireWithPosition = {
       q: "",
@@ -286,10 +297,10 @@ export class EditorHelper {
     // +---------------------------------------------------------------------------------
     // | Add a mouse listener to track the mouse position.
     // +-------------------------------
-    var mouseDownPos: XYCoords = null;
-    var lastMouseDownPos: XYCoords = null;
-    var draggingNode: IMiniQuestionaireWithPosition = null;
-    var draggingNodeName: string = null;
+    var mouseDownPos: XYCoords | null = null;
+    var lastMouseDownPos: XYCoords | null = null;
+    var draggingNode: IMiniQuestionaireWithPosition | null = null;
+    var draggingNodeName: string | null = null;
     const handler = new MouseHandler(this.pb.eventCatcher)
       .down((evt: XMouseEvent) => {
         mouseDownPos = this.pb.transformMousePosition(evt.params.mouseDownPos.x, evt.params.mouseDownPos.y);
@@ -304,7 +315,7 @@ export class EditorHelper {
         draggingNode = null;
       })
       .drag((evt: XMouseEvent) => {
-        if (!mouseDownPos || !draggingNode) {
+        if (!mouseDownPos || !draggingNode || !draggingNode.editor || !draggingNode.editor.position) {
           return;
         }
         // const diff = evt.params.dragAmount;
@@ -316,7 +327,7 @@ export class EditorHelper {
         // Check if mouse pointer hovers over an option -> set highlighted
         const mouseMovePos = this.pb.transformMousePosition(evt.params.pos.x, evt.params.pos.y);
         _self.relativeMousePosition = { x: mouseMovePos.x, y: mouseMovePos.y };
-        const hoveringOptionIdentifyer: IOptionIdentifyer = this.locateOptionBoxNameAtPos(mouseMovePos);
+        const hoveringOptionIdentifyer: IOptionIdentifyer | null = this.locateOptionBoxNameAtPos(mouseMovePos);
         // Can be null
         _self.setHighlightedOption(hoveringOptionIdentifyer);
         if (!hoveringOptionIdentifyer) {
@@ -342,7 +353,7 @@ export class EditorHelper {
   }
 
   handleClick(mouseClickPos: XYCoords) {
-    const clickedOptionIdentifyer: IOptionIdentifyer = this.locateOptionBoxNameAtPos(mouseClickPos);
+    const clickedOptionIdentifyer: IOptionIdentifyer | null = this.locateOptionBoxNameAtPos(mouseClickPos);
     if (clickedOptionIdentifyer) {
       this.setSelectedOption(clickedOptionIdentifyer);
     } else {
@@ -367,9 +378,10 @@ export class EditorHelper {
   }
 
   handleOptionReconnect(clickedNodeName: string) {
-    if (!this.selectedOption) {
+    if (!this.selectedOption || !this.selectedNodeName) {
       // Actually this fuction should not be called at all in that case.
       console.warn("Warn: cannot reconnect option when no option is selected.");
+      return;
     }
     const graph = this.dialogConfigWithPositions.graph;
     const clickedNode: IMiniQuestionaireWithPosition = graph[clickedNodeName];
@@ -380,7 +392,7 @@ export class EditorHelper {
     this.domHelper.showAnswerOptions(this.selectedNodeName, this.selectedNode);
   }
 
-  isEqualOptionIdentifyer(identA: IOptionIdentifyer, identB: IOptionIdentifyer): boolean {
+  isEqualOptionIdentifyer(identA: IOptionIdentifyer | null, identB: IOptionIdentifyer | null): boolean {
     if ((!identA && identB) || (identA && !identB)) {
       return false;
     }
@@ -393,7 +405,7 @@ export class EditorHelper {
     if (identA === identB || (typeof identA === "undefined" && typeof identB === "undefined")) {
       return true;
     }
-    return identA.nodeName === identB.nodeName && identA.optionIndex === identB.optionIndex;
+    return identA?.nodeName === identB?.nodeName && identA?.optionIndex === identB?.optionIndex;
   }
 
   renameGraphNode(oldName: string, newName: string): boolean {

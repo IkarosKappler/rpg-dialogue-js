@@ -19,8 +19,8 @@ import {
 export class RPGDialogueLogic<T extends IDialogueNodeType> {
   name: string;
   structure: IDialogueConfig<T>;
-  private currentQuestionaireName: string | undefined;
-  private currentQuestionaire: IMiniQuestionaire | undefined;
+  private currentQuestionaireName: string | null;
+  private currentQuestionaire: IMiniQuestionaire | null;
   private listeners: Array<IDialogueListener<T>>;
 
   constructor(dialogueStruct: IDialogueConfig<T>, validateStructure: boolean) {
@@ -53,14 +53,14 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
     return false;
   }
 
-  private fireStateChange(nextNodeName: string, oldNodeName: string, selectedOptionIndex: number) {
+  private fireStateChange(nextNodeName: string | null, oldNodeName: string | null, selectedOptionIndex: number) {
     for (var i = 0; i < this.listeners.length; i++) {
       this.listeners[i](this.structure, nextNodeName, oldNodeName, selectedOptionIndex);
     }
   }
 
-  private getCurrentNpcName(): string {
-    const npcIndex = this.currentQuestionaire.npcIndex ?? 0;
+  private getCurrentNpcName(): string | null {
+    const npcIndex = this.currentQuestionaire?.npcIndex ?? 0;
     const npcName = this.structure.meta?.npcs?.length > 0 ? this.structure.meta.npcs[npcIndex].name : null;
     return npcName;
   }
@@ -98,7 +98,7 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
    * Get the current mini questionaire or null if no current or next questionaire is available.
    * @returns
    */
-  getCurrentQuestionaire(): IMiniQuestionaire | undefined {
+  getCurrentQuestionaire(): IMiniQuestionaire | null {
     return this.currentQuestionaire;
   }
 
@@ -116,7 +116,7 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
    * @returns {boolean} true if the the index is valid.
    */
   sendAnswer(index: number): boolean {
-    if (index < 0 || index >= this.currentQuestionaire.o.length) {
+    if (!this.currentQuestionaire || index < 0 || index >= this.currentQuestionaire.o.length) {
       return false;
     }
     const oldQuestionaireName = this.currentQuestionaireName;
@@ -146,7 +146,7 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
   /**
    * Find the initial mini questionaire.
    */
-  resetToBeginning(alternateStartNodeName?: string) {
+  resetToBeginning(alternateStartNodeName?: string | null) {
     this.currentQuestionaireName = alternateStartNodeName ?? "intro";
     console.log("Using node node: ", this.currentQuestionaireName, "param", alternateStartNodeName);
     this.currentQuestionaire = this.structure.graph[this.currentQuestionaireName];
@@ -171,7 +171,7 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
    * @param {string?} alternateStartNodeName - If you don't want to start at 'intro' specify your start node name here.
    * @returns
    */
-  beginConversation(dialogueRenderer: IDialogueRenderer, alternateStartNodeName?: string): void {
+  beginConversation(dialogueRenderer: IDialogueRenderer, alternateStartNodeName?: string | null): void {
     console.log("beginConversation", alternateStartNodeName);
     const _self = this;
     // Initialize the first question.
@@ -191,18 +191,18 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
     return new Promise<IDialogueConfig<T>>((accept: (dialogueStruct: IDialogueConfig<T>) => void, reject: () => void) => {
       axios
         .get(path)
-        .then(function (response) {
+        .then(response => {
           // handle success
           console.log(response);
           // Validate response data?
           accept(response.data);
         })
-        .catch(function (error) {
+        .catch(error => {
           // handle error
           console.log(error);
           reject();
         })
-        .finally(function () {
+        .finally(() => {
           // always executed
         });
     });
@@ -216,8 +216,8 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
    */
   static loadFromJSON<T extends IDialogueNodeType>(path: string): Promise<RPGDialogueLogic<T>> {
     return new Promise<RPGDialogueLogic<T>>((accept: (dialogueStruct: RPGDialogueLogic<T>) => void, reject: () => void) => {
-      RPGDialogueLogic.loadConfigFromJSON(path).then((struct: IDialogueConfig<T>) => {
-        accept(new RPGDialogueLogic(struct, true));
+      RPGDialogueLogic.loadConfigFromJSON<T>(path).then((struct: IDialogueConfig<T>) => {
+        accept(new RPGDialogueLogic<T>(struct, true));
       });
     });
   }

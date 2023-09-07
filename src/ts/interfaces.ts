@@ -17,7 +17,7 @@ export type TDialogueIdentifyer = string;
  */
 export interface IAnswer {
   a: string;
-  next: string;
+  next: string | null;
 }
 
 /**
@@ -96,7 +96,7 @@ export interface IDialogueRenderer {
    * @param {string} questionText - The question text to use.
    * @param {string|null} npcName - The NPC name to use; if no name was defined this is `null`.
    */
-  setQuestionText: (questionText: string, npcName: string | undefined) => void;
+  setQuestionText: (questionText: string, npcName: string | null | undefined) => void;
 
   /**
    * Clear the options node. Just for upper level use here.
