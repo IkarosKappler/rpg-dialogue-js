@@ -5,3 +5,4 @@ resources
 dist/_bundles
 .env 
 .env-testing
+package-lock.json
