@@ -25,16 +25,37 @@ Load the dialogue config from the specific JSON file:
 
 ```Javascript
 globalThis.addEventListener("load", function () {
-  const path = "../../resources/export-test/dialog-config-8-with-npc.json";
-  RPGDialogueLogic.loadFromJSON(path).then(rpgDialogue => {
-    console.log("rpgDialogue", rpgDialogue);
+  // Get an instance for the library.
+  var rpgDialogue = RPGDialogue();
 
-    rpgDialogue.beginConversation(new DefaultDialogueRenderer("rpg-output-question", "rpg-output-options"));
+  // Define global libraries.
+  var globalLibs = { axios: axios };
+
+  // This is the dialgue configuration file we want to load.
+  const pathYannick = "export-test/dialog-config-Yannick.json";
+
+  rpgDialogue.RPGDialogueLogic.loadFromJSON(pathYannick, globalLibs).then(dialogueStruct => {
+    console.log("rpgDialogue for Yannick", dialogueStruct);
+
+    // +---------------------------------------------------------------------------------
+    // | Just for the demo: see on the console which dialogue state is
+    // | currently active.
+    // +-------------------------------
+    dialogueStruct.addDialogueChangeListener((dialogueConfig, nextNodeName, oldNodeName, selectedOptionIndex) => {
+      console.log("nextNodeName", nextNodeName);
+    });
+    // +---------------------------------------------------------------------------------
+    // | Define a default dialogue renderer.
+    // | This one just uses the given DIV tags for input and output.
+    // +-------------------------------
+    const renderer = new rpgDialogue.DefaultDialogueRenderer("rpg-output-question", "rpg-output-options");
+    dialogueStruct.beginConversation(renderer);
   });
 });
+
 ```
 
-Live example: https://www.int2byte.de/public/rpg-dialogue/dist/tests/test-dialogue.html
+Live example (with two NPCs): https://plotboilerplate.io/rpg-dialogue/dist/tests/test-dialogue-multi.html
 
 ```JSON
 {
@@ -147,7 +168,7 @@ Live example: https://www.int2byte.de/public/rpg-dialogue/dist/tests/test-dialog
 
 You don't need to edit the JSON manually. Just use the included dialogue graph editor.
 
-Live editor example: https://www.int2byte.de/public/rpg-dialogue/dist/tests/editor.html
+Live editor example: https://plotboilerplate.io/rpg-dialogue/dist/tests/editor.html
 
 ## Add custom stylings
 

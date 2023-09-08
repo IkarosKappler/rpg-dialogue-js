@@ -1,8 +1,11 @@
 globalThis.addEventListener("load", function () {
+  // Get an instance for the library.
   var rpgDialogue = RPGDialogue();
 
+  // Define global libraries.
   var globalLibs = { axios: axios };
 
+  // This is the dialgue configuration file we want to load.
   const pathYannick = "export-test/dialog-config-Yannick.json";
 
   rpgDialogue.RPGDialogueLogic.loadFromJSON(pathYannick, globalLibs).then(dialogueStruct => {
