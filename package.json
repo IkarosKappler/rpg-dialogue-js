@@ -1,7 +1,7 @@
 {
   "name": "rpg-dialogue",
   "version": "1.0.0",
-  "description": "",
+  "description": "A simple roleplay game dialogue engine and editor.",
   "main": "src/ts/index.ts",
   "scripts": {
     "clean": "shx rm -rf dist/_bundles dist/lib-cjs dist/lib-esm",
@@ -18,8 +18,18 @@
     "serve": "python3 -m http.server 8000",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "RPG",
+    "Dialogue",
+    "Dialog",
+    "Game",
+    "Gameplay",
+    "Roleplay",
+    "Chat",
+    "NPC",
+    "Non playable character"
+  ],
+  "author": "Ikaros Kappler",
   "license": "MIT",
   "devDependencies": {
     "shx": "^0.3.4",
