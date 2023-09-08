@@ -1,8 +1,12 @@
 {
-  "name": "rpg-dialogue",
+  "name": "rpg-dialogue-js",
   "version": "1.0.0",
   "description": "A simple roleplay game dialogue engine and editor.",
   "main": "src/ts/index.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IkarosKappler/rpg-dialogue-js"
+  },
   "scripts": {
     "clean": "shx rm -rf dist/_bundles dist/lib-cjs dist/lib-esm",
     "compile-typescript-cjs": "tsc",
