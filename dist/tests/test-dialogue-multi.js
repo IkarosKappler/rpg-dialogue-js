@@ -11,21 +11,24 @@
  */
 
 globalThis.addEventListener("load", function () {
-  const pathYannick = "export-test/dialog-config-Yannick.json";
-  const pathLuka = "export-test/dialog-config-Luka.json";
-  const paths = {
+  var rpgDialogue = RPGDialogue();
+
+  var pathYannick = "export-test/dialog-config-Yannick.json";
+  var pathLuka = "export-test/dialog-config-Luka.json";
+  var paths = {
     yannick: pathYannick,
     luka: pathLuka
   };
+  var globalLibs = { axios: axios };
 
-  RPGDialogueLogic.loadAllFromJSON(paths).then(dialogueMappings => {
+  rpgDialogue.RPGDialogueLogic.loadAllFromJSON(paths, globalLibs).then(dialogueMappings => {
     console.log("dialogues", dialogueMappings.length);
 
     // +---------------------------------------------------------------------------------
     // | Define a default dialogue renderer.
     // | This one just uses the given DIV tags for input and output.
     // +-------------------------------
-    const dialogueRenderer = new DefaultDialogueRenderer("rpg-output-question", "rpg-output-options");
+    const dialogueRenderer = new rpgDialogue.DefaultDialogueRenderer("rpg-output-question", "rpg-output-options");
 
     const enableLuka_PartA = () => {
       console.log("Starting Luka's dialogue.");
@@ -36,7 +39,7 @@ globalThis.addEventListener("load", function () {
     // | Define a dialogue sequence and add a rule:
     // | Once Yannick's dialigue has ended, allow to click and start Luka's dialogue.
     // +-------------------------------
-    const sequence = new RPGDialogueSequence(dialogueMappings);
+    const sequence = new rpgDialogue.RPGDialogueSequence(dialogueMappings);
     sequence.addRule("yannick", null, () => {
       console.log("End of yannick's dialogue reached.");
       disableNpc("yannick");

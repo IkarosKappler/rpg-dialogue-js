@@ -2,13 +2,17 @@
   "name": "rpg-dialogue",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/ts/index.ts",
   "scripts": {
-    "compile-typescript": "tsc -p tsconfig.json --esModuleInterop",
-    "build": "npm run compile-typescript && npm run webpack",
-    "build-dev": "npm run compile-typescript && npm run webpack-dev",
-    "webpack": "webpack --config webpack.config.js",
+    "clean": "shx rm -rf dist/_bundles dist/lib-cjs dist/lib-esm",
+    "compile-typescript-cjs": "tsc",
+    "compile-typescript-esm": "tsc -m es6 --outDir dist/lib-esm",
+    "compile-typescript": "npm run compile-typescript-cjs && npm run compile-typescript-esm",
+    "build": "npm run clean & npm run compile-typescript && npm run webpack",
+    "build-dev": "npm run compile-typescript-cjs && npm run webpack-dev",
+    "webpack-prod": "npx webpack --env=production --config webpack.config.js",
     "webpack-dev": "npx webpack --env=development --config webpack.config.js",
+    "webpack": "npm run webpack-dev && npm run webpack-prod",
     "start-ts": "webpack-dev-server --hot --port 3000 --open",
     "start-wp": "webpack --config webpack.config.js --watch",
     "serve": "python3 -m http.server 8000",
@@ -18,18 +22,22 @@
   "author": "",
   "license": "MIT",
   "devDependencies": {
+    "shx": "^0.3.4",
     "source-map-loader": "^4.0.0",
     "terser-webpack-plugin": "^5.3.9",
-    "ts-loader": "^9.4.1",
+    "ts-loader": "^9.4.4",
     "tsc": "^2.0.4",
     "typescript": "^4.8.4",
     "webpack": "^5.88.2",
-    "webpack-cli": "^4.10.0"
+    "webpack-cli": "^5.1.4"
   },
   "dependencies": {
+    "@babel/core": "^7.22.15",
+    "@babel/preset-env": "^7.22.15",
     "@types/dat.gui": "^0.7.7",
     "alloyfinger-typescript": "^0.1.19",
     "axios": "^1.4.0",
+    "babel-loader": "^9.1.3",
     "dat.gui": "^0.7.9",
     "plotboilerplate": "^1.20.2"
   }

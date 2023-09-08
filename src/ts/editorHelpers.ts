@@ -83,7 +83,7 @@ export class EditorHelper {
   }
 
   setSelectedOption(selectedOption: IOptionIdentifyer | null, noRedraw?: boolean) {
-    console.log("Set selected option", selectedOption);
+    // console.log("Set selected option", selectedOption);
     this.selectedOption = selectedOption;
     if (!noRedraw) {
       this.pb.redraw();
@@ -340,7 +340,7 @@ export class EditorHelper {
       })
       .click((evt: XMouseEvent) => {
         // Stop if mouse was moved
-        console.log("lastMouseDownPos", lastMouseDownPos, " evt.params.pos", evt.params.pos);
+        // console.log("lastMouseDownPos", lastMouseDownPos, " evt.params.pos", evt.params.pos);
         if (lastMouseDownPos && (lastMouseDownPos.x !== evt.params.pos.x || lastMouseDownPos.y !== evt.params.pos.y)) {
           return;
         }
@@ -352,6 +352,10 @@ export class EditorHelper {
     return handler;
   }
 
+  /**
+   * Check if a question box or an answer box was clicked.
+   * @param mouseClickPos
+   */
   handleClick(mouseClickPos: XYCoords) {
     const clickedOptionIdentifyer: IOptionIdentifyer | null = this.locateOptionBoxNameAtPos(mouseClickPos);
     if (clickedOptionIdentifyer) {
@@ -359,26 +363,24 @@ export class EditorHelper {
     } else {
       // Otherwise (no option was clicked) check if a node was clicked directly.
       const clickedNodeName = this.locateNodeBoxNameAtPos(mouseClickPos);
-      console.log("Click", clickedNodeName);
+      // console.log("Click", clickedNodeName);
       if (clickedNodeName) {
         if (this.selectedOption) {
           this.handleOptionReconnect(clickedNodeName);
           this.pb.redraw();
         } else {
           this.setSelectedNode(clickedNodeName, this.dialogConfigWithPositions.graph[clickedNodeName]);
-          // this.pb.redraw();
         }
       } else {
         this.setSelectedNode(null, null);
-        // this.selectedNode = null;
-        // this.pb.redraw();
       }
       this.setSelectedOption(null, false);
     }
   }
 
   handleOptionReconnect(clickedNodeName: string) {
-    if (!this.selectedOption || !this.selectedNodeName) {
+    if (!this.selectedOption) {
+      // && !this.selectedNodeName) {
       // Actually this fuction should not be called at all in that case.
       console.warn("Warn: cannot reconnect option when no option is selected.");
       return;
@@ -386,7 +388,7 @@ export class EditorHelper {
     const graph = this.dialogConfigWithPositions.graph;
     const clickedNode: IMiniQuestionaireWithPosition = graph[clickedNodeName];
     const sourceNode = this.selectedOption.node;
-    console.log("Reconnect");
+    // console.log("Reconnect");
     sourceNode.o[this.selectedOption.optionIndex].next = clickedNodeName;
 
     this.domHelper.showAnswerOptions(this.selectedNodeName, this.selectedNode);

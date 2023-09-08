@@ -12,11 +12,14 @@
   "use strict";
 
   window.initializePB = function () {
-    console.log("Initialize graph editor");
+    console.debug("Initializing graph editor");
+    var rpgDialogue = RPGDialogue();
+
+    var globalLibs = { axios: axios };
 
     var path = "export-test/dialog-config-7-with-positions.json";
-    var tryRecoverFromLocalStorage = true;
-    var editor = new Editor(path, tryRecoverFromLocalStorage);
+    var tryRecoverFromLocalStorage = false;
+    var editor = new rpgDialogue.Editor(path, tryRecoverFromLocalStorage, globalLibs);
   };
 
   window.addEventListener("load", window.initializePB);

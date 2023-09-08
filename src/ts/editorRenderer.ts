@@ -12,7 +12,6 @@ import { IAnswer, IDialogueConfig, IMiniQuestionaireWithPosition } from "./inter
 import { EditorHelper } from "./editorHelpers";
 import { getContrastColor } from "plotboilerplate/src/cjs/utils/algorithms/getContrastColor";
 import { Color } from "plotboilerplate/src/cjs/utils/datastructures/Color";
-// import { FileDrop } from "plotboilerplate/src/cjs/utils/io/FileDrop";
 
 export class EditorRenderer {
   pb: PlotBoilerplate;
@@ -192,9 +191,15 @@ export class EditorRenderer {
       this.boxSize.width + 16,
       this.boxSize.height / 2.0 + (j + 1) * (this.boxSize.height + 2) - 2
     );
-    const zB = new Vertex(successorNodePosition);
+    const alternateSuccessorNodePosition = { x: successorNodePosition.x, y: successorNodePosition.y + this.boxSize.height };
+    // Which left box point to use for destination?
+    var distA = zA.difference(successorNodePosition).y;
+    var distB = zA.difference(alternateSuccessorNodePosition).y;
+    const useAlternate: boolean = Math.abs(distA) >= Math.abs(distB);
+
+    const zB = new Vertex(useAlternate ? alternateSuccessorNodePosition : successorNodePosition);
     const cA = zA.clone().addXY(50, 0);
-    const cB = zB.clone().subXY(50, 50);
+    const cB = zB.clone().subXY(50, useAlternate ? -50 : 50);
 
     const isCanvas = this.pb.canvas instanceof HTMLCanvasElement;
     if (isCanvas) {

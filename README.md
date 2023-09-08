@@ -159,3 +159,4 @@ Add some simple stylesheets to create a custom nice game dialogue.
 
 - Freeiconsshop for the download icon.
 - https://map.openseamap.org for the sea map images.
+- Marco Botto for the bundling tutorial https://marcobotto.com/blog/compiling-and-bundling-typescript-libraries-with-webpack/

@@ -247,7 +247,7 @@ export class RPGDOMHelpers {
   showAnswerOptions(nodeName: string | null, graphNode: IMiniQuestionaireWithPosition | null) {
     const _self = this;
     if (!nodeName) {
-      console.warn("Warning: cannot show answer options for null node.");
+      // console.warn("Warning: cannot show answer options for null node.");
       return;
     }
     this.currentNodeName = nodeName;

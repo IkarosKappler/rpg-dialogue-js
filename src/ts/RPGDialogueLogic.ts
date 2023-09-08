@@ -4,13 +4,13 @@
  * @version 1.0.0
  */
 
-import axios from "axios";
 import {
   IAnswer,
   IDialogueConfig,
   IDialogueListener,
   IDialogueNodeType,
   IDialogueRenderer,
+  IGlobalLibs,
   IMiniQuestionaire,
   INpcDialogueMapping,
   INpcPathMapping
@@ -186,10 +186,10 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
    * @param {string} path
    * @returns {Promise<RPGDialogueLogic>}
    */
-  static loadConfigFromJSON<T extends IDialogueNodeType>(path: string): Promise<IDialogueConfig<T>> {
+  static loadConfigFromJSON<T extends IDialogueNodeType>(path: string, globalLibs: IGlobalLibs): Promise<IDialogueConfig<T>> {
     // console.log("axios", axios);
     return new Promise<IDialogueConfig<T>>((accept: (dialogueStruct: IDialogueConfig<T>) => void, reject: () => void) => {
-      axios
+      globalLibs.axios
         .get(path)
         .then(response => {
           // handle success
@@ -214,9 +214,9 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
    * @param {string} path
    * @returns {Promise<RPGDialogueLogic>}
    */
-  static loadFromJSON<T extends IDialogueNodeType>(path: string): Promise<RPGDialogueLogic<T>> {
+  static loadFromJSON<T extends IDialogueNodeType>(path: string, globalLibs: IGlobalLibs): Promise<RPGDialogueLogic<T>> {
     return new Promise<RPGDialogueLogic<T>>((accept: (dialogueStruct: RPGDialogueLogic<T>) => void, reject: () => void) => {
-      RPGDialogueLogic.loadConfigFromJSON<T>(path).then((struct: IDialogueConfig<T>) => {
+      RPGDialogueLogic.loadConfigFromJSON<T>(path, globalLibs).then((struct: IDialogueConfig<T>) => {
         accept(new RPGDialogueLogic<T>(struct, true));
       });
     });
@@ -229,14 +229,17 @@ export class RPGDialogueLogic<T extends IDialogueNodeType> {
    * @param paths
    * @returns
    */
-  static loadAllFromJSON<T extends IDialogueNodeType>(paths: INpcPathMapping): Promise<INpcDialogueMapping<T>> {
+  static loadAllFromJSON<T extends IDialogueNodeType>(
+    paths: INpcPathMapping,
+    globalLibs: IGlobalLibs
+  ): Promise<INpcDialogueMapping<T>> {
     const promises: Array<Promise<RPGDialogueLogic<T>>> = [];
     const npcNames = Object.keys(paths);
     console.log("npcNames", npcNames);
     for (var i = 0; i < npcNames.length; i++) {
       const npcName = npcNames[i];
       const npcPath = paths[npcName];
-      promises.push(RPGDialogueLogic.loadFromJSON(npcPath));
+      promises.push(RPGDialogueLogic.loadFromJSON(npcPath, globalLibs));
     }
     return new Promise((accept, reject) => {
       Promise.all(promises)

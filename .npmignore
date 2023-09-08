@@ -1,0 +1,7 @@
+dist/lib-cjs
+dist/lib-esm
+node_modules
+resources
+dist/_bundles
+.env 
+.env-testing

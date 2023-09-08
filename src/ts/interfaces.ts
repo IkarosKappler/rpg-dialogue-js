@@ -6,6 +6,7 @@
 
 import { XYCoords } from "plotboilerplate";
 import { RPGDialogueLogic } from "./RPGDialogueLogic";
+import type axios from "axios";
 
 /**
  * Identifiyer for any type of question + answers in a named set.
@@ -129,4 +130,8 @@ export interface SequenceMatchingRule {
   npcName: string;
   nodeName: string;
   callback: Function;
+}
+
+export interface IGlobalLibs {
+  axios: typeof axios;
 }

@@ -12,7 +12,7 @@ import { gup } from "./gup";
 import { detectDarkMode } from "./detectDarkMode";
 import { KeyHandler, MouseHandler, PBParams, PlotBoilerplate, XYDimension } from "plotboilerplate";
 import { RPGDialogueLogic } from "./RPGDialogueLogic";
-import { IDialogueConfig, IDialogueListener, IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
+import { IDialogueConfig, IDialogueListener, IGlobalLibs, IMiniQuestionaire, IMiniQuestionaireWithPosition } from "./interfaces";
 import { EditorHelper } from "./editorHelpers";
 import { EditorRenderer } from "./editorRenderer";
 import { TouchHandler } from "./TouchHandler";
@@ -29,7 +29,7 @@ export class Editor {
   dialogConfig: IDialogueConfig<IMiniQuestionaireWithPosition> | null;
   pb: PlotBoilerplate;
   private autosaveTimer: NodeJS.Timer;
-  constructor(dialogueConfigJSONPath: string, isRecoveryFromLocalStorageActive: boolean) {
+  constructor(dialogueConfigJSONPath: string, isRecoveryFromLocalStorageActive: boolean, globalLibs: IGlobalLibs) {
     const _self = this;
     console.log("Initializing plotboilerplate");
     // Fetch the GET params
@@ -119,10 +119,10 @@ export class Editor {
         })
         .catch(() => {
           console.debug("Loading from localstorage failed. Falling back loading from specified path.");
-          _self.tryLoadFromJSON(dialogueConfigJSONPath);
+          _self.tryLoadFromJSON(dialogueConfigJSONPath, globalLibs);
         });
     } else {
-      _self.tryLoadFromJSON(dialogueConfigJSONPath);
+      _self.tryLoadFromJSON(dialogueConfigJSONPath, globalLibs);
     }
 
     // Install DnD with FileDrop
@@ -283,7 +283,7 @@ export class Editor {
     // Check if all graph nodes have positions to render.
     this.dialogConfig = this.editorHelpers.enrichPositions(config);
     this.editorHelpers.enrichMetaData(this.dialogConfig);
-    console.log("Enriched meta data", this.dialogConfig);
+    // console.debug("Enriched meta data", this.dialogConfig);
     this.editorHelpers.setDialogConfig(this.dialogConfig);
 
     // Ad DnD support for boxes.
@@ -309,10 +309,10 @@ export class Editor {
     globalThis.localStorage.setItem("__rpgeditor.dialogueconfig", jsonString);
   }
 
-  private tryLoadFromJSON(dialogueConfigJSONPath: string) {
+  private tryLoadFromJSON(dialogueConfigJSONPath: string, globalLibs: IGlobalLibs) {
     const _self = this;
-    RPGDialogueLogic.loadConfigFromJSON(dialogueConfigJSONPath).then((config: IDialogueConfig<IMiniQuestionaire>) => {
-      console.log("structure", config);
+    RPGDialogueLogic.loadConfigFromJSON(dialogueConfigJSONPath, globalLibs).then((config: IDialogueConfig<IMiniQuestionaire>) => {
+      console.debug("structure", config);
       _self.handleDialogConfigLoaded(config);
     });
   }

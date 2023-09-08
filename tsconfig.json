@@ -1,27 +1,20 @@
 {
     "compilerOptions": {
-        "outDir": "./dist/cjs/",
-		"lib": [ "es2015", "dom", "es2021" ],
-		
-        "module": "CommonJS",
-        "target": "ES5",
-
-		"sourceMap": true,
-		"declaration": true,
-
-		"allowJs": false,
-
-		"esModuleInterop" : true,
-
-		"forceConsistentCasingInFileNames": true,
-		"noImplicitReturns": false,
-		"noImplicitThis": false,
-		"noImplicitAny": false,
-		"strictNullChecks": false,
-		"noUnusedLocals": false,
-		"noUnusedParameters": false
+      "moduleResolution": "node",
+      "module": "commonjs",
+      // "module": "ES2015",
+      "target": "es5",
+      "lib": [ "es2015", "dom" ],
+      "outDir": "dist/lib-cjs",
+      "allowSyntheticDefaultImports": true,
+      "forceConsistentCasingInFileNames": true,
+      "sourceMap": true,
+      "declaration": true,
+      "jsx": "react"
     },
-    "include": ["./src/ts/**/*.ts"],
-    "exclude": ["./dist", "./tmp", "./src/js", "./src/vanilla", "./npm-package", "./demos", "./node_modules/**"],
-    "removeComments": false
-}
+    "files": [
+      "./src/ts/index.ts"
+    ],
+    "compileOnSave": false,
+    "buildOnSave": false
+  }
