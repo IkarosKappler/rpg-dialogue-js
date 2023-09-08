@@ -1,4 +1,4 @@
-# rpg-dialogue
+# rpg-dialogue-js
 
 A simple RPG non-linear dialogue engine.
 
