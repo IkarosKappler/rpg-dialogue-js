@@ -5,6 +5,7 @@
  *
  * @author   Ikaros Kappler
  * @date     2023-07-28
+ * @modified 2023-10-10 Removed function `cubicBezierArrow` as this is provided by the new version of plotboilerplate.
  * @version  1.0.0
  **/
 import { FontOptions, PlotBoilerplate, Vertex, XYCoords, XYDimension, drawutils } from "plotboilerplate";
@@ -201,6 +202,7 @@ export class EditorRenderer {
     const cA = zA.clone().addXY(50, 0);
     const cB = zB.clone().subXY(50, useAlternate ? -50 : 50);
 
+    /* 
     const isCanvas = this.pb.canvas instanceof HTMLCanvasElement;
     if (isCanvas) {
       // Maybe future versions of PlotBoilerplate support this for Canvas & SVG nodes
@@ -215,32 +217,22 @@ export class EditorRenderer {
     if (isCanvas) {
       (this.pb.draw as drawutils).ctx.setLineDash([0]);
     }
-  }
-
-  /**
-   * Draw a line and an arrow at the end (zB) of the given line with the specified (CSS-) color.
-   *
-   * @method arrow
-   * @param {Vertex} zA - The start point of the arrow-line.
-   * @param {Vertex} zB - The end point of the arrow-line.
-   * @param {string} color - Any valid CSS color string.
-   * @param {number=} lineWidth - (optional) The line width to use; default is 1.
-   * @return {void}
-   * @instance
-   * @memberof drawutils
-   **/
-  cubicBezierArrow(zA: Vertex, zB: Vertex, cA: Vertex, cB: Vertex, color: string, lineWidth?: number) {
-    var headlen: number = 8; // length of head in pixels
-    var vertices: Array<Vertex> = Vertex.utils
-      .buildArrowHead(cB, zB, headlen, 1.0, 1.0) // this.pb.draw.scale.x, this.pb.draw.scale.y);
-      .map((vertex: Vertex) => {
-        return vertex.scale(1.0 / this.pb.draw.scale.x, zB);
-      });
-    this.pb.draw.cubicBezier(zA, zB, cA, cB, color, lineWidth);
-    this.pb.fill.polyline(vertices, false, color, lineWidth);
-
-    // Draw bezier control lines?
-    // this.pb.draw.line(zA, cA, "grey", 1);
-    // this.pb.draw.line(zB, cB, "grey", 1);
+    */
+    this.pb.draw.cubicBezierArrow(
+      zA,
+      zB,
+      cA,
+      cB,
+      isHighlighted || isSelected ? "rgba(0,192,255,0.5)" : "rgba(255,192,0,0.5)",
+      2, // lineWidth
+      8, // headlength
+      isHighlighted
+        ? {
+            // strokeOptions
+            dashArray: [10, 6],
+            dashOffset: 0
+          }
+        : undefined
+    );
   }
 }

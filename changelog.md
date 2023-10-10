@@ -1,5 +1,9 @@
 # Changelog
 
+- 2023-10-10
+  - Renamed private method `Editor.showJSON` to `.requestShowJSON`.
+  - Installed the new version 1.21.0 of plotboilerplate.
+  - Removed function `EditorRenderer.cubicBezierArrow` as this is provided by the new version of plotboilerplate.
 - 2023-08-30
   - Adding a dialogue sequence logic to switch between several dialogues.
 - 2023-08-29
