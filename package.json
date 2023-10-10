@@ -12,8 +12,8 @@
     "compile-typescript-cjs": "tsc",
     "compile-typescript-esm": "tsc -m es6 --outDir dist/lib-esm",
     "compile-typescript": "npm run compile-typescript-cjs && npm run compile-typescript-esm",
-    "build": "npm run clean & npm run compile-typescript && npm run webpack",
-    "build-dev": "npm run compile-typescript-cjs && npm run webpack-dev",
+    "build": "npm run clean & npm run build-dev & npm run compile-typescript",
+    "build-dev": "npm run compile-typescript-cjs",
     "webpack-prod": "npx webpack --env=production --config webpack.config.js",
     "webpack-dev": "npx webpack --env=development --config webpack.config.js",
     "webpack": "npm run webpack-dev && npm run webpack-prod",
@@ -53,6 +53,6 @@
     "alloyfinger-typescript": "^0.1.19",
     "axios": "^1.4.0",
     "dat.gui": "^0.7.9",
-    "plotboilerplate": "^1.20.2"
+    "plotboilerplate": "^1.21.0"
   }
 }

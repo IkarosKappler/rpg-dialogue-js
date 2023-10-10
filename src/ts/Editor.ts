@@ -5,6 +5,7 @@
  *
  * @author   Ikaros Kappler
  * @date     2023-07-25
+ * @modified 2023-10-10 Renamed private method `showJSON` to `requestShowJSON`.
  * @version  1.0.0
  **/
 
@@ -63,7 +64,7 @@ export class Editor {
           backgroundColor: isDarkmode ? "#000000" : "#ffffff",
           enableMouse: true,
           enableKeys: true
-        },
+        } as any,
         GUP
       ) as PBParams
     );
@@ -143,7 +144,7 @@ export class Editor {
       if (!fileInput.files || fileInput.files.length === 0) {
         return;
       }
-      console.log("inputFile", fileInput.files[0]);
+      // console.log("inputFile", fileInput.files[0]);
       var reader = new FileReader();
       reader.onload = () => {
         const jsonText = reader.result as string;
@@ -158,7 +159,7 @@ export class Editor {
     });
 
     document.getElementById("b-new")?.addEventListener("click", _self.requestCreateNewGraph());
-    document.getElementById("b-show-json")?.addEventListener("click", _self.showJSON());
+    document.getElementById("b-show-json")?.addEventListener("click", _self.requestShowJSON());
     document.getElementById("b-goto-github")?.addEventListener("click", () => {
       window.open("https://github.com/IkarosKappler/rpg-dialogue", "_blank");
     });
@@ -212,7 +213,7 @@ export class Editor {
     this.handleDialogConfigLoaded(newConfig);
   }
 
-  private showJSON() {
+  private requestShowJSON() {
     const _self = this;
     return () => {
       const removePositions = _self.editorHelpers.domHelper.isExportWithoutPositions();

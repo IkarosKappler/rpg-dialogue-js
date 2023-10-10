@@ -5,6 +5,7 @@
  *
  * @author   Ikaros Kappler
  * @date     2023-07-25
+ * @modified 2023-10-10 Renamed private method `showJSON` to `requestShowJSON`.
  * @version  1.0.0
  **/
 import { MouseHandler, PlotBoilerplate } from "plotboilerplate";
@@ -25,7 +26,7 @@ export declare class Editor {
     private tryAutoSave;
     requestCreateNewGraph(): () => void;
     private performNewGraph;
-    private showJSON;
+    private requestShowJSON;
     /**
      * Open a modal and test the current dialogue config (runs a RPGDialogueLogic instant).
      */

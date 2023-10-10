@@ -6,6 +6,7 @@
  *
  * @author   Ikaros Kappler
  * @date     2023-07-25
+ * @modified 2023-10-10 Renamed private method `showJSON` to `requestShowJSON`.
  * @version  1.0.0
  **/
 Object.defineProperty(exports, "__esModule", { value: true });
@@ -127,7 +128,7 @@ var Editor = /** @class */ (function () {
             if (!fileInput.files || fileInput.files.length === 0) {
                 return;
             }
-            console.log("inputFile", fileInput.files[0]);
+            // console.log("inputFile", fileInput.files[0]);
             var reader = new FileReader();
             reader.onload = function () {
                 var jsonText = reader.result;
@@ -140,7 +141,7 @@ var Editor = /** @class */ (function () {
             _self.testCurrentDialogueConfig();
         });
         (_d = document.getElementById("b-new")) === null || _d === void 0 ? void 0 : _d.addEventListener("click", _self.requestCreateNewGraph());
-        (_e = document.getElementById("b-show-json")) === null || _e === void 0 ? void 0 : _e.addEventListener("click", _self.showJSON());
+        (_e = document.getElementById("b-show-json")) === null || _e === void 0 ? void 0 : _e.addEventListener("click", _self.requestShowJSON());
         (_f = document.getElementById("b-goto-github")) === null || _f === void 0 ? void 0 : _f.addEventListener("click", function () {
             window.open("https://github.com/IkarosKappler/rpg-dialogue", "_blank");
         });
@@ -189,7 +190,7 @@ var Editor = /** @class */ (function () {
         };
         this.handleDialogConfigLoaded(newConfig);
     };
-    Editor.prototype.showJSON = function () {
+    Editor.prototype.requestShowJSON = function () {
         var _self = this;
         return function () {
             var removePositions = _self.editorHelpers.domHelper.isExportWithoutPositions();
